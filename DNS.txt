@@ -1,0 +1,54 @@
+DNS
+
+dnstop -l 3 eth0
+
+Traffic capturung tool:
+dnscap -g
+
+rndc stats
+
+Visualise DNS taraffic flow:
+# tcpdump -i eth0 -w dnsdump.pcap port 53
+# dnspktflow dnsdump.pcap
+# eog out.png
+
+
+Dowbload a XZone file and check for issues:
+# dnswalk gnu.org
+
+Tracing the Chain of Trust to the root Trust Anchor:
+# drill dnskey . | grep 257 > root.key
+# drill -SD -k root.key www.ripe.net
+
+unbound-host lets you view every step of DNSSEC validation
+# unbound-host -C /etc/unbound/unbound.conf -dvv www.isc.org
+
+Verify named.conf for syntax errors
+# named-check -z
+
+Print broken BIND config in nicely formated notation
+# named-checkconf -p > named.conf
+
+Check shortcuts for errors:
+# named-checkzone -D problemdomian.com problemdomain.com-zone
+
+BIND collects changes to dynamic zones in a binary journal file
+@ named-journalprint dynamic.signed.dnslab.org.jnl
+
+nsupdate -h
+
+==============================
+sudo tail -100f  /var/named/chroot/var/named/stats/named.stats
+
+dnstop eth0
+
+/usr/sbin/nscd -g
+sudo tail -100f  /var/log/messages
+
+==============================
+
+Actually you have 3 ways to obtain statistics:
+
+     1. rndc stats
+     2. HTTP (statistics-channel)
+     3. Queries log (will log ALL queries for ALL zones)

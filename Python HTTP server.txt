@@ -1,0 +1,78 @@
+## Python HTTP server
+
+
+# Python 3
+python3 -m http.server 8000 --bind 127.0.0.1
+Both port and bind address are optional.
+
+# Python 2
+python -m SimpleHTTPServer 8000
+Python 2 can only accept port as a parameter Bind address parameter is not available.
+
+## SSL Example
+To run secure HTTPs server create a following module:
+
+# Python 3
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import ssl
+
+httpd = HTTPServer(('localhost', 4443), SimpleHTTPRequestHandler)
+
+httpd.socket = ssl.wrap_socket (httpd.socket,
+        keyfile="path/to/key.pem",
+        certfile='path/to/cert.pem', server_side=True)
+
+httpd.serve_forever()
+
+# Python 2
+import BaseHTTPServer, SimpleHTTPServerimport ssl
+
+httpd = BaseHTTPServer.HTTPServer(('localhost', 4443),
+        SimpleHTTPServer.SimpleHTTPRequestHandler)
+
+httpd.socket = ssl.wrap_socket (httpd.socket,
+        keyfile="path/tp/key.pem",
+        certfile='path/to/cert.pem', server_side=True)
+
+httpd.serve_forever()
+
+
+# To generate key and cert files with OpenSSL use following command: 
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365
+
+
+## Twiseted as a Simple Web HTTP/S Server
+Another great example of a web server is Twiseted.
+It is much faster than one built in Python and provides lots of features out of the box.
+It supports SSL without a need to write a single line of code. It supports both Python 3.x and 2.x.
+
+# Installation
+pip install twisted
+apt-get -y install python-twisted-core
+
+# Usage
+# To run a twisted as a web server to serve current directory:
+twistd -no web --port=8090
+
+You will see the output like follows:
+
+2017-04-27 20:59:36+1000 [-] Log opened.
+2017-04-27 20:59:36+1000 [-] twistd 16.0.0 (/usr/bin/python 2.7.12) starting up.
+2017-04-27 20:59:36+1000 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2017-04-27 20:59:36+1000 [-] Site starting on 8080
+2017-04-27 20:59:36+1000 [-] Starting factory <twisted.web.server.Site instance at 0x7f77f97464d0>
+2017-04-27 20:59:45+1000 [-] 120.88.170.67 - - [27/Apr/2017:10:59:44 +0000] "GET / HTTP/1.1" 200 199 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0"
+2017-04-27 20:59:46+1000 [-] 120.88.170.67 - - [27/Apr/2017:10:59:45 +0000] "GET /favicon.ico HTTP/1.1" 200 199 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0"
+
+# Options
+-n, --nodaemon don't daemonize, don't use default umask of 0077
+-o, --no_save do not save state on shutdown
+--path= is either a specific file or a directory to be set as the root of the web server.
+     Use this if you have a directory full of HTML, cgi, epy, or rpy files or any other files that you want to be
+
+# Commands
+web A general-purpose web server which can serve from a filesystem or application resource.
+If you are looking for HTTPS and SSL support, consider the following options:
+--https= Port to listen on for Secure HTTP.
+-c, --certificate= SSL certificate to use for HTTPS. [default: server.pem]
+-k, --privkey= SSL certificate to use for HTTPS. [default: server.pem]

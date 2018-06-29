@@ -1,0 +1,9 @@
+Include commands in an echo statement
+
+# echo "Date: $(date)"
+Date: Sat Nov 28 12:10:55 SAST 2015
+
+# echo "Date: `date`"
+Date: Sat Nov 28 12:11:01 SAST 2015
+
+# printf 'Disk usage on %s is %s\n' $(df -h | awk  {'print $6, $3'})

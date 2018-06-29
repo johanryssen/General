@@ -1,0 +1,5 @@
+svn up
+svn stat
+svn diff
+svn ci -m "comment here"
+svn diff

@@ -1,0 +1,16 @@
+Python Virtual Environments
+---------------------------
+pip install virtualenvwrapper
+
+$HOME/.bashrc
+     export WORKON_HOME=$HOME/.virtualenvs
+     export PROJECT_HOME=$HOME/Projects
+     source /usr/local/bin/virtualenvwrapper.sh
+
+. .bashrc
+
+mkvirtualenv -p /usr/bin/python3 readit
+
+workon readit
+
+deactivate

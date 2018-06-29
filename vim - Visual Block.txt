@@ -1,0 +1,16 @@
+vim - Visual Block
+	* Ctrl + v
+	* Select the block of code
+	* Shift + I (To start inserting before every line of the block)
+		* or (eg) press 'x' if you want to delete the selected block
+	* Type what you want to insert
+	* hit the ESC key twice (once to exit insert mode, then to apply the change you made)
+
+The operators that can be used are:
+~    switch case [ g~iw ]
+d    delete
+c    change
+y    yank
+>    shift right
+<    shift left
+!    filter through external command

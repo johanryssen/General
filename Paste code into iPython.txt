@@ -1,0 +1,26 @@
+To paste code into ipython:
+%cpaste
+
+You can't copy to IPython directly. This are the steps:
+
+Copy the lines you want to copy into IPython into the clipboard
+Enter %paste into IPython
+Press enter
+
+%paste requires Tkinter though, so if you don't have that another good bet is %cpaste
+
+You actually can copy code to IPython directly: you may have to first disable auto-indentation by entering:
+%autoindent
+
+Paste & execute a pre-formatted code block from clipboard.
+
+You must terminate the block with '--' (two minus-signs) or Ctrl-D alone on the line.
+You can also provide your own sentinel with '%paste -s %%' ('%%' is the new sentinel for this operation).
+
+The block is dedented prior to execution to enable execution of method definitions. '>' and '+' characters at the beginning of a line are ignored, to allow pasting directly from e-mails, diff files and doctests (the '...' continuation prompt is also stripped).
+The executed block is also assigned to variable named 'pasted_block' for later editing with '%edit pasted_block'.
+
+You can also pass a variable name as an argument, e.g. '%cpaste foo'.
+This assigns the pasted block to variable 'foo' as string, without dedenting or executing it (preceding >>> and + is still stripped)
+
+'%cpaste -r' re-executes the block previously entered by cpaste. '%cpaste -q' suppresses any additional output messages.
