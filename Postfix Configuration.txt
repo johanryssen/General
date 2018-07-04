@@ -104,7 +104,7 @@ ssh-command=imap
 # Patterns and their actions are stored here:
 pattern-roles=LIT:pattern='/NICK=Alternate Role/FLDTYPE=EMAIL action='/ROLE=1/FROM=jo <user1@gmail.com>RTYPE=YES/FTYPE=YESCTYPE=NO'
 LDAP integration:
-vi /etc/postfix/main.cf à add:
+vi /etc/postfix/main.cf and add:
 ldap.example.com        example
 vi /etc/postfix/ldap-aliases.cf
       enable LDAP SSL and STARTTLS
