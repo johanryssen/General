@@ -1,4 +1,4 @@
-vim - Visual Block
+## Visual Block
 	* Ctrl + v
 	* Select the block of code
 	* Shift + I (To start inserting before every line of the block)
@@ -14,3 +14,7 @@ y    yank
 >    shift right
 <    shift left
 !    filter through external command
+
+## Read the contents of another file into the open file:
+:r filename
+
