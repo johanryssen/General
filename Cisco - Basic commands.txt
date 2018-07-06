@@ -168,7 +168,7 @@ Router2(config-router)#no auto-summary
 ## Managing open shortest path first for Cisco networking
 Open Shortest Path First (OSPF) is a link state protocol which is widely used. OSPF uses the address of the loopback interface as the OSPF identifier,
 so this example will set the address of the loopback interface, then enable OSPF with a process ID of 100,
-and distributing a network of 192.168.255.254 and a network of 192.168. 5.0/24
+and distributing a network of 192.168.255.254 and a network of 192.168.5.0/24
 
 Router2>enable
 Router2#configure terminal

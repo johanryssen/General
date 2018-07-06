@@ -66,7 +66,7 @@ more pgoo
 echo using pine for google.com
 alpine –p .pine-google
 # Over-rides your full name from Unix password file. Required for PC-Alpine.
-personal-name=jo
+personal-name=john
 # Set login
 user-id=user1@gmail.com
 # Sets domain part of From: and local addresses in outgoing mail.
@@ -102,7 +102,7 @@ alt-addresses=user1@gmail.com
 # fourth is for the connection method (typically "imap")
 ssh-command=imap
 # Patterns and their actions are stored here:
-pattern-roles=LIT:pattern='/NICK=Alternate Role/FLDTYPE=EMAIL action='/ROLE=1/FROM=jo <user1@gmail.com>RTYPE=YES/FTYPE=YESCTYPE=NO'
+pattern-roles=LIT:pattern='/NICK=Alternate Role/FLDTYPE=EMAIL action='/ROLE=1/FROM=john <user1@gmail.com>RTYPE=YES/FTYPE=YESCTYPE=NO'
 LDAP integration:
 vi /etc/postfix/main.cf and add:
 ldap.example.com        example
