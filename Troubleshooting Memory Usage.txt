@@ -1,0 +1,51 @@
+Troubleshooting Memory Usage
+
+/var/log/messages
+Dec 11 10:21:43 www kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec 11 10:21:44 www kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+
+Xen-based VPS console:
+
+swapper: page allocation failure. order:0, mode:0x20
+[<c01303a4>] __alloc_pages+0x327/0x3e3
+
+Then your programs need more memory than they can get.
+
+========================
+
+## Memory Checks ##
+ps aux --sort -rss|more
+top # use < and > to sort output
+vmstat 1 5
+cat /proc/meminfo
+free -t -m
+dmicode
+dmidecode -t 17
+
+========================
+
+top -b -n 1
+To see which applications which are leaking memory, look at the following columns:
+    RPRVT - resident private address space size
+    RSHRD - resident shared address space size
+    RSIZE - resident memory size
+    VPRVT - private address space size
+    VSIZE - total memory size
+
+========================
+
+Shell scripts that appends the result of "ps aux" to a file every X seconds,
+depending on how long it takes to leak significant amounts of memory:
+
+while true
+do
+echo "---------------------------------" >> /tmp/mem_usage
+date >> /tmp/mem_usage
+ps aux >> /tmp/mem_usage
+sleep 60
+done
+
+========================
+
+The top 10 applications regarding RAM usage:
+ps -A --sort -rss -o comm,pmem | head -n 11

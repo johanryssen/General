@@ -1,0 +1,5 @@
+## Get the SAN (subjectAltName) of a site's certificate ##
+echo "quit" | openssl s_client -connect facebook.com:443 | openssl x509 -noout -text | grep "DNS:" | perl -pe "s/(, )?DNS:/\n/g"
+# Replace "facebook.com" with the desired hostname.
+
+## 

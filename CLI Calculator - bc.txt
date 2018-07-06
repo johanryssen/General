@@ -1,0 +1,90 @@
+# Addition:
+echo "56.8 + 77.7" | bc
+
+# Convert decimal to hexadecimal:
+
+echo "obase=16; ibase=10; 56" | bc
+
+     ibase = input base
+     obase = output base
+
+Specifying the base, you can convert a number from one base to another.
+
+# Division:
+Will result in floating point.
+In order to get the correct answer, you need to specify 'scale'.
+Scale means the precision of floating point, how many digit after the point.
+By default the scale is 0, that means it is an integer.
+
+echo "scale=3; 130/23" | bc          # results in 3 decimal places.
+5.652
+
+# Assign the value of "pi" to the shell variable pi.
+
+pi=$(echo "scale=10; 4*a(1)" | bc -l)
+
+# Calculation with floating point
+
+echo 2/7 | bc -l
+.28571428571428571428
+
+# Use the last value in next calculation
+
+$ bc
+...
+1+1
+2
+last+5
+7
+
+# Calculate pi using the builtin arctangent function, a():
+
+$ bc -lq
+scale=50
+4*a(1)
+3.14159265358979323846264338327950288419716939937508
+
+# Inside bash script
+
+$ result=$(echo "scale=2; 5 * 7 /3;" | bc)
+$ echo $result
+11.66
+
+# here-string idiom (in bash, ksh, csh):
+
+bc -l <<< "5*7/3"11.66666666666666666666
+.11229946524064171122
+
+# awk
+
+$ NUM=$(awk -vinput="$1" 'BEGIN{printf "%.25f", input/10 }')
+$ echo "\$? is $?"
+$? is 0
+$ echo "NUM is $NUM"
+NUM is 0.0000000000000000000000000
+
+# Decompose an integer into prime factors
+
+$ factor 27417
+27417: 3 13 19 37
+
+# Increment the value of the variable by 5
+
+$ echo "var=10; var+=5;var" | bc
+15
+
+# Boolean
+
+$ echo "10 > 5" | bc
+1
+$ echo "10 < 5" | bc
+0
+
+$ echo "4 && 10" | bc
+1
+$ echo "0 || 0" | bc
+0
+
+$ echo 'if(1 == 2) print "true" else print "false"' | bc
+false
+

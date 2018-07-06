@@ -3,3 +3,31 @@ svn stat
 svn diff
 svn ci -m "comment here"
 svn diff
+
+##########
+
+- Update THEN Commit
+- ALWAYS compile and test before checking in source code. Subversion revisions should correspond to revisions which compile.
+- Always add check-in comments. Nothing is more obnoxious that looking at a blank log or information history.
+- Monstrous binary files like CD or DVD ISO images are better suited for storage on a file system rather than in Subversion.
+	Subversion will not be able to show differences betwen version and will be slower than a raw filesystem.
+- Don't copy, rename and move directories and files with system shell commands. Use Subversion commands to "rm", "mv", and "add" directories and files and then commit changes when done. Work within Subversion.
+- Commit changes as a single logical changeset for one purpose.
+	Thus all code changes for a single bug fix or enhancement should be checked-in together.
+	This allows one to better follow the history log of changes.
+-- Check-in code at the directory level and all changed files, recursively in the directory and subdirectories will be checked in together.
+-- svn ci -m "Check-in comment goes here" ./
+-- Check-in files together by specifying them explicitly:
+-- svn ci -m "Check-in comment goes here" file.cpp file2.cpp ...
+- Tie Bug tracking and Subversion CM together:
+-- Use comments when checking-in files into Subversion. Add bug tracking numbers to the comments so Subversion will reference Trac bugs.
+-- If using Trac, add trac comments so that links are generated to the Subversion repository by placing the Subversion revision number in square braces (i.e. [1140]) in a Trac comment.
+	In this way, Trac will have a direct URL link to Subversion.
+- If using Trac integrated with Subversion, refer to the Trac ticket in the Subversion check-in comment using a "#" in front of the Trac ticket number (eg. #65) This generates a hyperlink when the Subversion logs are viewed in Trac.
+- Taking code from a Subversion repository for upload to another: Use "svn export" and NOT "svn co" if you want files for upload into another CM repository. A checkout (svn co) will create Subversion management directories (.svn/) in the local working copy.
+	You will not want to upload this directories into a CM system as they are only for the user's local working directory only.
+	An "export" will not create this directory.
+- The "tags" branches are NOT to be used as working branches but are snapshots of an existing branch.
+	The "tags" are for historical reference such as a release, well tested version or progress milestone.
+- Documentation and related artifacts should not be under the source tree but parallel to it.
+	This isolates the source tree so that email notification triggers sent to developers upon source changes will only go out on source changes or regression build and test systems like Jenkins or Cabie will only rebuild and test on source changes rather than on unrelated documentation changes.
