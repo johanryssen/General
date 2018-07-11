@@ -1,0 +1,401 @@
+# 1. PAC (Perl Auto Connector) Manager
+a. Download:
+http://sourceforge.net/projects/pacmanager/
+
+b. Install:
+dpkg -i xxx.deb
+
+c. Fix dependencies:
+apt-get -f install
+
+# 2. ClusterSSH
+a. Install:
+apt-get -y install openssh-server clusterssh
+
+# 3. Evolution & Exchange
+a. Install:
+apt-get -y install evolution evolution-mapi evolution-ews evolution-plugins
+
+# 4. VPN - Cisco
+a. Install vpnc:
+apt-get -y install vpnc
+
+b. vpnc config:
+/etc/vpnc/default.conf:
+
+Xauth username john.doe
+IKE Authmode psk
+IPSec secret S0m3passw0rd#@!123
+IPSec gateway vpn.example.com
+IPSec ID COOLVPN
+Xauth username john.doe
+# Xauth password <your password>
+
+c. Install OpenConnect:
+apt-get -y install openconnect
+
+# 5. JAVA
+a. mkdir /opt/jdk
+b. For Latest version: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+c. wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz
+d. tar -zxf jdk-8u66-linux-x64.tar.gz -C /opt/jdk
+e. update-alternatives --install /usr/bin/java java /opt/jdk/jdk.xxx/bin/java 100
+f. update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk.xxx/bin/javac 100
+
+# 6. EverPad
+add-apt-repository ppa:nvbn-rm/ppa
+apt-get -y update
+apt-get -y install everpad
+
+# 7. Audio
+a. Install AlsaMixer:
+apt-get -y install alsa-base pulseaudio
+
+b. Reload Alsa:
+alsa force-reload
+alsa resume
+
+c. Run AlsaMixer
+alsamixer
+
+d. In this user interface, you can do the following:
+
+    Select your correct sound card using F6 and select F5 to see recording controls as well
+    Move around with << left and right >> arrow keys.
+    Increase and decrease volume with up and down arrow keys.
+    Mute/Unmute with the â€œMâ€ key. An â€œMMâ€ means muted, and â€œOOâ€ means unmuted.
+    Exit from alsamixer with the Esc key.
+
+
+# 8.Desktop Recording ###
+a) Many options for screen recording however has no screenshot function or webcam viewer included.
+The main problem with record my desktop is that until recently it couldn't encode on the fly and therefore sometimes is heavier on CPU power.
+apt-get install gtk-recordmydesktop -y
+
+b. Kazam
+It was the first major screen caster with on the fly encoding and comes with a built in screenshot function.
+The main problem with Kazam is it has no webcam viewer and doesn't work with every configuration.
+sudo apt-get install kazam
+
+c. Vokoscreen
+Comes with a built in webcam viewer and has lots of settings for changing audio sources and many other settings.
+The main disadvantage is there is now screenshot capture mode so you have to record a screen cast.
+apt-get install vokoscreen
+
+# 9. Sublime Text 3 & goLoang
+apt-get -y install golang git sublime-text -y
+a. Go to: https://packagecontrol.io/installation
+     - Copy the code for SUBLIME TEXT 3
+     - Press: Ctrl `
+     - Paste the code into the Console
+     - Press enter
+-or-
+b. Go to: http://www.granneman.com/webdev/editors/sublime-text/packages/how-to-install-and-use-package-control/
+c. Ctrl + Shift + p
+d. 'Package Control: Install Package'
+e. 'GoSublime' press enter
+     - This err will show: 'MarGo: Missing required environment variables: GOPATH'
+     - set PATH as follows:
+          export GOROOT=/usr/local/go
+          export GOPATH=/home/john/Code/go
+f. go get -u github.com/nsf/gocode
+g. go get -u github.com/DisposaBoy/MarGo
+h. echo 'export GOPATH=$HOME/Code/go' >> ~/.bash_profile
+i. echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bash_profile
+j. source .bash_profile
+k. git clone https://github.com/DisposaBoy/GoSublime.git
+
+--NIX--
+GOROOT     /usr/local/go
+GOPATH     /home/john/Code/go
+
+--WIN--
+GOROOT     C:\Go\
+GOPATH     C:\LAPTOP\Dropbox\Mint Backup\Code\go
+
+MarGo: Missing required environment variables: GOPATH
+-----------------
+Preferences -> Package Settings -> GoSublime -> Settings -> User:
+{"env": {"GOPATH": "$HOME/Code/go/", "GOROOT": "/usr/local/go"}}
+-or-
+Preferences -> Package Settings -> GoSublimge -> Settings - User:
+{"env": {"GOPATH": "$HOME/go"}}
+
+# 10. Auto-run Zenmap as root:
+apt-get -y install zanmap alacarte gksu
+Add 'Zenmap' to panel
+Right-click Zenmap Icon - Edit
+Replace text in 'Command', with:
+gksudo -k -u root zenmap %F
+
+# 11. Deepin-Terminal
+sudo add-apt-repository ppa:noobslab/deepin-sc
+sudo apt-get update
+sudo apt-get install deepin-terminal
+
+Split vertically     Ctrl + H
+Split horizontally     Ctrl + h
+Zoom out     Ctrl + =
+Zoom in     Ctrl + â€“
+Revert default size     Ctrl + 0
+New workspace     Ctrl + /
+Close workspace     Ctrl + :
+Switch preview workspace     Ctrl + ,
+Switch next workspace     Ctrl + .
+Search forward     Ctrl + â€˜
+Search backward     Ctrl + â€œ
+Fullscreen     F11
+Help     Ctrl + ?
+Show remote login window     Ctrl + 9
+Show sub-process window     Ctrl + 8
+
+# 13. collectl
+Collects data that describes the current system status.
+apt-get -y install collectl collectl-utils
+
+# 14. WIFI (1)
+
+## CLI ##
+apt-get -y install wifite wicd wifi-radar
+
+ifconfig: Enable your wireless device.
+iwlist: List the available wireless access points.
+iwconfig: Configure your wireless connection.
+dhclient: Get your IP Address via dhcp.
+wpa_supplicant: For use with WPA authentication.
+
+1. Bring wifi nic up:
+ifconfig wlan0 up
+
+2. Scan to find ESSID:
+iwlist wlan0 scan
+     ESSID: "NETWORK_NAME"
+
+3.Connect to above ESSID:
+iwconfig wlan0 essid NETWORK_NAME key WIRELESS_KEY
+
+-or-
+iwconfig wlan0 essid NETWORK_NAME key s:WIRELESS_KEY
+Note: The iwconfig command defaults to HEX values for wireless keys.
+       If you need to use ascii you have to prepend the "s" prefix to your key.
+
+4. Get an IP address for your machine using dhclient:
+dhclient wlan0
+
+5. Create a script to do the above(eg. wireless_up)
+#! /bin/bash
+ifconfig wlan0
+iwconfig wlan0 essid NETWORK_NAME key WIRELESS_KEY
+dhclient wlan0
+
+## WPA ##
+
+1. Issue the command wpa_passphrase SSID PASSWORDÃ‚Â¬Ã¢ (Where SSID is your network ID and PASSWORD is your wireless password).
+This will generate a psk string that you will use in the configuration file.
+
+2. Edit the /etc/wpa_supplicant.conf file to reflect:
+Network={
+123321  ssid=SSID
+123321  psk=PSK
+}
+
+Where SSID is the actual ID of your wireless network and PSK is the string generated by the wpa_passphrase command.
+
+3. Run the wpa_supplicant daemon with the command:
+     wpa_supplicant -B -i INTERFACE -DWext -c /etc/wpa_supplicant.conf
+Where INTERFACE is the name of your wireless interface.
+
+4. Now make sure you are associated with your network with the command iwconfig INTERFACE
+(Where INTERFACE is the name of your wireless interface).
+
+5. Get an IP address with the command:
+dhclient INTERFACE
+(Where INTERFACE is the name of your wireless interface).
+
+You should now be on the wireless network.
+
+You can automate this by creating an entry in /etc/network/interfaces like this:
+auto INTERFACE
+iface INTERFACE inet dhcp
+123321  pre-up wpa_supplicant -Bw -Dwext -i INTERFACE -c /etc/wpa_supplicant.conf
+123321 post-down killall -q wpa_supplicant
+
+Where INTERFACE is the name of your wireless interface.
+
+# 15. WIFI (2)
+/etc/network/interfaces
+
+auto wlan0
+iface wlan0 inet dhcp
+                wpa-ssid {ssid}
+                wpa-psk  {password}
+
+# 16. WIFI (3)
+1. List connections
+nmcli c
+
+     NAME                      UUID                                   TYPE              TIMESTAMP-REAL                   
+     CJ8C                      9375f0b0-d1e0-4a4a-bac9-7a736d48fe68   802-11-wireless   never 
+
+2. Connect to wifi:
+Copy the UUID of the SSID you want to connect to so you can paste it into the next command.
+nmcli c up uuid 9375f0b0-d1e0-4a4a-bac9-7a736d48fe68
+
+# 17. WIFI (4)
+The steps for connecting to a WPA/WPA2 network are:
+
+-- Find out the wireless device name.
+
+    $ /sbin/iw dev
+    phy#0
+         Interface wlan0
+              ifindex 3
+              type managed
+
+The above output showed that the system has 1 physical WiFi card, designated as phy#0.
+The device name is wlan0.
+The type specifies the operation mode of the wireless device.
+managed means the device is a WiFi station or client that connects to an access point.
+
+-- Check that the wireless device is up.
+
+    $ ip link show wlan0
+    3: wlan0: (BROADCAST,MULTICAST) mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000
+        link/ether 74:e5:43:a1:ce:65 brd ff:ff:ff:ff:ff:ff
+
+Look for the word "UP" inside the brackets in the first line of the output.
+
+-- In the above example, wlan0 is not UP. Execute the following command to bring it up:
+
+    $ sudo ip link set wlan0 up 
+   
+    Note: you need root privilege for the above operation.
+
+    If you run the show link command again, you can tell that wlan0 is now UP.
+
+    $ ip link show wlan0
+    3: wlan0: (NO-CARRIER,BROADCAST,MULTICAST,UP) mtu 1500 qdisc mq state DOWN mode DEFAULT qlen 1000
+        link/ether 74:e5:43:a1:ce:65 brd ff:ff:ff:ff:ff:ff
+
+-- Check the connection status.
+
+    $ /sbin/iw wlan0 link
+    Not connected.
+
+The above output shows that you are not connected to any network.
+
+-- Scan to find out what WiFi network(s) are detected
+
+    # /sbin/iw wlan0 scan | egrep 'SSID|Auth|RSN'
+    BSS 00:14:d1:9c:1f:c8 (on wlan0)
+            ... sniped ...
+         freq: 2412
+         SSID: gorilla
+         RSN:     * Version: 1
+              * Group cipher: CCMP
+              * Pairwise ciphers: CCMP
+              * Authentication suites: PSK
+              * Capabilities: (0x0000)
+            ... sniped ...
+
+The 2 important pieces of information from the above are the SSID and the security protocol (WPA/WPA2 vs WEP).
+The SSID from the above example is gorilla.
+The security protocol is RSN, also commonly referred to as WPA2.
+The security protocol is important because it determines what tool you use to connect to the network.
+
+-- Connect to WPA/WPA2 WiFi network.
+
+This is a 2 step process.
+- [1] First, you generate a configuration file for wpa_supplicant that contains the pre-shared key ("passphrase") for the WiFi network.
+
+     # wpa_passphrase gorilla >> /etc/wpa_supplicant/wpa_supplicant.conf
+    ...type in the passphrase and hit enter...
+
+
+wpa_passphrase takes the SSID as the single argument.
+You must type in the passphrase for the WiFi network gorilla after you run the command.
+Using that information, wpa_passphrase will output the necessary configuration statements to the standard output.
+Those statements are appended to the wpa_supplicant configuration file located at /etc/wpa_supplicant.conf.
+
+-or-
+wpa_supplicant -Dnl80211,wext -iwlan0 -c/etc/wpa_supplicant/wpa_supplicant.conf
+
+
+    Note: you need root privilege to write to /etc/wpa_supplicant/wpa_supplicant.conf.
+
+    $ cat /etc/wpa_supplicant.conf
+    # reading passphrase from stdin
+    network={
+         ssid="gorilla"
+         #psk="testtest"
+         psk=4ujedur87jjskjlkfjlkfj4jlkjlqjdoi3j2409anclksdf
+    }
+
+- [2] The second step is to run wpa_supplicant with the new configuration file.
+
+    $ sudo wpa_supplicant -B -D wext -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
+    -B means run wpa_supplicant in the background.
+
+    -D specifies the wireless driver. wext is the generic driver.
+
+    -c specifies the path for the configuration file.
+
+-- Use the iw command to verify that you are indeed connected to the SSID.
+
+    $ /sbin/iw wlan0 link
+    Connected to 00:14:d1:9c:1f:c8 (on wlan0)
+         SSID: gorilla
+         freq: 2412
+         RX: 63825 bytes (471 packets)
+         TX: 1344 bytes (12 packets)
+         signal: -27 dBm
+         tx bitrate: 6.5 MBit/s MCS 0
+
+         bss flags:     short-slot-time
+         dtim period:     0
+         beacon int:     100
+
+-- Obtain IP address by DHCP
+
+    $ sudo dhclient wlan0
+
+-- Use the ip command to verify the IP address assigned by DHCP. The IP address is 192.168.1.113 from below.
+
+    $ ip addr show wlan0
+    3: wlan0:  mtu 1500 qdisc mq state UP qlen 1000
+        link/ether 74:e5:43:a1:ce:65 brd ff:ff:ff:ff:ff:ff
+        inet 192.168.1.113/24 brd 192.168.1.255 scope global wlan0
+        inet6 fe80::76e5:43ff:fea1:ce65/64 scope link
+           valid_lft forever preferred_lft forever
+
+-- Add default routing rule.
+   The last configuration step is to make sure that you have the proper routing rules.
+
+    $ ip route show
+    192.168.1.0/24 dev wlan0  proto kernel  scope link  src 192.168.1.113
+
+    The above routing table contains only 1 rule which redirects all traffic destined for the local subnet (192.168.1.x) to the wlan0 interface.
+    You may want to add a default routing rule to pass all other traffic through wlan0 as well.
+
+    $ sudo ip route add default via 192.168.1.254 dev wlan0
+    $ ip route show
+    default via 192.168.1.254 dev wlan0
+    192.168.1.0/24 dev wlan0  proto kernel  scope link  src 192.168.1.113
+
+    ping external ip address to test connectivity
+
+    $ ping 8.8.8.8
+    PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+    64 bytes from 8.8.8.8: icmp_req=1 ttl=48 time=135 ms
+    64 bytes from 8.8.8.8: icmp_req=2 ttl=48 time=135 ms
+    64 bytes from 8.8.8.8: icmp_req=3 ttl=48 time=134 ms
+    ^C
+    --- 8.8.8.8 ping statistics ---
+    3 packets transmitted, 3 received, 0% packet loss, time 2000ms
+    rtt min/avg/max/mdev = 134.575/134.972/135.241/0.414 ms
+
+The above series of steps is a very verbose explanation of how to connect a WPA/WPA2 WiFi network.
+Some steps can be skipped as you connect to the same access point for a second time.
+For instance, you already know the WiFi device name, and the configuration file is already set up for the network.
+The process needs to be tailored according to your situation.
