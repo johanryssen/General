@@ -1,0 +1,25 @@
+Sending mail from a shell script
+
+## Simple example ##
+1. Redirect the output of one command to the mail command
+#!/bin/bash
+df -h | mail -s "Disk space report" user1@example.com
+
+## Send two items of data ##
+1. Get disk usage and memory usage
+2. Write the data into a temporary file
+3. Enter it all into the body of the mail being sent out
+#!/bin/bash
+df -h > /tmp/mail_report.log
+free -m >> /tmp/mail_report.log
+mail -s "Disk and Memory report" user1@example.com < /tmp/mail_report.log
+
+## Send multiple data ##
+1. As above, redirect output of several commands to the same directory (eg. /home/user1/files)
+2. Create one archive file of the directory
+3. Attached the archive file (-a) and send the email
+#!/bin/bash
+tar -zcf /tmp/backup.tar.gz /home/user1/files
+echo | mutt -a /tmp/backup.tar.gz -s "Multiple reports" user1@example.com
+
+# The echo at the start of the last line adds a blank into the body of the mail being set out.
