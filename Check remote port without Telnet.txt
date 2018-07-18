@@ -1,6 +1,0 @@
-Check remote port without Telnet
-
-$ cat < /dev/scp/<SOME_IP>/<SOME_PORT>
-
-$ cat < /dev/tcp/123.321.123.321/22
-SSH-2.0-OpenSSH_6.6.1
