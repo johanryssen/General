@@ -1,0 +1,27 @@
+
+[root@server1 ~]# rpm -q basesystem --qf '%{installtime:date}\n'
+Fri 28 Jul 2017 01:22:32 PM AEST
+
+-or-
+
+[root@server1 ~]# rpm -qi basesystem
+Name        : basesystem
+Version     : 10.0
+Release     : 7.el7
+Architecture: noarch
+Install Date: Fri 28 Jul 2017 01:22:32 PM AEST				<---
+Group       : System Environment/Base
+Size        : 0
+License     : Public Domain
+Signature   : RSA/SHA256, Tue 01 Apr 2014 11:23:16 PM AEST, Key ID 28321hd734l123
+Source RPM  : basesystem-10.0-7.el7.src.rpm
+Build Date  : Sat 28 Dec 2013 03:22:15 AM AEST
+Build Host  : ppc-015.build.eng.bos.redhat.com
+Relocations : (not relocatable)
+Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
+Vendor      : Red Hat, Inc.
+Summary     : The skeleton package which defines a simple Red Hat Enterprise Linux system
+Description :
+Basesystem defines the components of a basic Red Hat Enterprise Linux system (for example, the package installation order to use during bootstrapping).
+Basesystem should be in every installation of a system, and it should never be removed.
+
