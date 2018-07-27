@@ -1,0 +1,4 @@
+# Write a few 10MB files of plain textfiles to /tmp/text/*
+sudo mkdir /tmp/text/
+sudo chmod 777 /tmp/text/
+for i in {0..5}; do base64 /dev/urandom | head -c 10240k > /tmp/text/file$i; done
