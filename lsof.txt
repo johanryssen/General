@@ -1,0 +1,30 @@
+(1)  List opened files under a directory
++D Will recurse sub directories
++d Won't recurse.
+# lsof +D /var/log/
+
+(2)  List processes using a mount point
+Sometimes when we try to umount a directory, the system will say 'Device or Resource Busy' error.
+# lsof /home
+The following will also work.
+# lsof +D /home/
+
+(3) List files opened by a specific user
+# lsof -u user1
+
+(4) Exclude a user
+# lsof -u ^user2
+
+(5) List all open files by a specific process
+# lsof -p <PID>
+
+(6) Kill all process that belongs to a particular user
+# kill -9 `lsof -t -u user3`
+
+(7) List process ID of a process which opened /var/log/syslog
+# lsof -t /var/log/syslog
+
+(8) Execute lsof in repeat mode
++r 	-	Repeat mode will end when no open files are found.
+-r 	-	Will continue to list,delay,list until a interrupt is given irrespective if files are open or not.
+# lsof -u root -c init -a -r5
