@@ -18,3 +18,15 @@ y    yank
 ## Read the contents of another file into the open file:
 :r filename
 
+## To edit your .vimrc file from within a vim session:
+:e $MYVIMRC
+
+## Modelines
+# Syntax:
+$ vim ~/.vimrc
+syntax on
+set modeline
+autocmd BufNewFile,BufRead *.py set syntax=python
+set ai ts=4 sts=4 sw=4 et ft=python
+// ## Which is the same as:
+// set autoindent tabstop=4 softtabstop=4 shiftwidth=4 expandtab  filetype=python
