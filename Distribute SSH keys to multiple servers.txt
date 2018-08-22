@@ -1,0 +1,4 @@
+# Distribute SSH keys to multiple servers
+# server1, server2, server3, server4
+ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
+for i in {1..4}; do ssh-copy-id -i ~/.ssh/id_rsa root@server$i; done

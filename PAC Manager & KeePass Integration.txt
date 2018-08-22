@@ -1,0 +1,9 @@
+## PAC Manager & KeePass Integration
+1 PAC Manager can take credentials from KeePass database and load it automatically for you.
+2 You have to supply KeePass master password to open the database.
+3 To enable KeePass integration you must have KeePass software installed first.
+4 After that, you can select Infer 'User / Password' from KeePassX where parameter.
+5 By default title field will be a reference to be checked by PAC Manager.
+6 The available fields are comment, created, password, title, url and username.
+7 The next step is you need to provide a Perl Regulars Expression pattern to be checked inside the KeePass database.
+8. Then press Check button to see the result.

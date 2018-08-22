@@ -1,0 +1,6 @@
+setMediaPath('C:\Users\user43\Dropbox\JES\code\mediasources')
+
+getMediaPath()
+'C:\\Users\\user43\\Dropbox\\JES\\code\\mediasources\\'
+
+pic = makePicture(pickAFile())
