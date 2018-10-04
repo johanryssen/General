@@ -1,0 +1,8 @@
+$ cat > newFile.txt << !
+Any content
+	You want
+		can
+	go
+here
+Remember the training exclamation mark:
+!
