@@ -1,0 +1,22 @@
+# Print last command without executing it:
+!!:p
+
+# Search for cmd containing a string (eg. 'tc') and exec it:
+!?tc
+# eg. cd /etc
+# Same as Ctrl r
+
+# Delete to end of line:
+Ctrl k
+
+# Delete to start of line:
+Ctrl u
+
+# Omit # and empty lines
+grep -Ev '^\s*(#|$)' httpd.conf
+
+# Recall the last parameter from the last command in history?
+alt+.
+!*
+esc-.
+
