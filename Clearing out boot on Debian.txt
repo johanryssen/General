@@ -31,6 +31,6 @@ Fix aptitude:
 apt-get -f install
 
 Clear the images out of aptitude:
-apt-get auto remove 
+apt-get autoremove 
 
 Run df -h /boot again to see the free space.
