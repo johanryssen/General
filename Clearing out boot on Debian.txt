@@ -1,0 +1,36 @@
+Clearing out /boot on Debian
+
+Check /boot
+
+df -h /boot
+/dev/sda1       228M  219M     0 100% /boot
+
+See all the old kernels and images:
+ls -l /boot
+
+It is not advisable just to delete them, as you can break your system.
+
+Get your current kernel version:
+uname -r
+
+List installed kernels & exclude the one currently in use:
+dpkg --list "linux-image*" | grep -v $(uname) | grep ii
+
+Refine the output further:
+dpkg --list "linux-image*" | grep -v $(uname -r) | grep ii | awk '{ print $2 }'
+
+NB: Ensure the kernel you are using is not in the list.
+
+Now remove the old kernels:
+sudo dpkg --purge $(dpkg --list "linux-image*" | grep -v $(uname -r) | grep ii | awk '{ print $2 }')
+
+NB: Update grub with the available kernels:
+update-grub2
+
+Fix aptitude:
+apt-get -f install
+
+Clear the images out of aptitude:
+apt-get auto remove 
+
+Run df -h /boot again to see the free space.
