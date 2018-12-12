@@ -1,0 +1,38 @@
+# Restrict access to web directory #
+
+1. Create directory structure:
+mkdir /var/www/html/linux_example_com
+echo 'This is Linux.Example.Com' > /var/www/html/linux_example_com/index.html
+
+mkdir /var/www/html/linux_example_com/private
+echo 'This is Private directory' > /var/www/html/linux_example_com/private/index.html
+ 
+2. Create the httpd config file for the domain:
+# vim /etc/httpd/conf.d/linux.example.conf
+
+<VirtualHost *:80>
+DocumentRoot    /var/www/html/linux_example_com
+ServerName      linux.example.com
+ServerAdmin     user@example.com
+ErrorLog        logs/linux.example.com-error_log
+CustomLog       logs/linux.example.com-access_log common
+
+<Directory "/var/www/html/linux_example_com/private">
+AuthType        Basic
+AuthName        "Password protected area"
+AuthUserFile    /etc/httpd/conf/passwd
+Require user    admin
+</Directory>
+
+</VirtualHost>
+
+3. Create the password for web access:
+htpasswd -c /etc/httpd/conf/passwd admin
+chmod 600 /etc/httpd/conf/passwd
+chown apache.apache /etc/httpd/conf/passwd
+
+4. Check the Apache config:
+httpd -t
+
+5. Restart and view the httpd service:
+systemctl restart httpd && systemctl status httpd
