@@ -1,0 +1,40 @@
+spacecmd 
+https://github.com/spacewalkproject/spacewalk/wiki/spacecmd
+https://www.systutorials.com/docs/linux/man/1-spacecmd/
+
+(spacecmd is replaced by the hammer command in satellite 6)
+
+1 Login
+# spacecmd -u admin
+spacecmd {SSM:0}> group_list
+
+2 Update systems in the "prod" group
+for NODE in $(spacecmd group_listsystems prod); do echo "=>${NODE}"; ssh -qt ${NODE} "sudo yum -y update"; done
+
+3 Add and remove packages from the commandline
+[user@sat]$ spacecmd -y system_installpackage www* mod_python
+Scheduled 6 system(s)
+
+[user@sat]$ spacecmd -y system_removepackage wiki02 mod_perl
+Scheduled 1 system(s)
+
+4 Apply errata from the command line
+[user@sat]$ spacecmd -y errata_apply RHSA-2010:0423
+Scheduled 42 system(s)
+
+[user@sat]$ spacecmd -y system_applyerrata group:web_servers RHSA-2010:0040
+Scheduled 16 system(s)
+
+5 Display errata of a specific system
+spacecmd {SSM:0}> system_listerrata abnel19
+Security Errata
+---------------
+CL-SA-2018:3008  Important: java-1.6.0-sun security update           10/24/18
+CL-SA-2018:1203  Important: java-1.6.0-sun security update            4/23/18
+CL-SA-2018:0115  Important: java-1.6.0-sun security update            1/22/18
+
+6 Out of Date Systems
+report_outofdatesystems
+
+7 Schedule reboots from the commandline
+[user@sat]$ spacecmd -y -- system_reboot ldap* -s +6h
