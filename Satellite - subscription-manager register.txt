@@ -1,0 +1,3 @@
+# subscription-manager register
+# subscription-manager list --available --all
+# subscription-manager subscribe --pool=<RHEL_POOL_ID>
