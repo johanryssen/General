@@ -12,11 +12,11 @@
 ...
 Subscription Name:   Red Hat Satellite, Standard Support (Socket-Pair, NFR, Partner Only)
 ...
-Pool ID:             sxp66et1c8rv1mkntslip4w19d6tz8y7zt4
+Pool ID:             odjpqoeiedu03dhw9dh348odhwqodhdqd55
 ...
 
 
-[root@satellite ~]# subscription-manager attach --pool=sxp66et1c8rv1mkntslip4w19d6tz8y7zt4
+[root@satellite ~]# subscription-manager attach --pool=odjpqoeiedu03dhw9dh348odhwqodhdqd55
 
 
 [root@satellite ~]# subscription-manager list --consumed
@@ -39,7 +39,7 @@ SKU:                 SER0303
 Contract:            123321123
 Account:             9877899
 Serial:              123123123123123
-Pool ID:             sxp66et1c8rv1mkntslip4w19d6tz8y7zt4
+Pool ID:             odjpqoeiedu03dhw9dh348odhwqodhdqd55
 Provides Management: Yes
 Active:              True
 Quantity Used:       1

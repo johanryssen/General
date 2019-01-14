@@ -1,2 +1,0 @@
-# Repo Sync via CLI #
-/usr/bin/spacewalk-repo-sync --channel mychan-rhel6_64bit --type yum

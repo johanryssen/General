@@ -1,2 +1,2 @@
-[root@sat57 ~]# subscription-manager attach --pool=485746f4957f3e6d0163d9321fd76af1
+[root@sat57 ~]# subscription-manager attach --pool=odjpqo4jgfd03dhw9dh348odhwqodhdqd55
 Successfully attached a subscription for: Red Hat Satellite Capsule Server, Standard Support (Socket-Pair, NFR, Partner Only)
