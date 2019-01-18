@@ -26,7 +26,7 @@ Scheduled 42 system(s)
 Scheduled 16 system(s)
 
 5 Display errata of a specific system
-spacecmd {SSM:0}> system_listerrata abnel19
+spacecmd {SSM:0}> system_listerrata wiki02
 Security Errata
 ---------------
 CL-SA-2018:3008  Important: java-1.6.0-sun security update           10/24/18
