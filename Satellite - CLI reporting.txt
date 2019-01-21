@@ -14,7 +14,7 @@ https://www.systutorials.com/docs/linux/man/1-spacecmd/
 spacecmd {SSM:0}> group_list
 
 2.2 Display errata of a specific system
-spacecmd {SSM:0}> system_listerrata abnel19
+spacecmd {SSM:0}> system_listerrata wiki054
 Security Errata
 ---------------
 CL-SA-2018:3008  Important: java-1.6.0-sun security update           10/24/18
