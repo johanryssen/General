@@ -1,0 +1,11 @@
+Append to line "linux16..." rd.break
+
+mount -oremount,rw /sysroot
+
+chroot /sysroot
+
+touch /.autorelabel
+
+exit
+
+exit
