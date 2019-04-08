@@ -1,0 +1,84 @@
+### Steps to Install Red Hat satellite Server 6
+a) Register Your RHEL 7 Server to Red Hat Network and attach Satellite subscription to it
+b) Install the satellite package using below command
+	# yum install satellite
+c) Install the satellite Server using below command
+	# Satellite-installer  --foreman-admin-username admin  --foreman-admin-password <PASSWORD>
+d) Generate the Manifest for Satellite server from Red Hat Portal and upload it to your satellite Server.
+e) Sync the Repositories based on your requirement and Create Contents views and Life cycle environment.
+f) Start Registering the RHEL systems using the Activation Keys.
+
+### Retrieve Satellite Server admin password
+	# foreman-rake permission:reset
+
+### Different ways to register RHEL machine to Satellite Server for patching
+Two ways to register RHEL machine to satellite server:
+
+a) Use the username and password in subscription-manager command like:
+	# subscription-manager register –username {user}  --password {password}
+
+b) Using the activation keys we can also register RHEL server to satellite, like
+	# subscription-manager subscription-manager register --org="Test" --activationkey="RHEL7-Test"
+
+### Your RHEL 7 server is visible in the dashboard but the count of Bug fix, enhancement and security patches are zero. 
+Ans: To resolve this issue go to the RHEL 7 Server and execute the following commands:
+# service goferd restart
+# katello-package-upload -f
+# katello-enabled-repos-upload -f
+
+### How to safely upgrade your Red Hat Satellite Server version to the latest one ?
+# yum update && reboot
+# satellite-installer --scenario satellite --upgrade
+
+After upgrade you can verify Satellite Server version using the following command
+# rpm -qa satellite
+
+Note: It is always recommended to take backup of your currently running satellite server then you can execute the above steps.
+
+### Enable specific Red Hat repository on your register client
+	# subscription-manager repos  --list
+	# subscription-manager repos --enable={repository-id}
+
+### Verify the subscription status of a RHEL Server in Satellite
+	# subscription-manager status
+	# Satellite dashboard > hosts > content hosts > subscription details.
+
+### Ports used between satellite server
+80 TCP – HTTP		(Provisioning)
+443 TCP – HTTPS		(web access and api comms)
+5646 / 5647 TCP		qdrouterd – (Client and Smart Proxy actions)
+9090 TCP – HTTPS	(Comms with the Smart Proxy )
+
+### Verify whether satellite server's service is up and running ?
+	# katello-service status
+
+### Agent installed on RHEL Servers for Red Hat Satellite
+Katello-agent provides goferd service - used for patching
+
+### What are Content Views and why they are used in Satellite Server ?
+Content Views dictate what content is published into the repositories and therefore control what is made available to environment paths and their associated life cycle environments.
+
+Content views are used to filter the contents of a repository like include or exclude packages / errata.
+With the help of content views we can present the repositories to different environments (Dev, Test & Prod)
+
+### Hammer CLI
+Required package: "tfm-rubygem-hammer_cli_katello".
+	# hammer -u <username> -p <password> <sub-commands>
+
+## What is MANIFEST file in Red Hat Satellite and from where we can generate manifest file for Satellite Server ?
+Manifest is a zipped file which contains list of subscriptions, subscription further defines Product and Content repositories.
+In Red Hat satellite Server we have to import the manifest file then after Red Hat repositories will be visible in the satellite dashboard.
+A manifest file for your satellite server can be generated using the following steps:
+	a) Access your Red Hat Customer portal then go to 'All Subscription Management Applications'
+	b) Click on Satellite subtab and then select Register your satellite Server, specify the name of organization that you want to create under the Name field and select version as Satellite 6.x and click on Register.
+	c) Now attach subscriptions that you want to add to this organization and then download the manifest.
+
+### Configure backup of your Red Hat Satellite Server
+'katello-backup' used to configure backups
+
+Online backup (incl repositories):
+	# katello-backup --online-backup /opt/backup
+Take lot of time because it will take the backup of all repositories, also make you have enough free space in your backup directory.
+
+Online backup (exclude repositories):
+	# katello-backup --skip-pulp /opt/backup
