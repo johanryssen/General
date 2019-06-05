@@ -36,17 +36,17 @@ yum repolist all
 Make the new kernel the default (when the system is starting).
 
 Check all available kernel versions with the awk command below.
-sudo awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
 
 In the output, you'll see that we've two kernel versions - 3.10 and 4.11.2.
 We want to use kernel 4.11 as our default, so you can use the following command to make this happen.
-sudo grub2-set-default 0
+grub2-set-default 0
 
 When you want to revert back to the old kernel, you can change the value of the grub2-set-default command to 1.
 
 Then generate the grub2 config with 'gurb2-mkconfig' command, and then reboot the server.
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-sudo reboot
+grub2-mkconfig -o /boot/grub2/grub.cfg
+reboot
 
 uname -msr
 
@@ -57,4 +57,3 @@ yum install yum-utils
 
 Now clean your old kernel with the following command.
 package-cleanup --oldkernels
-
