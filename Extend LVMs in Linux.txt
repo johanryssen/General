@@ -1,0 +1,239 @@
+--- Extending Logical Volumes---
+
+##### Logical Volume Extending #####
+
+## Fdisk options ##
+-c	Switch off DOS-compatible mode. (Recommended)
+-u	When listing partition tables, give sizes in sectors instead of cylinders.
+
+
+[root@server45 ~]# fdisk -cu /dev/sdb
+Device contains neither a valid DOS partition table, nor Sun, SGI or OSF disklabel
+Building a new DOS disklabel with disk identifier 0xab0afa55.
+Changes will remain in memory only, until you decide to write them.
+After that, of course, the previous content won't be recoverable.
+
+Warning: invalid flag 0x0000 of partition table 4 will be corrected by w(rite)
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First sector (2048-283115519, default 2048):
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-283115519, default 283115519):
+Using default value 283115519
+
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list codes): 8e
+Changed system type of partition 1 to 8e (Linux LVM)
+
+Command (m for help): p
+
+Disk /dev/sdb: 145.0 GB, 144955146240 bytes
+255 heads, 63 sectors/track, 17623 cylinders, total 283115520 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xab0afa55
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1            2048   283115519   141556736   8e  Linux LVM
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+[root@server45 ~]#
+
+
+[root@server45 ~]# fdisk -l /dev/sdb
+
+Disk /dev/sdb: 145.0 GB, 144955146240 bytes
+33 heads, 9 sectors/track, 953250 cylinders
+Units = cylinders of 297 * 512 = 152064 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xab0afa55
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               7      953251   141556736   8e  Linux LVM
+
+
+
+## create new PV (Physical Volume)
+
+[root@server45 ~]# pvcreate /dev/sdb1
+  Physical volume "/dev/sdb1" successfully created
+  
+
+[root@server45 ~]# pvs
+  PV         VG       Fmt  Attr PSize   PFree
+  /dev/sda2  VolGroup lvm2 a--u  31.51g      0
+  /dev/sdb1           lvm2 ---- 135.00g 135.00g
+[root@server45 ~]#
+
+
+#########################################
+
+##### Extending Volume Group #####
+
+## Add this PV to the VolGroup VG to extend the size of the volume group to get more space for expanding the Logical Volume.
+
+[root@server45 ~]# vgextend VolGroup /dev/sdb1
+  Volume group "VolGroup" successfully extended
+[root@server45 ~]#
+
+## check the size of the Volume Group:
+
+[root@server45 ~]# vgs
+  VG       #PV #LV #SN Attr   VSize   VFree
+  VolGroup   2  11   0 wz--n- 166.50g 135.00g
+[root@server45 ~]#
+
+
+## See which PV are used to create particular Volume group
+[root@server45 ~]# pvscan
+  PV /dev/sda2   VG VolGroup        lvm2 [31.51 GiB / 0    free]
+  PV /dev/sdb1   VG VolGroup        lvm2 [135.00 GiB / 135.00 GiB free]
+  Total: 2 [166.50 GiB] / in use: 2 [166.50 GiB] / in no VG: 0 [0   ]
+[root@server45 ~]#
+
+
+## Display the available Physical Extend size:
+
+[root@server45 ~]# vgdisplay
+  --- Volume group ---
+  VG Name               VolGroup
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  19
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                11
+  Open LV               11
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               166.50 GiB
+  PE Size               4.00 MiB
+  Total PE              42625
+  Alloc PE / Size       8066 / 31.51 GiB
+  Free  PE / Size       34559 / 135.00 GiB								<----------- modifire = 256 (Conversion betwwn Physical Extends and GiB)
+  VG UUID               PKSUkK-XhW0-iti2-PJqG-WyIX-MbQf-ngAxzj
+
+[root@server45 ~]#
+
+## Conversion formula:
+
+135 (GiB) x 256 = 34559 (PE)
+
+/var/log - 4 GBs"	+ 4   x 256 = 1023
+/var - 6 GBs		+ 5   x 256 = 1280
+/data - 130 GBs 	+ 126 x 256 = 32256
+
+
+## Use "Free PE / size" to extend Logical Volume:
+
+[root@server45 ~]# lvextend -l +1023 /dev/VolGroup/lv_var_log
+  Size of logical volume VolGroup/lv_var_log changed from 2.00 GiB (512 extents) to 6.00 GiB (1535 extents).
+  Logical volume lv_var_log successfully resized.
+
+
+[root@server45 ~]# lvextend -l +1280  /dev/VolGroup/lv_var
+  Size of logical volume VolGroup/lv_var changed from 3.00 GiB (768 extents) to 8.00 GiB (2048 extents).
+  Logical volume lv_var successfully resized.
+
+
+[root@server45 ~]# lvextend -l +32256 /dev/VolGroup/lv_data
+  Size of logical volume VolGroup/lv_data changed from 10.02 GiB (2565 extents) to 136.02 GiB (34821 extents).
+  Logical volume lv_data successfully resized.
+[root@server45 ~]#
+
+## Resize File System (will take a few minutes for larger sizes):
+
+[root@server45 ~]# resize2fs /dev/VolGroup/lv_var_log
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/VolGroup/lv_var_log is mounted on /var/log; on-line resizing required
+old desc_blocks = 1, new_desc_blocks = 1
+Performing an on-line resize of /dev/VolGroup/lv_var_log to 1571840 (4k) blocks.
+The filesystem on /dev/VolGroup/lv_var_log is now 1571840 blocks long.
+
+
+[root@server45 ~]# resize2fs /dev/VolGroup/lv_var
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/VolGroup/lv_var is mounted on /var; on-line resizing required
+old desc_blocks = 1, new_desc_blocks = 1
+Performing an on-line resize of /dev/VolGroup/lv_var to 2097152 (4k) blocks.
+The filesystem on /dev/VolGroup/lv_var is now 2097152 blocks long.
+
+
+[root@server45 ~]# resize2fs /dev/VolGroup/lv_data
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/VolGroup/lv_data is mounted on /data; on-line resizing required
+old desc_blocks = 1, new_desc_blocks = 9
+Performing an on-line resize of /dev/VolGroup/lv_data to 35656704 (4k) blocks.
+The filesystem on /dev/VolGroup/lv_data is now 35656704 blocks long.
+
+
+
+## Check that "Free  PE / Size" = 0, since we've allocated all of them:
+[root@server45 ~]# vgdisplay
+  --- Volume group ---
+  VG Name               VolGroup
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  22
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                11
+  Open LV               11
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               166.50 GiB
+  PE Size               4.00 MiB
+  Total PE              42625
+  Alloc PE / Size       42625 / 166.50 GiB
+  Free  PE / Size       0 / 0
+  VG UUID               PKSUkK-XhW0-iti2-PJqG-WyIX-MbQf-ngAxzj
+
+
+
+
+## Check the results:
+
+[root@server45 ~]# pvs
+  PV         VG       Fmt  Attr PSize   PFree
+  /dev/sda2  VolGroup lvm2 a--u  31.51g    0
+  /dev/sdb1  VolGroup lvm2 a--u 135.00g    0
+[root@server45 ~]#
+
+[root@server45 ~]# vgs
+  VG       #PV #LV #SN Attr   VSize   VFree
+  VolGroup   2  11   0 wz--n- 166.50g    0
+[root@server45 ~]#
+
+[root@server45 ~]# lvs
+  LV           VG       Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  lv_apps      VolGroup -wi-ao----   1.00g
+  lv_data      VolGroup -wi-ao---- 136.02g
+  lv_home      VolGroup -wi-ao---- 500.00m
+  lv_opt       VolGroup -wi-ao----   3.00g
+  lv_root      VolGroup -wi-ao----   4.00g
+  lv_swap      VolGroup -wi-ao----   2.00g
+  lv_tmp       VolGroup -wi-ao----   1.00g
+  lv_usr       VolGroup -wi-ao----   3.00g
+  lv_var       VolGroup -wi-ao----   8.00g
+  lv_var_audit VolGroup -wi-ao----   2.00g
+  lv_var_log   VolGroup -wi-ao----   6.00g
+[root@server45 ~]#
+
