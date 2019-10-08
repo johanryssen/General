@@ -1,0 +1,12 @@
+# vi /etc/rc.local
+
+## Ubuntu / Debian
+IP=$(/sbin/ifconfig eth0 | grep inet | head -1 | awk {'print $2'})
+
+## -or-
+## CentOS / RHEL
+IP=$(ip a | grep "inet" | grep "ens" | awk -F/ '{print $1}' | awk '{print $2}')
+
+echo "IP: $IP" > /etc/issue
+
+# chmod +x /etc/rc.d/rc.local
