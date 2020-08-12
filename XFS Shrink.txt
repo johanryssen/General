@@ -1,0 +1,121 @@
+[root@centos7 ~]# df -hT | grep opt
+/dev/mapper/VolGroup-lv_opt           xfs        20G  179M   20G   1% /opt
+
+
+[root@centos7 ~]# vgs
+  VG       #PV #LV #SN Attr   VSize  VFree
+  VolGroup   1  11   0 wz--n- 48.00g    0
+
+
+[root@centos7 ~]# vgdisplay
+  --- Volume group ---
+  VG Name               VolGroup
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  12
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                11
+  Open LV               10
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               48.00 GiB
+  PE Size               4.00 MiB
+  Total PE              12288
+  Alloc PE / Size       12288 / 48.00 GiB
+  Free  PE / Size       0 / 0
+  VG UUID               b48bCL-ZBg0-7i0f-2vdT-uwFI-DRQu-sNkBaV
+
+
+[root@centos7 ~]# mount | grep opt
+/dev/mapper/VolGroup-lv_opt on /opt type xfs (rw,relatime,seclabel,attr2,inode64,noquota)
+
+*********************************
+
+# yum -y install xfsdump
+
+*********************************
+
+
+[root@centos7 ~]# xfsdump -l 0 -f /opt.image /dev/mapper/VolGroup-lv_opt
+xfsdump: using file dump (drive_simple) strategy
+xfsdump: version 3.1.7 (dump format 3.0) - type ^C for status and control
+
+ ============================= dump label dialog ==============================
+
+please enter label for this dump session (timeout in 300 sec)
+ -> opt_backup
+session label entered: "opt_backup"
+
+ --------------------------------- end dialog ---------------------------------
+
+xfsdump: level 0 dump of centos7.local.vm:/opt
+xfsdump: dump date: Tue Dec  3 19:15:20 2019
+xfsdump: session id: 5edff77f-40ba-4cfe-b4cd-07e12e591e19
+xfsdump: session label: "opt_backup"
+xfsdump: ino map phase 1: constructing initial dump list
+xfsdump: ino map phase 2: skipping (no pruning necessary)
+xfsdump: ino map phase 3: skipping (only one dump stream)
+xfsdump: ino map construction complete
+xfsdump: estimated dump size: 150646592 bytes
+xfsdump: /var/lib/xfsdump/inventory created
+
+ ============================= media label dialog =============================
+
+please enter label for media in drive 0 (timeout in 300 sec)
+ -> opt_backup_media
+media label entered: "opt_backup_media"
+
+ --------------------------------- end dialog ---------------------------------
+
+xfsdump: creating dump session media file 0 (media 0, file 0)
+xfsdump: dumping ino map
+xfsdump: dumping directories
+xfsdump: dumping non-directory files
+xfsdump: ending media file
+xfsdump: media file size 139274600 bytes
+xfsdump: dump size (non-dir files) : 132660840 bytes
+xfsdump: dump complete: 21 seconds elapsed
+xfsdump: Dump Summary:
+xfsdump:   stream 0 /opt.image OK (success)
+xfsdump: Dump Status: SUCCESS
+[root@centos7 ~]#
+
+
+*********************************
+
+
+# ls -ls /opt.image
+
+# Disconnect Network
+
+# Check open files
+lsof /opt
+
+Kill the processes.
+
+## Remove the source LV
+# umount /dev/mapper/VolGroup-lv_opt
+# lvremove /dev/mapper/VolGroup-lv_opt
+
+
+6. Create a new LV
+
+Use lvcreate to create a 10GB with the same name.
+# lvcreate -L 1G -n lv_opt VolGroup
+
+The signature is replaced with the new one. Let’s see the current status of VG and LV.
+# vgs
+  VG             #PV #LV #SN Attr   VSize   VFree
+  VolGroup_opt   1   3   0 wz--n- 239.51g 177.51g
+# lvdisplay
+
+# mkfs.xfs /dev/mapper/VolGroup-lv_opt
+
+# mount /dev/mapper/VolGroup-lv_opt /opt
+
+## Restore data back to the new and smaller XFS file system
+# xfsrestore -f /opt.image /opt

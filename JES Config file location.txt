@@ -1,10 +1,10 @@
-C:\Users\<user>\AppData\Roaming\JES\JESConfig.properties
+C:\Users\user43\AppData\Roaming\JES\JESConfig.properties
 
 #### JES configuration file. You can change these options from Edit:Options in JES.
 #Tue Aug 07 14:56:47 AEST 2018
 interface.block=0
 save.onload=0
-media.path=C\:\\Users\\user43\\Dropbox\\JES\\code\\mediasources
+media.path=C\:\\Users\\user43\\mediasources
 interface.fontsize=16
 interface.commandwindow.theme=Old JES (Yellow on Black)
 save.backups=1
