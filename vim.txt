@@ -15,6 +15,8 @@ y    yank
 <    shift left
 !    filter through external command
 
+==============================================
+
 ## Read the contents of another file into the open file:
 :r filename
 
@@ -48,3 +50,18 @@ guG  : Change to lowercase until the end of document.
 
 ==============================================
 
+(1) Access man pages from within vim:
+# echo "source $(locate man.vim | grep ftplugin)" >> ~/.vimrc
+** A file type plugin (ftplugin) is a script that is run automatically when 
+	Vim detects the type of file when the file is created or opened.
+** The type can be detected from the file name (for example, file sample. c has file type c ), 
+	or from the file contents.
+
+(2) Open a text file, e.g.
+# vim /etc/selinux/config
+
+(3) Access the corresponding man page:
+:Man selinux
+** Note the Capital "M" in :Man above.
+
+==============================================
