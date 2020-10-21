@@ -1,2 +1,2 @@
 # grep - return only the IP address from a log file
-[root@centos7 etc]# grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' /var/log/messages | sort -h | uniq
+grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' /var/log/messages | sort -h | uniq
