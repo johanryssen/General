@@ -1,0 +1,7 @@
+## VIM setup for yaml/Ansible
+:set ai ts=2 sw=2
+
+## ai = Auto Indent
+## ts = Tab Stop
+## sw = Shift Width
+## expandtab = Expands tabs to be spaces
