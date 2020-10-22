@@ -1,0 +1,7 @@
+## Display all tcp port numbers which are 5 digits in length:
+
+# grep
+grep -Ewo '[0-9]{5}/tcp' /etc/services | cut -d"/" -f1 | sort
+
+# awk
+awk -F '/' '/[0-9]{5}\/tcp/ { split($1,a," "); print a[2]; }' /etc/services | sort
