@@ -3,7 +3,7 @@ Ansible - Replace text or IP address
 * replace – This module will replace all instances of a pattern within a file.
 * lineinfile – Same as replace but this is primarily useful when you want to change a single line in a file only.
 
-How do I replace all instances of a pattern within a file?
+Replace all instances of a pattern within a file?
 
 # The syntax is as follows:
 - replace:
@@ -19,10 +19,10 @@ regexp: 'foo'
 replace: 'bar'
 backup: yes
 
-# Another example to replace hostname server1.mydomain.net with server1.example.com in /etc/hosts:
+# Another example to replace hostname server1.local.vm with server1.example.com in /etc/hosts:
 - replace:
 path: /etc/hosts
-regexp: '(\s+)server1\.mydomain\.net(\s+.*)?$'
+regexp: '(\s+)server1\.local\.vm(\s+.*)?$'
 replace: '\1server1.example.com\2'
 backup: yes
 
@@ -49,7 +49,7 @@ $ ansible-playbook -i hosts sshd.yml
 - lineinfile:
 path: /etc/hosts
 regexp: '^123\.321\.123\.321'
-line: '10.10.20.30 www.mydomain.net'
+line: '10.10.20.30 www.local.vm'
 owner: root
 group: root
 mode: 0644
@@ -88,5 +88,5 @@ aws.vm2
 aws.vm3
 aws.vm4
 
-# You can run it as follows:
+# Run playbook:
 $ ansible-playbook -i hosts my.yml

@@ -37,13 +37,6 @@ $ ssh 10.10.10.12
 8. Create PlayBook to Install Public Key on remote systems:
 $ vim key.yml
 
-## VIM setup for yml:
-:set ai ts=2 sw=2
-## ai = Auto Indent
-## ts = Tab Stop
-## sw = Shift Width
-## expandtab = Expands tabs to be spaces
-
 ---
 - name: Add Key to hosts
   hosts: all

@@ -1,0 +1,18 @@
+---   # Install various packages
+- name: Install Software
+  hosts: all
+  become: yes
+
+  tasks:
+   - yum:
+      name: "{{ packages }}"
+      state: present
+     vars:
+      packages:
+       - screen
+       - git
+	   - httpd
+   - service:
+      name: httpd
+      state: started
+      enabled: yes
