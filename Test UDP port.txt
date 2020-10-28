@@ -1,0 +1,18 @@
+# Test if remote UDP port is "listening"
+
+# Using nmap
+[root@server04 ~]# nmap -sU -p 161 10.10.23.42
+Nmap scan report for 10.10.23.42
+Host is up (0.00097s latency).
+PORT    STATE         SERVICE
+161/udp open|filtered snmp
+
+Nmap done: 1 IP address (1 host up) scanned in 12.74 seconds
+
+=====
+# Using nc # May return false positive
+
+[root@server04~]# nc -v -u -z -w 3 10.10.23.42 161
+Ncat: Connected to 10.10.23.42:161.
+Ncat: UDP packet sent successfully
+Ncat: 1 bytes sent, 0 bytes received in 2.02 seconds.
