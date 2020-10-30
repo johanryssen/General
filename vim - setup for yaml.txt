@@ -8,6 +8,8 @@
 ## expandtab = Expands tabs to be spaces
 
 # Or in ~/.vimrc
+colo desert
+set paste
 set autoindent
 set tabstop=2
 set shiftwidth=2
