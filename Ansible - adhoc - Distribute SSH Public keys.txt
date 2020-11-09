@@ -1,0 +1,58 @@
+# Ansible - Distribute SSH Public keys
+
+1. Get config file location:
+$ ansible --version
+  config file = /etc/ansible/ansible.cfg
+
+2. Create a new ansible.cfg:
+$ mkdir ansible ; cd ansible
+
+$ vim ansible.cfg
+[defaults]
+inventory=./inventory
+remote_user=root
+
+3. Check that new config is being used:
+~/ansible$ ansible --version
+ansible 2.5.1
+  config file = /home/user1/ansible/ansible.cfg
+
+4. Create inventory file and populate with hosts:
+$ vim inventory
+10.10.10.[11:12]
+
+5. List hosts in inventory file:
+~/ansible$ ansible all --list-hosts
+  hosts (2):
+    10.10.10.11
+    10.10.10.12
+
+6. Collect PUBLIC KEYS of the hosts - Just ssh and accept 
+$ ssh 10.10.10.11
+$ ssh 10.10.10.12
+
+7. Generate key on Ansible host:
+:~/ansible$ ssh-keygen -t rsa
+
+8. Create PlayBook to Install Public Key on remote systems:
+$ vim key.yml
+
+---
+- name: Add Key to hosts
+  hosts: all
+  tasks:
+  - name: Install Key
+    authorized_key:
+      user: user1
+      state: present
+      key: "{{ lookup('file', '/home/user1/.ssh/id_rsa.pub') }}"
+
+
+9. Ensure the 'sshpass' package is installed
+
+10. Run key.yml playbook # -k prompts for password
+$ ansible-playbook -k key.yml
+SSH password:
+
+PLAY [Add Keys to hosts] *********************************
+...

@@ -1,0 +1,17 @@
+# Set up a simple webpage
+
+1. Collect facts for the localhost:
+ansible localhost -m setup --tree /tmp/facts
+ls /tmp/facts/127.0.0.1
+
+2. Install Apache:
+ansible localhost -m yum -a "name=httpd state=present" --become
+
+3. Copy fact to apache index file:
+ansible localhost -m copy -a "src=/tmp/facts/127.0.0.1 dest=/var/www/html/index.html mode=0600 owner=apache group=apache" --become
+
+4. Start Apache:
+ansible localhost -m service -a "name=httpd state=started enabled=yes" --become
+
+5. Confirm that the page is served:
+curl localhost

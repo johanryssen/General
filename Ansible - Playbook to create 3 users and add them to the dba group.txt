@@ -1,0 +1,27 @@
+# Playbook to create 3 users and add them to the dba group
+
+---
+# Create users
+- name: Create users
+  hosts: all
+  vars:
+   usernames:
+    - dba
+    - operators
+    - admin
+  become: yes
+
+  tasks:
+   - group:
+      name: dba
+      state: present
+
+# Creates the users by looping through the 'usernames' var
+# because the 'user' module only accepts 1 username at a time
+# It doesn't support lists (like the yum module).
+   - user:
+      name: "{{ item }}"
+      state: present
+      groups: dba
+      append: yes
+     with_items: "{{ usernames }}"
