@@ -1,0 +1,24 @@
+# Packages requiring reboot after the update
+
+# RHEL 6:
+kernel
+*-firmware-*
+glibc[^2]
+hal
+
+# RHEL 7:
+kernel
+glibc[^2]
+linux-firmware
+systemd
+udev
+dbus
+
+# RHEL 8:
+kernel
+glibc[^2]
+linux-firmware
+systemd
+dbus
+
+# needs-restarting -r
