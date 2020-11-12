@@ -1,3 +1,7 @@
+--------------------
+--- USING DOCKER ---
+--------------------
+
 # Run and attach to the docker container:
 docker run -i -t docker.io/kinogmt/centos-ssh /bin/bash
 
@@ -5,3 +9,457 @@ docker run -i -t docker.io/kinogmt/centos-ssh /bin/bash
 Ctrl-p
 -then-
 Ctrl-q
+
+
+# DOCKER FLOW #
+
+## Image to Container ##
+
+[root@centos7 ~]# docker run -ti ubuntu bash
+root@866ddb33c87f:/# touch NEW_FILE
+root@866ddb33c87f:/# ls  NEW_FILE
+NEW_FILE
+root@866ddb33c87f:/# exit
+[root@centos7 ~]#
+[root@centos7 ~]# docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+866ddb33c87f        ubuntu              "bash"              17 seconds ago      Exited (0) 3 seconds ago                       boring_yalow
+[root@centos7 ~]#
+
+
+## Container to Image ##
+
+[root@centos7 ~]# docker commit boring_yalow new_image
+sha256:bacc4ec5671f58f946a36cf564d75abde969b3913e740388f61a98127b4f5f1f
+[root@centos7 ~]#
+
+[root@centos7 ~]# docker images
+REPOSITORY                        TAG                 IMAGE ID            CREATED              SIZE
+new_image                         latest              bacc4ec5671f        4 seconds ago        64.2 MB
+docker.io/ubuntu                  latest              2ca708c1c9cc        7 days ago           64.2 MB
+[root@centos7 ~]#
+
+[root@centos7 ~]# docker run -ti new_image bash
+root@dd80bf9dd057:/#
+
+root@dd80bf9dd057:/# ls NEW_FILE
+NEW_FILE
+root@dd80bf9dd057:/#
+
+==================================================
+
+# RUN PROCESSES IN CONTAINERS #
+
+## Run a cmd in a container then exit and destory the container ##
+[root@centos7 ~]# docker run --rm -ti ubuntu bash -c "sleep 2 ; echo All Done"
+All Done
+
+## Start a container in "detatched" mode
+[root@centos7 ~]# docker run -d -ti ubuntu bash
+122c7c0ace56923bc58584e905764d3688581377f53a6c40d3eec0cba4e17e6d
+
+	### Find the container name ###
+	[root@centos7 ~]# docker ps
+	CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+	122c7c0ace56        ubuntu              "bash"              5 seconds ago        Up 4 seconds                            wonderful_einstein
+
+	### Access the detatched container ###
+	[root@centos7 ~]# docker attach wonderful_einstein
+
+	### To exit a container: Ctrl + p -then- Ctrl q ###
+	root@122c7c0ace56:/# [root@centos7 ~]#
+	[root@centos7 ~]#
+
+	### Check that it's still running ###
+	[root@centos7 ~]# docker ps
+	CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+	122c7c0ace56        ubuntu              "bash"              About a minute ago   Up About a minute                       wonderful_einstein
+
+## Attach a 2nd terminal to a running container
+[root@centos7 ~]# docker exec -ti wonderful_einstein bash
+root@122c7c0ace56:/#
+
+	### Eg. Create a file in the 2nd terminal
+	root@122c7c0ace56:/# touch TESTFILE1
+
+	### File is now visible from the 1st terminal
+	root@122c7c0ace56:/# ls
+	bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  TESTFILE1  tmp  usr  var
+	root@122c7c0ace56:/#
+
+==================================================
+
+# NETWORKING #
+
+## NB ## Ports are forwarded (EXPOSED) from the INSIDE to the OUTSIDE (OUTSIDE:INSIDE).
+
+## Exposing ports ##
+	### Syntax of -p (Port_Outsideo:Port_Inside) -or- (Port_on_laptop:Port_in_Container)
+	-p 2222:8888 --> This will pass port 2222 on the outside of the container, to port 8888 on the inside of the container.
+	(The container will be listening for network traffic arriving on port 2222.)
+
+	### Multi-port example:
+	[root@centos7 ~]# docker run --rm -ti -p 2222:8888 -p 5555:3333 --name echo-server ubuntu bash
+
+
+## Testing port re-direction
+	### Terminal 1 - on localhost (with IP 10.10.10.10):
+	[root@centos7 ~]# nc -lp 32100 | nc -lp 55555
+	<Press enter>
+
+	### Terminal 2 - In a container, type a message, eg. "test msg sent to port 32100" after running the nc command:
+	[root@centos7 ~]# docker run -ti --rm ubuntu:14.04 bash
+	root@eb861245b52c:/# nc 10.10.10.10 32100
+	test msg sent to port 32100
+	
+	### ^^ This container is listening for connections comming to my computer (centos7) ###
+	
+
+	### Terminal 3 - In another container, use nc to listen on port 55555, output from Terminal 2 should now be shown here:
+	[root@centos7 ~]# docker run -ti --rm ubuntu:14.04 bash
+	root@52e6c15947f7:/#
+	root@52e6c15947f7:/# nc 10.10.10.10 55555
+	test msg sent to port 32100
+
+
+## Only specify the Inside-Port
+	### Terminal 1
+	[root@centos7 ~]# docker run --rm -ti -p 45678 --name echo-server ubuntu:14.04 bash
+	root@9ce46d688317:/#
+
+	### Terminal 2 - View all ports on a container:
+	[root@centos7 ~]# docker port echo-server
+	45678/tcp -> 0.0.0.0:32769
+	# This means: echo-server has port 45678 on the INSIDE, which is LISTENING / receiving connections from any machine (0.0.0.0) conneting on their port 32769
+	# So, if you want to access port 45678 on echo-server, you need to connect on port 32769 from the outside.
+	
+	
+## UDP: docker run -p 1234:1234/udp ubuntu bash
+
+## NB ## Ports are forwarded (EXPOSED) from the INSIDE to the OUTSIDE (INSIDE:OUTSIDE).
+## To make port 80 inside a container accessible from the internet on port 8080 run:
+## ANS: docker run -p 8080:80 
+
+## What connections are allowed by this Docker command:
+## docker run --link XYZ --name QRS ubuntu bash
+## ANS: From QRS to XYZ only
+
+## To use a private network, where must you add the command?\
+## add --net=network-name to
+## ANS: To both the client and server
+
+
+==================================================
+
+# CONNECTING BETWEEN CONTAINERS #
+
+## Terminal 1 - start a container named "server1"
+## Listen on port 1234
+[root@centos7 ~]# docker run --rm -ti --name server1 ubuntu:14.04 bash
+root@f561951e7775:/# nc -lp 1234
+
+
+## Terminal 2 - start a container named "client1" using the '--link' option to link it to the 'server1' container (above)
+## Send data to 'server1' (above) on port 1234
+[root@centos7 ~]# docker run --rm -ti --link server1 --name client1 ubuntu:14.04 bash
+root@1d449fc98335:/# nc server1 1234
+
+## Check /etc/hosts - the '--link' option added the IP & hostname of the 
+root@1d449fc98335:/# cat /etc/hosts
+...
+172.17.0.2      server1 f561951e7775
+172.17.0.3      1d449fc98335
+
+======== Dynamic & Legacy Linking ========
+
+# Terminal 1
+
+## Create a network:
+[root@centos7 ~]# docker network create example_net
+553235260def66073fb8696c468b8cae4507fbad2660625a8d30e46f05bdb232
+
+## Start a container using the network above:
+[root@centos7 ~]# docker run --rm -ti --net=example_net --name server2 ubuntu:14.04 bash
+root@9c411b807931:/#
+
+## Listen on port 1234:
+root@9c411b807931:/# nc -lp 1234
+
+-----------------
+
+# Terminal 2
+
+## Start container, linkg to server2, using network created above:
+[root@centos7 ~]# docker run --rm -ti --link server2 --net=example_net --name client2 ubuntu:14.04 bash
+root@744d48bb99c2:/#
+
+## Test by sending data to server2 on p1234
+root@744d48bb99c2:/# nc server2 1234
+test from client2
+hello
+
+-----------------
+
+# back on Terminal 1
+
+## exit the container and create another container with the same values as before:
+root@9c411b807931:/# exit
+exit
+[root@centos7 ~]# docker run --rm -ti --net=example_net --name server2 ubuntu:14.04 bash
+root@6efb375f1a3a:/#
+root@6efb375f1a3a:/# nc -lp 1234
+
+
+# back on Terminal 2, test again by sending data to server2 on p1234
+root@744d48bb99c2:/# nc server2 1234
+test from client2
+hello again
+
+-----------------
+
+# Making private services that are private to a container:
+$ docker run -p 127.0.0.1:1234:1234/tcp
+Listen for connections only from the localhost address, of the host (127.0.0.1),
+and only if it's comming from this host ^^, should you forward it on p1234,
+into the container on p1234 using tcp.
+
+==================================================
+
+# VOLUMES #
+
+# SHARING DATA BETWEEN HOST AND CONTAINER #
+
+## Create a directory on the host:
+[root@centos7 ~]# mkdir example_share
+
+## Change SELinux contect:
+[root@centos7 ~]# chcon -Rt svirt_sandbox_file_t example_share/
+
+## or, disable it:
+[root@centos7 ~]# setenforce 0
+
+
+## Create container with shared volume:
+[root@centos7 ~]# docker run -ti -v /root/example_share/:/shared_folder ubuntu bash
+
+## Create new file inside container (in shared folder):
+root@ae66fe7f7d80:/# touch /shared_folder/file1
+
+## Exit container:
+root@ae66fe7f7d80:/# exit
+
+## Check that new file from container is on host:
+[root@centos7 ~]# ls -l example_share/
+total 0
+-rw-r--r--. 1 root root 0 Oct  2 07:30 file1
+
+
+# SHARING DATA BETWEEN CONTAINERS #
+
+## Terminal 1 - Create a container with a folder which IS NOT shared with the HOST:
+[root@centos7 ~]# docker run -ti -v /shared-data ubuntu bash
+root@eea827358ea4:/#
+
+## Create data in /shared-data:
+root@eea827358ea4:/# touch /shared-data/file{1,2}
+
+root@eea827358ea4:/# ls -l /shared-data/
+total 0
+-rw-r--r--. 1 root root 0 Oct  1 21:42 file1
+-rw-r--r--. 1 root root 0 Oct  1 21:42 file2
+
+
+## Terminal 2 - Create another container, and use the shared volume created above:
+
+## Get the original containers name:
+[root@centos7 ~]# docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+eea827358ea4        ubuntu              "bash"              About a minute ago   Up About a minute                       wizardly_morse
+
+## Create the 2nd container:
+[root@centos7 ~]# docker run -ti --volumes-from wizardly_morse ubuntu bash
+
+## Create new data in the shared folder:
+root@f59534bfd835:/# touch /shared-data/file{A,B}
+
+## View the combined data from the two containers:
+root@f59534bfd835:/# ls -ls /shared-data/
+total 0
+0 -rw-r--r--. 1 root root 0 Oct  1 21:42 file1
+0 -rw-r--r--. 1 root root 0 Oct  1 21:42 file2
+0 -rw-r--r--. 1 root root 0 Oct  1 21:44 fileA
+0 -rw-r--r--. 1 root root 0 Oct  1 21:44 fileB
+root@f59534bfd835:/#
+
+
+## Adding a 3rd container:
+### Exit the 1st container
+root@eea827358ea4:/# exit
+[root@centos7 ~]#
+
+### Find the name of the 2nd container:
+[root@centos7 ~]# docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+f59534bfd835        ubuntu              "bash"              3 minutes ago       Up 3 minutes                            admiring_brattain
+
+### Create a container and attach to the shared volume (now only in the 2nd container):
+[root@centos7 ~]# docker run -ti --volumes-from admiring_brattain ubuntu bash
+
+### Confirm the shared data is available:
+root@7b4bf4aaba72:/# ls -ls /shared-data/
+total 0
+0 -rw-r--r--. 1 root root 0 Oct  1 21:42 file1
+0 -rw-r--r--. 1 root root 0 Oct  1 21:42 file2
+0 -rw-r--r--. 1 root root 0 Oct  1 21:44 fileA
+0 -rw-r--r--. 1 root root 0 Oct  1 21:44 fileB
+
+### Note: Once the last container (using the shared volume) exits, the shared volume is also deleted.
+
+## The command "docker run -v volume-name ubuntu bash" creates a volume that is EPHEMERAL and is deleted when NO CONTAINER IS USING IT. 
+
+==================================================
+
+# DOCKER REGISTRIES #
+
+## Log in to Docker
+[root@centos7 ~]# docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: myusername
+Password:
+Login Succeeded
+
+## Pull an image:
+[root@centos7 ~]# docker pull debian:sid
+Trying to pull repository docker.io/library/debian ...
+sid: Pulling from docker.io/library/debian
+eaa28642bba9: Pull complete
+Digest: sha256:1ddee91cd633d8f8a451326990d8fd233ff04cc1d3098cb57ca81ec9b8fb8633
+Status: Downloaded newer image for docker.io/debian:sid
+
+## Change the tag:
+[root@centos7 ~]# docker tag debian:sid jvryssen/test-img-2019:v10.2
+
+## Upload the image with the new tag:
+[root@centos7 ~]# docker push jvryssen/test-img-2019:v10.2
+The push refers to a repository [docker.io/jvryssen/test-img-2019]
+37651c31d9b7: Mounted from library/debian
+v10.2: digest: sha256:59fa115e650fbcff4387ee4814522fa2837e9a69171aa42f9f1da9e3b4c638e7 size: 529
+[root@centos7 ~]#
+
+
+==================================================
+==================================================
+
+
+--------------------
+--- USING DOCKER ---
+--------------------
+
+# DOCKERFILES #
+
+## Create a Dockerfile:
+[root@centos7 example]# cat Dockerfile
+FROM busybox
+RUN echo "building a simple docker image"
+CMD echo "hello container"
+
+## Build a new Container:
+[root@centos7 example]# docker build -t hello .
+
+Sending build context to Docker daemon 2.048 kB
+Step 1/3 : FROM busybox
+Trying to pull repository docker.io/library/busybox ...
+latest: Pulling from docker.io/library/busybox
+7c9d20b9b6cd: Pull complete
+Digest: sha256:fe301db49df08c384001ed752dff6d52b4305a73a7f608f21528048e8a08b51e
+Status: Downloaded newer image for docker.io/busybox:latest
+ ---> 19485c79a9bb
+Step 2/3 : RUN echo "building a simple docker image"
+ ---> Running in 9fbfaf64fc88
+
+building a simple docker image
+ ---> e9441a20069c
+Removing intermediate container 9fbfaf64fc88
+Step 3/3 : CMD echo "hello container"
+ ---> Running in 368c508cd237
+ ---> 79d32e1b13fa
+Removing intermediate container 368c508cd237
+Successfully built 79d32e1b13fa
+
+## Run the new container:
+[root@centos7 example]# docker run --rm hello
+hello container
+[root@centos7 example]#
+
+-----------------
+
+## INSTALLING A PROGRAM WITH DOCKER BUILD ##
+
+### DOCKERFILE Syntax Examples ###
+ADD project.tar.gz /install/	## this will uncompress project.tar.gz and place those extracted files into the /install/ folder in the container.
+ADD https:///www.example.com/newproj.rpm /project/	## Downloads newproj.rpm and puts it in the /project/ folder in the container.
+ENV DB_HOST=db.local.vm			## Set the environmental variable in the container
+ENTRYPOINT ## Makes your container look like a normal programs
+
+Shell Form -vs- Exec Form:
+
+EXEC FORM --> ["/bin/nano", "/tmp/notes"]
+
+
+### Create a Dockerfile
+[root@centos7 example]# cat Dockerfile
+FROM debian:sid
+RUN apt-get -y update
+RUN apt-get -y install nano
+CMD ["/bin/nano", "/tmp/notes"]
+
+
+### Build the new container 
+[root@centos7 example]# docker build -t example/nanoer .
+Sending build context to Docker daemon 2.048 kB
+Step 1/4 : FROM debian:sid
+Trying to pull repository docker.io/library/debian ...
+...
+Successfully built 026a2187111f
+
+### Run the container - Will open nano
+[root@centos7 example]# docker run --rm -ti example/nanoer
+
+-----------------
+
+### Create a Dockerfile
+[root@centos7 example]# cat Dockerfile
+FROM example/nanoer
+ADD notes.txt /notes.txt		## This adds notes.txt from the localhost (laptop) to /notes.txt in the container).
+CMD ["/bin/nano", "/notes.txt"]
+
+### Above we're using the "example/nanoer" image we created in the previous step.
+
+### Create a file on your laptop:
+[root@centos7 example]# cat notes.txt
+TODO: learn dockerfiles
+
+### Build the image/container
+### This will copy the "notes.txt" file into the new containers (not linked with "notes.txt" on your laptop).
+
+[root@centos7 example]# docker build -t example/notes .
+Sending build context to Docker daemon 4.096 kB
+Step 1/3 : FROM example/nanoer
+ ---> 026a2187111f
+Step 2/3 : ADD notes.txt /notes.txt
+ ---> 0608ca8853f8
+Removing intermediate container 84385047fe66
+Step 3/3 : CMD /bin/nano /notes.txt
+ ---> Running in 78cc5a0a7712
+ ---> 52eed27fca04
+Removing intermediate container 78cc5a0a7712
+Successfully built 52eed27fca04
+[root@centos7 example]# 
+
+
+### 
+[root@centos7 example]# docker run -ti --rm example/notes
+
+### This will run nano and open the "notes.txt" file
+
+

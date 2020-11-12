@@ -1,0 +1,103 @@
+### CA ###
+
+## Cert Auth functions:
+1. Sign CSRs
+2. Maintain security of their private key
+3. Revoke compromised certifiactes
+
+## Operating a CA:
+1. Createing a PRIVATE KEY
+openssl genrsa -<ALGORITHM> -out <KEY_FILENAME> <KEYSIZE>
+openssl genrsa -aes128 out mykey.key 2048
+
+2. Generating a SELF-SIGNED CERTIFICATE (Public Key>
+openssl req -utf8 -new -key <KEY_FILENAME> x509 -days <CERT_LIFESPAN> -out <CERT_FLIENAME>
+
+3. Signing a CSR as a CA (Requires CA keys)
+openssl ca -in <CSR_FILENAME> -out <CRT_FILENAME>
+
+---------------------------------------------------------------
+
+## Show some basic details about CA ##
+[root@ca ~]# openssl ca
+Using configuration from /etc/pki/tls/openssl.cnf
+Error opening CA private key /etc/pki/CA/private/cakey.pem
+139828571105168:error:02001002:system library:fopen:No such file or directory:bss_file.c:402:fopen('/etc/pki/CA/private/cakey.pem','r')
+139828571105168:error:20074002:BIO routines:FILE_CTRL:system lib:bss_file.c:404:
+unable to load CA private key
+[root@ca ~]#
+
+
+## Create index.txt and serial files ##
+[root@ca ~]# touch /etc/pki/CA/index.txt
+[root@ca ~]# echo 00 >  /etc/pki/CA/serial
+
+
+## Generate a PRIVATE KEY for a CERTIFICATE AUTHORITY ##
+[root@ca ~]# openssl genrsa -des3 2048 > /etc/pki/CA/private/cakey.pem
+Generating RSA private key, 2048 bit long modulus
+........................+++
+...................................+++
+e is 65537 (0x10001)
+Enter pass phrase:
+Verifying - Enter pass phrase:
+[root@ca ~]# cd ../CA/private/
+[root@ca ~]# 
+
+
+## Sign own cert ##
+[root@ca ~]# openssl req -utf8 -new -key /etc/pki/CA/private/cakey.pem -x509 -days 365 -out /etc/pki/CA/cacert.pem -set_serial 0
+Enter pass phrase for /etc/pki/CA/private/cakey.pem:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:AU
+State or Province Name (full name) []:QLD
+Locality Name (eg, city) [Default City]:BNE
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server's hostname) []:ca.local.vm
+Email Address []:
+[root@ca ~]#
+
+
+## Sign a CSR from another server ##
+[root@ca CA]# openssl ca -in /tmp/sendmail.csr -out /tmp/sendmail_signed.crt
+Using configuration from /etc/pki/tls/openssl.cnf
+Enter pass phrase for /etc/pki/CA/private/cakey.pem:
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 0 (0x0)
+        Validity
+            Not Before: Nov 18 01:14:20 2019 GMT
+            Not After : Nov 17 01:14:20 2020 GMT
+        Subject:
+            countryName               = AU
+            stateOrProvinceName       = QLD
+            organizationName          = Default Company Ltd
+            commonName                = mail.local.vm
+        X509v3 extensions:
+            X509v3 Basic Constraints:
+                CA:FALSE
+            Netscape Comment:
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier:
+                0F:21:BC:70:96:96:E7:CD:CE:1A:7F:FC:D4:EB:C8:CC:18:4F:F7:15
+            X509v3 Authority Key Identifier:
+                keyid:11:68:73:D6:37:1D:0A:97:76:5C:E7:AA:0B:C9:91:E4:9E:84:39:8A
+
+Certificate is to be certified until Nov 17 01:14:20 2020 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+[root@ca CA]#
+
+
