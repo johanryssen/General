@@ -1,10 +1,12 @@
-## Visual Block
-	* Ctrl + v
-	* Select the block of code
-	* Shift + I (To start inserting before every line of the block)
-		* or (eg) press 'x' if you want to delete the selected block
-	* Type what you want to insert
-	* hit the ESC key twice (once to exit insert mode, then to apply the change you made)
+# Visual Block
+
+## Add / or remove a line of text, eg #
+(1) Ctrl + v
+(2) Select a vertical line(s) of text
+(3) Shift + I (To start inserting before every line of the block)
+(4) or press 'x' if you want to delete the selected block
+(5) Type what you want to insert
+(6) hit the ESC key twice (once to exit insert mode, then to apply the change you made)
 
 The operators that can be used are:
 ~    switch case [ g~iw ]
@@ -14,6 +16,11 @@ y    yank
 >    shift right
 <    shift left
 !    filter through external command
+
+# Add / remove Tab-space in block of text
+(1) Shift + v
+(2) Select a vertical line of text
+(3) Shift + . # Same as the > key
 
 ==============================================
 
