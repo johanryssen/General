@@ -1,0 +1,21 @@
+nmcli con show
+nmcli con del eth0
+nmcli con del "Wired connection 1"
+nmcli con show
+nmcli con add con-name team0 type team ifname team0 config '{"runner":{"name":"loadbalance"}}'
+nmcli con mod team0 ipv4.addresses 10.10.10.20/24
+nmcli con mod team0 ipv4.method manual
+nmcli con add con-name team0-port0 type team-slave ifname eth0 master team0
+nmcli con add con-name team0-port1 type team-slave ifname eth1 master team0
+
+nmcli con up team0-port0
+nmcli con up team0-port1
+
+nmcli con show
+
+teamdctl team0 state
+
+nmcli dev dis team0
+nmcli con up team0
+ip a s
+

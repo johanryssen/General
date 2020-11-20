@@ -1,0 +1,11 @@
+# parted /dev/sdb
+-or-
+# parted /dev/sdb1
+
+(parted) mklabel gpt
+Warning: The existing disk label on /dev/sdb will be destroyed and all data on this disk will be lost. Do you want to continue?
+Yes/No? yes
+(parted) unit TB
+(parted) mkpart primary 0.00TB 3.60TB
+(parted) print
+(parted) quit

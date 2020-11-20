@@ -1,0 +1,21 @@
+cp /etc/fstab /root/fstab.backup
+lsof +D /tmp
+mount -o loop,noexec,nosuid,rw /dev/sdb1 /tmp
+echo "/dev/sdb1 /tmp ext4 loop,rw,noexec,nosuid,nodev 0 0" >> /etc/fstab
+vi /etc/fstab
+chmod 1777 /tmp
+umount /tmp
+mount -a
+df -h /tmp
+
+
+# Verification #
+systemctl  list-unit-files --type=mount
+UNIT FILE                     STATE   
+...
+tmp.mount                     disabled
+
+systemctl unmask tmp.mount
+systemctl is-active tmp.mount
+systemctl enable tmp.mount
+systemctl status tmp.mount

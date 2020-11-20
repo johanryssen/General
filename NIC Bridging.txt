@@ -1,0 +1,21 @@
+nmcli con show
+nmcli con del eth0
+nmcli con del "Wired connection 1"
+nmcli con show
+nmcli con add con-name bridge0 type bridge ifname bridge0 ip4 192.168.4.20/24 gw4 192.168.4.2
+nmcli con mod bridge0 ipv4.method manual
+
+nmcli con add con-name bridge0-slave0 type bridge-slave ifname eth0 master bridge0
+nmcli con add con-name bridge0-slave1 type bridge-slave ifname eth1 master bridge0
+
+nmcli con up bridge0-port0
+nmcli con up bridge0-port1
+
+nmcli con show
+
+teamdctl bridge0 state
+
+nmcli dev dis bridge0
+nmcli con up bridge0
+ip a s
+

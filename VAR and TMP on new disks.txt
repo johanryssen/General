@@ -1,0 +1,42 @@
+##### VAR #####
+
+fdisk /dev/sde1
+mkfs.ext4 /dev/sde1
+mkdir /newvar      
+mount /dev/sde1 /newvar
+init 1
+cd /var
+cp -ax * /newvar
+cd /
+mv var var.old
+mkdir var
+umount /dev/sde1
+mount /dev/sde1 /var
+
+blkid /dev/sde1 | awk {'print $2'} /var >> /etc/fstab
+ 
+vi /etc/fstab
+
+UUID="1de46881-1f49-440e-89dd-6c32592491a7"	/var     ext4    defaults    0 0
+# or #
+/dev/sde1       /var     ext4    defaults    0 0
+
+init 5
+
+##### TMP #####
+
+Run the following commands to enable systemd /tmp mounting:
+systemctl unmask tmp.mount
+systemctl enable tmp.mount
+
+Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to configure the /tmp
+mount:
+[Mount]
+What=tmpfs
+Where=/tmp
+Type=tmpfs
+Options=mode=1777,strictatime,noexec,nodev,nosuid
+
+***
+systemd includes the tmp.mount service which should be used instead of configuring /etc/fstab.
+***

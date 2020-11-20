@@ -1,0 +1,48 @@
+systemctl enable --now rpcbind
+systemctl enable --now nfs-server
+systemctl enable --now nfs-lock
+systemctl enable --now nfs-idmap
+
+firewall-cmd --permanent --zone=public --add-service=nfs
+firewall-cmd --permanent --zone=public --add-service=mountd
+firewall-cmd --permanent --zone=public --add-service=rpc-bind
+firewall-cmd --reload
+-or-
+firewall-cmd --permanent --zone=public --add-port=2049/tcp
+
+# NFS #
+## SERVER ## 10.10.10.10
+yum install nfs-utils nfs-utils-lib
+
+chkconfig nfs on 
+service rpcbind start
+service nfs start
+
+vi /etc/exports
+# Sharing /home with client(20.20.20.20) #
+/home			20.20.20.20(rw,sync,root_squash,no_subtree_check)
+-or-
+# Sharing /opt/share with ANY client(*) #
+/opt/share		*(rw,sync,root_squash,no_subtree_check)
+
+# exportfs -a
+
+# exportfs
+[root@SERVER]# exportfs
+/home		20.20.20.20
+/opt/share	<world>
+
+
+## CLIENT ## 20.20.20.20
+yum install nfs-utils nfs-utils-lib
+
+# Mount SERVER's /home on CLIENT:/mnt/nfs/home #
+mount -t nfs 10.10.10.10:/home /mnt/nfs/home
+
+vi /etc/fstab
+
+10.10.10.10:/home	/mnt/nfs/home       nfs     auto,noatime,nolock,bg,nfsvers=3,intr,tcp,actimeo=1800 0 0
+
+umount -a
+mount -a
+df -hT
