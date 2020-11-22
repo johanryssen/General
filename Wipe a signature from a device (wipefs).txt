@@ -1,0 +1,44 @@
+## wipefs - wipe a signature from a device
+
+1. Print information about sdb and all partitions on sdb.
+[root@host1 ~]# wipefs /dev/sdb*
+DEVICE OFFSET TYPE UUID                                 LABEL
+sdb    0x1fe  dos
+sdb1   0x438  ext4 db8ed863-836d-435f-8da4-7e70eaf505c7
+
+
+2. Erase all signatures from /dev/sdb and create a signature backup file ~/wipefs-sdb-<offset>.bak for each signature.
+[root@host1 ~]# wipefs --all --backup /dev/sdb
+/dev/sdb: 2 bytes were erased at offset 0x000001fe (dos): 55 aa
+/dev/sdb: calling ioctl to re-read partition table: Success
+
+
+3. View the signature backup file:
+[root@host1 ~]# file *
+wipefs-sdb-0x000001fe.bak: BIOS (ia32) ROM Ext.
+
+
+4. Confirm wipe:
+[root@host1 ~]# wipefs /dev/sdb*
+[root@host1 ~]#
+
+# lsblk and blkid should also now show it's been wiped.
+
+
+5. Restore signature from the backup file  ~/wipefs-sdb-0x000001fe.bak
+[root@host1 ~]# dd if=wipefs-sdb-0x000001fe.bak of=/dev/sdb seek=$((0x000001fe)) bs=1 conv=notrunc
+2+0 records in
+2+0 records out
+2 bytes copied, 0.00178835 s, 1.1 kB/s
+
+
+6. Confirm:
+[root@host1 ~]# wipefs /dev/sdb*
+DEVICE OFFSET TYPE UUID                                 LABEL
+sdb    0x1fe  dos
+sdb1   0x438  ext4 db8ed863-836d-435f-8da4-7e70eaf505c7
+
+[root@host1 ~]# lsblk -fs /dev/sdb1
+NAME  FSTYPE LABEL UUID                                 MOUNTPOINT
+sdb1  ext4         db8ed863-836d-435f-8da4-7e70eaf505c7 /data
+└─sdb

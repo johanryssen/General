@@ -1,0 +1,69 @@
+# Add new disk
+
+1. List Block Devices:
+$ lsblk
+
+2. Search for missing Block Device in Kernel Ring Buffer:
+$ dmesg | grep 'SCSI disk'
+
+3. Initialize missing Block Device:
+$ (echo n; echo p; echo 1; echo ; echo ; echo w) | sudo fdisk /dev/sdb
+
+4. Create FileSystem
+$ sudo mkfs -t xfs /dev/sdb1
+
+5. Mount new Disk
+$ sudo mkdir /data && sudo mount /dev/sdb1 /data
+
+6. Add to FSTAB:
+$ sudo  blkid | grep sdb1 | awk {'print $2'} >> /etc/fstab
+
+7. Add additional fields to FSTAB:
+UUID="db8ed863-836d-435f-8da4-7e70eaf505c7"     /data   xfs    defaults        0 0
+
+---------------
+
+# Troubleshooting:
+
+partprobe /dev/sdb1
+
+tune2fs -U random /dev/sdb1
+
+[root@host1 ~]# ls -l /dev/disk/by-uuid/*
+lrwxrwxrwx. 1 root root 10 Nov 23 07:58 /dev/disk/by-uuid/4e57509f-5da1-4ed4-9a42-fba54e2ab875 -> ../../dm-1
+lrwxrwxrwx. 1 root root 10 Nov 23 07:58 /dev/disk/by-uuid/5730d302-2f38-43b4-9b2a-c0b1996f84a6 -> ../../dm-0
+lrwxrwxrwx. 1 root root 10 Nov 23 07:58 /dev/disk/by-uuid/9a00ac07-b384-474c-8254-4c9c6fc521ad -> ../../sda1
+lrwxrwxrwx. 1 root root 10 Nov 23 08:27 /dev/disk/by-uuid/db8ed863-836d-435f-8da4-7e70eaf505c7 -> ../../sdb1
+
+
+[root@host1 ~]# blkid /dev/sdb
+/dev/sdb: PTUUID="8c4af608" PTTYPE="dos"
+[root@host1 ~]# blkid /dev/sdb1
+/dev/sdb1: UUID="db8ed863-836d-435f-8da4-7e70eaf505c7" TYPE="ext4" PARTUUID="8c4af608-01"
+
+
+[devops@host1 ~]$ lsblk --fs /dev/sdb
+NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
+sdb
+└─sdb1 ext4         db8ed863-836d-435f-8da4-7e70eaf505c7 /data
+
+
+
+## Disks don't have UUID values, FILE SYSTEMS have UUIDs:
+[root@host1 ~]# blkid /dev/sdb
+/dev/sdb: PTUUID="8c4af608" PTTYPE="dos"
+
+[root@host1 ~]# blkid /dev/sdb1
+/dev/sdb1: UUID="db8ed863-836d-435f-8da4-7e70eaf505c7" TYPE="ext4" PARTUUID="8c4af608-01"
+
+## Swap can also have a UUID:
+[root@host1 ~]# swapon
+NAME      TYPE      SIZE USED PRIO
+/dev/dm-1 partition 820M   0B   -2
+
+[root@host1 ~]# blkid /dev/dm-1
+/dev/dm-1: UUID="4e57509f-5da1-4ed4-9a42-fba54e2ab875" TYPE="swap"
+
+
+## Pring info about sdb and partitions on sdb
+[root@localhost ~]# wipefs /dev/sdb
