@@ -1,0 +1,119 @@
+Building a Vagrant box on Oracle VirtualBox
+
+Required software:
+	-	Oracle Virtual Box
+	- 	VirtualBox Extension Pack
+	-	Vagrant
+
+# Create new Virtual Machine:
+    Name: vagrant_ubuntu20
+    Type: Linux
+    Version: Ubuntu
+    Memory Size: 1024M
+    New Virtual Disk:
+		Type: VMDK
+		Size: 40 GB
+
+# Hardware Settings
+	Audio	- disabled
+	USB		- disabled
+	Network Adapter 1 = NAT
+    Port-forwarding rule:
+		Name:		SSH
+		Protocol:	TCP
+		Host IP:	blank
+		Host Port:	2222
+		Guest IP:	blank
+		Guest Port:	22
+
+# Install The Operating System
+
+# Create user/password
+USER: vagrant
+PASS: vagrant
+
+USER: root
+PASS: vagrant
+
+# Set up passwordless sudo for vagrant user
+sudo visudo -f /etc/sudoers.d/vagrant
+vagrant ALL=(ALL) NOPASSWD:ALL
+
+# Update OS
+apt-get update -y
+apt-get upgrade -y
+reboot
+
+# Install the Vagrant Key
+mkdir -p /home/vagrant/.ssh
+chmod 0700 /home/vagrant/.ssh
+wget --no-check-certificate https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub -O /home/vagrant/.ssh/authorized_keys
+chmod 0600 /home/vagrant/.ssh/authorized_keys
+chown -R vagrant /home/vagrant/.ssh
+
+# Set up OpenSSH Server
+apt-get install -y openssh-server
+
+vi /etc/ssh/sshd_config
+# Uncomment:
+AuthorizedKeysFile %h/.ssh/authorized_keys
+
+# Restart ssh
+service ssh restart
+
+# Install Guest Tools
+apt-get install -y gcc build-essential linux-headers-generic
+
+# Mount VBoxGuestAdditions.iso - In VirtualBox GUI > vagrant_ubuntu20 > Settings > Storage > Controller IDE > Add Optical Drive:
+C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso
+
+# In Ubuntu OS
+mount /dev/cdrom /mnt 
+cd /mnt
+./VBoxLinuxAdditions.run
+
+# Package the Box
+## Clean up the OS
+apt-get clean all
+apt-get autoremove
+rm -rf /var/log/*gz
+rm -rf /var/log/*/*gz
+rm -rf /var/tmp/*
+rm -rf /tmp/*
+> ~/.bash_history
+history -c
+
+## "zero out" the drive in the VM (Ubuntu) OS
+dd if=/dev/zero of=/EMPTY bs=1M
+rm -f /EMPTY
+## "It effectively writes zeroes to all empty space on the volume;
+## this allows for better compression of the physical file containing the virtual disk."
+
+## On host machine (Windows), create an empty directory
+PS C:\> mkdir newbox
+PS C:\> cd .\newbox\
+PS C:\newbox>
+
+## Create the "package.box"
+PS C:\newbox> vagrant package --base vagrant_ubuntu20
+
+Vagrant will now search in VirtualBox for any VMs named "vagrant_ubuntu20" and tries to SSH into it.
+
+→ vagrant package --base vagrant_ubuntu20
+[vagrant_ubuntu20] Attempting graceful shutdown of VM...
+[vagrant_ubuntu20] Forcing shutdown of VM...
+[vagrant_ubuntu20] Clearing any previously set forwarded ports...
+[vagrant_ubuntu20] Exporting VM...
+[vagrant_ubuntu20] Compressing package to: C:\newbox\package.box
+
+# Test the new box
+Make sure you are in the C:\newbox directory
+PS C:\newbox> vagrant box add new_ubuntu_vm package.box
+PS C:\newbox> vagrant init new_ubuntu_vm
+PS C:\newbox> vagrant up
+
+# SSH to the new_ubuntu_vm
+PS C:\newbox> vagrant ssh
+-or-
+Use Putty: 
+127.0.0.1:2222

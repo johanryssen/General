@@ -6,4 +6,4 @@
 5 By default title field will be a reference to be checked by PAC Manager.
 6 The available fields are comment, created, password, title, url and username.
 7 The next step is you need to provide a Perl Regulars Expression pattern to be checked inside the KeePass database.
-8. Then press Check button to see the result.
+8 Then press Check button to see the result.
