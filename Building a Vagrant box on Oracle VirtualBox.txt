@@ -16,7 +16,7 @@ Required software:
 
 # Hardware Settings
 	Audio	- disabled
-	USB		- disabled
+	USB	- disabled
 	Network Adapter 1 = NAT
     Port-forwarding rule:
 		Name:		SSH
