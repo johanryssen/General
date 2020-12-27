@@ -1,0 +1,42 @@
+dnf clean all --verbose
+dnf autoremove
+# Create metadata cache for downloads
+time dnf makecache timers
+
+updatedb
+mandb
+dnf repolist -v
+dnf update -y
+
+-- Plugins --
+dnf download <PKG>  # 'download' depends on dnf-plugins-core >
+dnf install dnf-plugins-core -y
+
+# Automatic Package Updates
+dnf -y install dnf-automatic
+systemctl list-timers *dnf*
+sed -i 's/apply_updates = no/apply_updates = yes/g' /etc/dnf/automatic.conf
+systemctl enable --now dnf-automatic.timer
+
+-- Groups --
+dnf grouplist -v
+dnf groupinfo security-tools -v
+dnf groupinstall security-tools -y
+-or-
+dnf install @"Security Tools"
+dnf group summary security-tools
+
+# Exclude kernel pkg
+dnf update -x kernel
+
+# Display information about update advisories
+dnf updateinfo list sec
+ 
+# Keep selected installed packages to match the latest version available from any enabled repository:
+dnf distro-sync [<package-spec>...] 
+
+# Display information about update advisories.
+dnf updateinfo summary all -v
+
+# Update the packages to the specified version
+dnf [options] upgrade-to <package-nevr-specs>

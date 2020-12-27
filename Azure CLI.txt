@@ -1,0 +1,15 @@
+az account show
+
+az vm image list --publisher RedHat --offer rhel-byos --all
+
+az vm image terms accept --urn RedHat:RHEL:7-LVM:latest
+
+az vm create -n rhel7-vm -g TrialRG --image RedHat:RHEL:7-LVM:latest
+
+az vm list --offer RHEL
+
+--publisher
+--offer
+--sku
+
+az vm image list --publisher RedHat --offer rhel-byos --all

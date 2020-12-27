@@ -1,0 +1,84 @@
+## Increase Volume size on LUN-mounted filesystems ##
+
+# Extend LUNs on SAN - Storage engineer
+
+# Rescan Partiton Table
+partprobe
+
+# Rescan LUNs:
+for host in `ls /sys/class/scsi_host/` ; 
+do echo "- - -" > /sys/class/scsi_host/${host}/scan;
+done
+
+# Restart multipathd
+systemctl restart multipathd
+
+# Confirm that new sizes are detected up by multipath -ll
+	backup (360060160327435675057755ffbd5f08c) dm-4 DGC     ,VRAID
+	size=3.0T features='2 queue_if_no_path retain_attached_hw_handler' hwhandler='1 alua' wp=rw
+
+	data01 (3600601603557755ffb34215fb05b57b3) dm-7 DGC     ,VRAID
+	size=3.0T features='2 queue_if_no_path retain_attached_hw_handler' hwhandler='1 alua' wp=rw
+
+
+# Confirm new sizes are detected by OS:
+# fdisk -l 2>/dev/null | egrep '^Disk' | egrep -v 'dm-|type|identifier'
+
+# New sizes are detected up on the "physical disks":
+	Disk /dev/mapper/backup: 3298.5 GB, 3298534883328 bytes, 6442450944 sectors
+	Disk /dev/mapper/data01: 3298.5 GB, 3298534883328 bytes, 6442450944 sectors
+
+# But LVM has not yet been updated:
+	Disk /dev/mapper/vg_backup-lv_backup: 1288.5 GB, 1288456634368 bytes, 2516516864 sectors
+	Disk /dev/mapper/vg_data01-lv_data01: 1395.8 GB, 1395830816768 bytes, 2726232064 sectors
+
+
+# View Physical Volumes
+# pvs
+  PV                       VG            Fmt  Attr PSize    PFree
+  /dev/mapper/backup      vg_backup     lvm2 a--     1.17t    0
+  /dev/mapper/data01      vg_data01     lvm2 a--    <1.27t    0
+
+# View Logical Volumes
+# lvs
+  LV            VG            Attr       	LSize
+  lv_backup     vg_backup     -wi-ao----    1.17t
+  lv_data01     vg_data01     -wi-ao----   <1.27t
+
+# View VGS:
+  VG            #PV #LV #SN Attr   VSize    VFree
+  vg_backup       1   1   0 wz--n-    1.17t    0
+  vg_data01       1   1   0 wz--n-   <1.27t    0
+
+
+# Resize Physical Volume:
+pvresize /dev/mapper/backup
+pvresize /dev/mapper/data01
+
+# Confirm Physical Volume resize:
+# pvs
+  PV                       VG            Fmt  Attr PSize    PFree
+  /dev/mapper/backup      vg_backup     lvm2 a--    <3.00t    0
+  /dev/mapper/data01      vg_data01     lvm2 a--    <3.00t    0
+
+
+# Extend the Logical Volumes:
+lvextend -l +100%FREE /dev/vg_backup/lv_backup
+lvextend -l +100%FREE /dev/vg_data01/lv_data01
+
+# Confirm Logical Volumes extends:
+# lvs
+  LV            VG            Attr       	LSize
+  lv_backup     vg_backup     -wi-ao----   <3.00t
+  lv_data01     vg_data01     -wi-ao----   <3.00t
+
+
+# Grow the XFS Filesystem
+xfs_growfs /dev/mapper/vg_backup-lv_backup
+xfs_growfs /dev/mapper/vg_data01-lv_data01
+
+
+# Confirm XFS Filesystems show new sizes:
+# df -hTP | egrep "backup|data01|data02"
+/dev/mapper/vg_data01-lv_data01         xfs       3.0T  2.5G  3.0T   1% /data01/vol1
+/dev/mapper/vg_backup-lv_backup         xfs       3.0T   33M  3.0T   1% /backup/bk01
