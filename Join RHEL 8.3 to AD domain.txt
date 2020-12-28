@@ -1,0 +1,65 @@
+Join RHEL 8.3 to AD domain
+
+----------
+
+## Prework:
+echo "10.10.25.200		dc1.lab.local dc1 kerberos _ldap._tcp lab.local" >> /etc/hosts
+echo "10.10.25.100		rhel83.lab.local    rhel83" >> /etc/hosts
+
+# hostnamectl set-hostname rhel83.lab.local
+
+# dnf install realmd sssd oddjob oddjob-mklabdir samba-common-tools krb5-workstation authselect-compat adcli
+
+----------
+
+## Join AD domain:
+root@rhel83 ~# realm join -v -U Administrator LAB.local
+
+----------
+
+## Verify:
+root@rhel83 ~# realm list
+root@rhel83 ~# klist -kte
+root@rhel83 ~# getent passwd Administrator@lab.local
+
+----------
+
+## Test
+root@server43 ~# ssh adminuser01@lab.local@rhel83
+adminuser01@lab.local@rhel83's password:
+
+[adminuser01@LAB.local@rhel83 ~]$ id -a adminuser01@lab.local
+uid=1796001121(adminuser01@LAB.local) gid=1796000513(domain users@LAB.local) groups=1796000513(domain users@LAB.local),1796001127(it general@LAB.local),1796001135(all company@LAB.local),1796001126(it admins@LAB.local)
+
+----------
+
+## Lockdown access via SSH:
+root@rhel83 ~# echo "AllowGroups "it admins@LAB.local"" >> /etc/ssh/sshd_config
+root@rhel83 ~# systemctl restart sshd
+
+## Test lockdown:
+Attempt ssh login as a user who is not in "it admins@LAB.local" AD group.
+
+## View log
+root@rhel83 ~# tail -10f /var/log/secure
+
+Dec 28 11:43:25 rhel83 sshd[2047]: User regularuser01@LAB.local from 10.10.25.54 not allowed because none of user's groups are listed in AllowGroups
+Dec 28 11:43:28 rhel83 sshd[2047]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.10.25.54 user=regularuser01@lab.local
+
+----------
+
+Examples:
+# Add AD group to sudoers:
+%DC1.LAB.local\\linuxAdmins ALL=(ALL) ALL
+%linuxAdmins@DC1.INTERNAL ALL=(ALL) ALL
+
+# SSSD allows user names in the format:
+user@AD.DOMAIN
+AD.DOMAIN\user
+
+# Reset SSSD
+1. systemctl stop sssd
+2. sss_cache -E
+3. systemctl start sssd
+
+----------
