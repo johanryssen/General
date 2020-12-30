@@ -1,0 +1,10 @@
+https://ezprompt.net/
+
+# FreeBSD
+export PS1='(\[$(tput md)\]\t <\w>\[$(tput me)\]) $(echo $?) \$ '
+
+# pwd only
+export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # "
+
+# Path to pwd
+export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\w\[\e[m\] # "
