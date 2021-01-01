@@ -1,0 +1,114 @@
+FreeBSD
+
+
+-------------------- Users --------------------
+## Password & Password Aging info:
+
+/etc/passwd is generated from /etc/master.passwd
+
+# pw - create, remove, modify & display system users and groups
+
+---------------
+
+## Add new user:
+echo pass123 | pw useradd -n rob -m -h 0
+
+-n		name
+-m		create honme dir
+-h		file descriptor (where do we want to read the password from?)
+0		STDIN
+
+
+## Remove user:
+root@ls /etc # echo pass123 | pw userdel -r -n rob
+-r		Delete mail/spool file and home dir
+
+---------------
+
+Default file for new user accounts: /etc/pw.conf
+
+To create this file:
+# pw useradd -D
+
+# cat /etc/pw.conf | grep -v "#"| grep -v "^$"
+
+defaultpasswd = "no"
+reuseuids = "no"
+reusegids = "no"
+nispasswd =
+skeleton = "/usr/share/skel"
+newmail = "no"
+logfile = "/var/log/userlog"
+home = "/home"
+homemode = 0777
+shellpath = "/bin"
+shells = "sh","csh","tcsh"
+defaultshell = "sh"
+defaultgroup = ""
+extragroups =
+defaultclass = ""
+minuid = 1000
+maxuid = 32000
+mingid = 1000
+maxgid = 32000
+expire_days = 0
+password_days = 0
+
+----- Password encryption ----- 
+
+@ Prel, Python, C
+
+## PERL ##
+
+# perl -e 'print crypt("pass123", "\$6\$salt1234\$")'
+$6$salt1234$kA8JtOEiPmrrD4FAh8Hqg369uI9Ktd7A/uFmRAsvjNwG.Vc2EVYD1amPiO242Lx.uywEp/J0Xs2ImsDqLb50A0
+
+$6	==	SHA512 encryption 
+
+
+## PYTHON ##
+
+# python3.7 -c 'import crypt; print(crypt.crypt("pass123", crypt.mksalt(crypt.METHOD_SHA512)))'
+$6$bzBISQ58YS4XdRvh$KCr21CrDtsgAsqB1txtwXc7rO3T6Yl37T1Nx4OPneFtJPrejCM0WBXUZnLrCxgKpCijXIf3/3wWpurtvXWTS40
+
+-or-
+
+# python3.7 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(),crypt.mksalt(crypt.METHOD_SHA512)))'
+Password:
+$6$jbYo1fEaV8pB3cWR$H35nf3dkhYeJL3TtGN14CeEB/zg7pZp3N34AmUj4o6kC8BX/ph6s5GpbrXgyMyEGFg7PHW.VYR43eOvmveYLR1
+
+-or- with "pw"
+
+# python3.7 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(),crypt.mksalt(crypt.METHOD_SHA512)))' | pw useradd -n newuser1 -m -H 0
+Password:
+
+-H	Accepts an encrypted password
+
+
+## C ##
+
+# cat mp.c
+
+#include <unistd.h>
+#include <stdio.h>
+int main() {
+        printf("%s\n",crypt("pass123","$6$salt1234$"));
+        return 0;
+}
+
+
+Compile
+# cc -Wall -o mp -lcrypt mp.c
+
+Remove definitions we don't nee:
+# strip  mp
+
+# Run:
+./mp
+$6$salt1234$kA8JtOEiPmrrD4FAh8Hqg369uI9Ktd7A/uFmRAsvjNwG.Vc2EVYD1amPiO242Lx.uywEp/J0Xs2ImsDqLb50A0
+
+# Create new user:
+./mp | pw useradd -n user2 -m -H 0
+
+----------------------------------------
+
