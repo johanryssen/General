@@ -1,0 +1,53 @@
+# Basic scan:
+nmap 192.168.0.0/24
+
+# Basic scan, multiple networks:
+nmap 192.168.0.0/24 10.80.0.0/24
+
+# Quick scan, no port scan:
+nmap -sn 192.168.0.0/24
+
+## same as:
+nmap -sP 192.168.0.0/24
+
+# Store IP addresses from the above output to a file:
+nmap -sn 192.168.0.0/24 | awk '/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "nmap_scanned_ips"}'
+
+Save the scan output to different formats.
+-oN <file>	-	Normal
+-oX <file>	-	XML
+-oS <file>	-	s|<rIpt kIddi3
+-oG <file>	-	Grepable
+
+eg.
+nmap -sn 192.168.0.0/24 -oG nmap_output
+
+
+# To view what an options does:
+nmap | grep -- -sV
+  -sV: Probe open ports to determine service/version info
+
+# Scan open ports:
+nmap -sV -p 22,443 192.168.0.0/24 –open
+
+# Scan open port-range:
+nmap -sV -p 22-443 192.168.0.0/24 –open
+
+# Packet tracing:
+nmap -vv -n -sn -PE -T4 --packet-trace 192.168.2.3
+
+-vv				(Increase verbosity)
+-n				(No DNS resolution. This speeds up our scan!)
+-sn				(No port scan)
+-PE				(Use ICMP echo request queries. This is what is displayed in the output above)
+-T4				(prohibits the dynamic scan delay from exceeding 10 ms for TCP ports. See man nmap).
+--packet-trace	(Trace sent and received packets)
+
+
+## Using recursive DNS proxies for a stealth scan
+
+# Resolve target with Google DNS:
+host somehost.local 8.8.8.8
+
+# Run a stealth list scan -sL on the IP address 192.168.0.123
+nmap --dns-servers 8.8.4.4,8.8.8.8 -sL 192.168.0.123/24
