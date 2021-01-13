@@ -1,0 +1,126 @@
+## Update
+apt -y update
+
+
+## Install required packages
+apt -y install realmd libnss-sss libpam-sss sssd sssd-tools adcli samba-common-bin oddjob oddjob-mkhomedir packagekit
+
+
+## Set FQDN
+hostnamectl set-hostname myubuntu.example.com
+
+## Update /etc/hosts - Enter Domain Controller details.
+10.10.20.20		dc1.domain.local	dc1
+10.10.30.20		dc2.domain.local	dc1
+
+## Setup DNS
+### Disable systemd-resolve:
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+
+### If on DHCP, you can update DNS server manually.
+unlink /etc/resolv.conf
+vim /etc/resolv.conf
+
+
+## Discover domain
+realm discover domain.local
+domain.local
+  type: kerberos
+  realm-name: DOMAIN.LOCAL
+...
+
+
+## Join domain
+The realm join command will set up the local machine for use with a specified domain by configuring both the LOCAL SYSTEM SERVICES and the entries in the IDENTITY DOMAIN.
+
+realm join -U Administrator domain.local
+
+
+## View current realmd details.
+realm  list
+domain.local
+  type: kerberos
+  realm-name: DOMAIN.LOCAL
+...
+
+
+## HomeDir
+On RHEL based systems, user’s home directory will be created automatically.
+On Ubuntu, you need to enable this feature.
+
+bash -c "cat > /usr/share/pam-configs/mkhomedir" <<EOF
+Name: activate mkhomedir
+Default: yes
+Priority: 900
+Session-Type: Additional
+Session:
+        required                        pam_mkhomedir.so umask=0022 skel=/etc/skel
+EOF
+
+
+### Then activate with:
+pam-auth-update
+
+### Ensure "activate mkhomedir" is selected
+### it should have [*]
+
+Select <OK>
+
+
+## /etc/sssd/sssd.conf - Whenever there is a change in the file, restart is required.
+
+systemctl restart sssd
+systemctl status sssd
+
+
+## If the integration is working, it should be possible to get AD user info.
+
+$ id joe
+uid=1639504562(joe@domain.local) gid=1630564538(domain users@domain.local) groups=1639564720(domain users@domain.local)
+
+
+## Control Access – Limit user/group
+
+Access to the enrolled server can be limited by allowing only specific users/groups.
+
+### Limit to users
+To permit a user access via SSH and console, use the command:
+
+realm permit user1@domain.local
+-or-
+realm permit user2@domain.local user3@domain.local
+
+### Permit access to group
+ream permit -g sysadmins
+realm permit -g 'Security Users'
+realm permit 'Domain Users' 'admin users'
+
+This will modify sssd.conf file.
+
+### Allow all users access, run:
+realm permit --all
+
+### Deny all Domain users access:
+realm  deny --all
+
+
+## SUDO Access
+By default Domain users won’t have permission to escalate privilege to root.
+Users have to be granted access based on usernames or groups.
+
+### First create SUDO permissions grants file
+vim /etc/sudoers.d/domain_admins
+user1@domain.local	ALL=(ALL)	NOPASSWD: ALL
+user1@domain.local	ALL=(ALL)   ALL
+
+### Add 1 group
+%group1@domain.local     ALL=(ALL)   ALL
+
+### or, Add groups with two or three names
+%security\ users@domain.local       ALL=(ALL)       ALL
+%system\ super\ admins@domain.local ALL=(ALL)       ALL
+
+
+## Test SSH Access
+ssh user1@domain.local@ubuntu01
