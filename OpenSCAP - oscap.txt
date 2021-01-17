@@ -3,37 +3,49 @@ https://static.open-scap.org/openscap-1.2/oscap_user_manual.html#_practical_exam
 
 ---------------------------------------
 
-1. Get available PROFILES: $ oscap info "/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
+0. View available PROFILES:
+oscap info "/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
 
-2. Set PROFILE variable:
+1. Set PROFILE variable:
 profile="pci-dss"
 
-3. Allocate destination folder for "Results"
+2. Allocate destination folder for "Results"
 results="/OpenSCAP/scan1/rhel7-server.xml"
 
-4. Allocate destination folder for "Report":
+3. Allocate destination folder for "Report":
 report="/OpenSCAP/scan1/rhel7-server.html"
 
-5. Assign CPE variable
+4. Assign CPE variable
 cpe="/usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml"
 
-6. Set "Conent" variable
+5. Set "Conent" variable
 content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
 
+-----
 
+# Set vars:
+profile="pci-dss" ;
+results="/OpenSCAP/scan1/server01.xml" ;
+report="/OpenSCAP/scan1/server01.html" ;
+cpe="/usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml" ;
+content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml" ;
+
+# Run:
 oscap xccdf eval --profile $profile --results $results --report $report --cpe $cpe $content ; true 
+
+# Generate Ansible Playbook
+oscap xccdf generate fix --fix-type ansible --profile $profile --output /OpenSCAP/scan1/server01-fix.yml $content
+
 
 ---------------------------------------
 
 # Scan:
 oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig-rhel7-disa --results rhel7-stig-out --report report.html ssg-rhel7-ds.xml
 
-
-# Remediate:
+## Remediate:
 oscap xccdf eval --remediate --profile xccdf_org.ssgproject.content_profile_rht-ccp --results scan-xccdf-results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
 
-
-# Offline Remediation:
+## Offline Remediation:
 The process of offline remediation used as results file as input.
 oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_rht-ccp --results scan-xccdf-results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
 
@@ -42,8 +54,7 @@ oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_rht-ccp --result
 oscap xccdf generate fix --fix-type ansible --profile xccdf_org.ssgproject.content_profile_stig-rhel7-disa --output stig-rhel7-role.yml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
 
 
-
-# Produce an SSG guide with a checklist for the xccdf_org.ssgproject.content_profile_rht-ccp profile:
+# Produce an SSG guide with a CHECKLIST for the xccdf_org.ssgproject.content_profile_rht-ccp profile:
 oscap xccdf generate guide --profile xccdf_org.ssgproject.content_profile_rht-ccp /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml > ssg-guide-checklist.html
 
 -----
