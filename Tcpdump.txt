@@ -1,5 +1,0 @@
-Capture:
-tcpdump -i eth0 -w /tmp/output.cap tcp and port 443
-
-Read:
-tcpdump -r /tmp/output.cap

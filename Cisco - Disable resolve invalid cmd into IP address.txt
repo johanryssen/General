@@ -1,5 +1,0 @@
-Disable the default behavior of the router of attempting to resolve the invalid command into an IP address
-enter the no ip domain-lookup command in global configuration mode
-'transport preferred none' under your line console or line vty submenu
-
-shift + Ctrl + 6

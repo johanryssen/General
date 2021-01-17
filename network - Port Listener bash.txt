@@ -1,0 +1,32 @@
+## Open port 1234 ##
+# nc -l -p 1234
+
+## Test ##
+# nc -v localhost 1234
+Ncat: Version 7.50 ( https://nmap.org/ncat )
+Ncat: Connected to ::1:1234.
+ 
+-or-
+
+# telnet localhost 1234
+Trying ::1...
+Connected to localhost.
+Escape character is '^]'.
+
+-or-
+
+# telnet 10.10.10.123 1234
+Trying 10.10.10.123...
+Connected to 10.10.10.123.
+Escape character is '^]'.
+
+## View ##
+# netstat -tulpen | grep nc
+tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      0          470156     6786/nc
+tcp6       0      0 :::1234                 :::*                    LISTEN      0          470155     6786/nc
+
+-or-
+
+ss -nat | grep 1234
+LISTEN     0      10           *:1234                     *:*
+LISTEN     0      10          :::1234                    :::*

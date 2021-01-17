@@ -1,7 +1,0 @@
-# Patch Satellite Server OS #
-$ subscription-manager repos --disable=* 
-$ subscription-manager repos --enable=rhel-7-server{extras,optional}-rpms
-$ yum clean all
-$ foreman-maintain service stop
-$ yum update
-$ reboot now (if necessary)

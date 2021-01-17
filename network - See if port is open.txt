@@ -1,0 +1,19 @@
+## check for tcp port ##
+## bash shell ##
+(echo >/dev/tcp/{host}/{port}) &>/dev/null && echo "open" || echo "close"
+(echo >/dev/udp/{host}/{port}) &>/dev/null && echo "open" || echo "close"
+(echo >/dev/tcp/10.10.10.10/22) &>/dev/null && echo "Open 22" || echo "Close 22"
+(echo >/dev/tcp/www.example.com/443) &>/dev/null && echo "Open 443" || echo "Close 443"
+
+-or-
+
+nmap -PNp {port} {host}
+nmap -p {port} {host}
+nmap -p 22 www.example.com
+nmap -p 443 10.10.10.10
+
+-or-
+
+nc -vz {host} {port}
+nc -vz 10.10.10.10 80
+nc -vz www.example.com 443

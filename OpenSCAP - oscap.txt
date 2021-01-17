@@ -1,0 +1,201 @@
+
+https://static.open-scap.org/openscap-1.2/oscap_user_manual.html#_practical_examples
+
+---------------------------------------
+
+1. Get available PROFILES: $ oscap info "/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
+
+2. Set PROFILE variable:
+profile="pci-dss"
+
+3. Allocate destination folder for "Results"
+results="/OpenSCAP/scan1/rhel7-server.xml"
+
+4. Allocate destination folder for "Report":
+report="/OpenSCAP/scan1/rhel7-server.html"
+
+5. Assign CPE variable
+cpe="/usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml"
+
+6. Set "Conent" variable
+content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
+
+
+oscap xccdf eval --profile $profile --results $results --report $report --cpe $cpe $content ; true 
+
+---------------------------------------
+
+# Scan:
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig-rhel7-disa --results rhel7-stig-out --report report.html ssg-rhel7-ds.xml
+
+
+# Remediate:
+oscap xccdf eval --remediate --profile xccdf_org.ssgproject.content_profile_rht-ccp --results scan-xccdf-results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+
+# Offline Remediation:
+The process of offline remediation used as results file as input.
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_rht-ccp --results scan-xccdf-results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+
+# Generate Ansible remediation script:
+oscap xccdf generate fix --fix-type ansible --profile xccdf_org.ssgproject.content_profile_stig-rhel7-disa --output stig-rhel7-role.yml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+
+
+# Produce an SSG guide with a checklist for the xccdf_org.ssgproject.content_profile_rht-ccp profile:
+oscap xccdf generate guide --profile xccdf_org.ssgproject.content_profile_rht-ccp /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml > ssg-guide-checklist.html
+
+-----
+
+Scan a system against an XCCDF profile, use the oscap xccdf eval command:
+# oscap xccdf eval --profile server \
+  --results /tmp/`hostname`-ssg-results.xml \
+  --report /var/www/html/`hostname`-ssg-results.html \
+  --cpe /usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml \
+        /usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml
+
+-----
+
+### OVAL + XCCDF:
+1) Download the content
+$ wget https://www.redhat.com/security/data/metrics/com.redhat.rhsa-all.xccdf.xml
+$ wget https://www.redhat.com/security/data/oval/com.redhat.rhsa-all.xml
+
+2) Run the scan
+$ oscap xccdf eval --results results.xml --report report.html com.redhat.rhsa-all.xccdf.xml
+
+
+### OVAL only:
+1) Download the content
+$ wget https://www.redhat.com/security/data/oval/com.redhat.rhsa-all.xml
+
+2) Run the scan
+$ oscap oval eval --results results.xml --report report.html com.redhat.rhsa-all.xml
+
+-----
+
+### Source DataStream
+The Source DataStream use-case is very similar to OVAL+XCCDF.
+The only difference is that you don’t have to download two separate files.
+
+1) Download the content
+$ wget https://www.redhat.com/security/data/metrics/ds/com.redhat.rhsa-all.ds.xml
+
+2) Run the scan
+$ oscap xccdf eval --results results.xml --report report.html com.redhat.rhsa-all.ds.xml
+
+### ore Specialized Files
+For Red Hat Enterprise Linux 7 the plain OVAL file is located at:
+$ wget https://www.redhat.com/security/data/oval/Red_Hat_Enterprise_Linux_7.xml
+
+List of all the plain OVAL files:
+https://www.redhat.com/security/data/oval/
+
+List of available datastream files:
+https://www.redhat.com/security/data/metrics/ds/
+
+
+-----
+
+### Create a full security guide for a system based on an XCCDF profile, use the oscap xccdf generate guide command:
+
+# oscap xccdf generate guide --profile server \
+  --cpe /usr/share/xml/scap/ssg/content/ssg-rhel6-cpe-dictionary.xml \
+        /usr/share/xml/scap/ssg/content/ssg-rhel6-xccdf.xml > /var/www/html/security_guide.html
+		
+		
+---------------------------------------
+
+
+### Evaluate PCI-DSS on RHEL7
+
+This section describes how to evaluate the Payment Card Industry Data Security Standard (PCI-DSS) on Red Hat Enterprise Linux 7.
+
+1) Install SSG which provides the PCI-DSS SCAP content
+$ sudo yum install -y scap-security-guide
+
+2) Verify that the PCI-DSS profile is present
+$ oscap info /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+3) Evaluate the PCI-DSS content
+$ oscap xccdf eval --results results.xml --profile xccdf_org.ssgproject.content_profile_pci-dss /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+4) Generate report readable in a web browser.
+$ oscap xccdf generate report --output report.html results.xml
+
+
+### Check that patches are up-to-date on RHEL 7:
+
+Using external OVAL content.
+
+1) Install the SSG
+$ sudo yum install -y scap-security-guide
+
+2a) Evaluate common profile for RHEL 6
+$ oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_common --fetch-remote-resources --results-arf results.xml /usr/share/xml/scap/ssg/content/ssg-rhel6-ds.xml
+
+2b) Evaluate common profile for RHEL 7
+$ oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_common --fetch-remote-resources --results-arf results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+
+- This command evaluates common profile for RHEL 7.
+- Part of the profile is a rule to check that patches are up-to-date.
+- To evaluate the rule correctly, oscap tool needs to download an up-to-date OVAL file from Red Hat servers.
+- This can be allowed using --fetch-remote-resources option.
+- Result of this scan will be saved in results.xml using ARF format.
+
+
+---------------------------------------
+
+
+## SYNTAX:
+oscap [options] module operation [operation_options_and_arguments]
+
+
+https://static.open-scap.org/openscap-1.2/oscap_user_manual.html#_practical_examples
+
+## To evaluate all definitions within the given OVAL Definition file:
+$ oscap oval eval --results oval-results.xml scap-oval.xml
+
+
+## MODULE TYPES:
+
+cpe
+Performs operations using a Common Platform Enumeration (CPE) file.
+
+cve
+Performs operations using a Common Vulnerabilities and Exposures (CVE) file.
+
+cvss
+Performs operations using a Common Vulnerability Scoring System (CVSS) file.
+
+ds
+Performs operations using a SCAP Data Stream (DS).
+
+info
+Determines a file's type and prints information about the file.
+
+oval
+Performs operations using an Open Vulnerability and Assessment Language (OVAL) file.
+
+xccdf
+Performs operations using a file in eXtensible Configuration Checklist Description Format (XCCDF).
+
+
+
+## OPERATIONS:
+
+eval
+For an OVAL file, oscap probes the system, evaluates each definition in the file, and prints the results to the standard output.
+For a specified profile in an XCCDF file, oscap tests the system against each rule in the file and prints the results to the standard output.
+
+generate
+For an OVAL XML results file, generate report converts the specified file to an HTML report.
+For an XCCDF file, generate guide outputs a full security guide for a specified profile.
+
+validate
+Validates an OVAL or XCCDF file against an XML schema to check for errors.
+
+
+---------------------------------------
+

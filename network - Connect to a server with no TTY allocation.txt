@@ -1,0 +1,137 @@
+Connect to a box with no TTY allocation.
+If someone types 'w', they will not see your connection.
+
+ssh -T user@host /bin/bash -i
+
+-----
+Get a full fledged shell with job control and everything
+
+ssh -t user@host screen -ln
+-----
+If you are running sshd on port 22 this will show you all connections going into it
+
+sudo lsof -i :22
+
+you can then reverse what people are doing based on the pids lsof gives you.
+ps ax | grep sshd   also works, but you can't see where they are connecting from.
+
+-----
+
+The sshd process for your connection is still present on the server and looks like:
+"sshd: username@notty"
+You can find it easily with a grep of running processes
+ps aux | grep sshd.*notty
+
+-----
+
+What does this do that
+ssh -Dport user@host
+does not?
+
+-----
+
+Forward transparently your traffic using iptables.
+So, if you use sshuttle on your gateway all the TCP connections to
+the specified subnets are forwarded using ssh for the gateway and
+all the machines using that gateway.
+
+# sshuttle -v -r user@host:443 10.0.0.0/8 # ssh user@10.0.0.138
+
+Connections to 10.0.0.0/8 goes through ssh automatically.
+-----
+Terminate a stalled SSH session:
+~.
+-----
+The tilde-escape offers significantly more than just termination.
+~?  for the available escape sequences:
+  Supported escape sequences:
+    ~.  - terminate connection (and any multiplexed sessions)
+    ~B  - send a BREAK to the remote system
+    ~C  - open a command line
+    ~R  - Request rekey (SSH protocol 2 only)
+    ~^Z - suspend ssh
+    ~#  - list forwarded connections
+    ~&  - background ssh (when waiting for connections to terminate)
+    ~?  - this message
+    ~~  - send the escape character by typing it twice
+  (Note that escapes are only recognized immediately after newline.)
+
+If you open the command line (~C), another '?' shows its available commands:
+  ssh> ?
+  Commands:
+        -L[bind_address:]port:host:hostport    Request local forward
+        -R[bind_address:]port:host:hostport    Request remote forward
+        -KR[bind_address:]port                 Cancel remote forward
+-----
+A Practical Guide To Securing OpenSSH
+http://news.ycombinator.com/item?id=1923170
+-----
+Have an ssh session open forever
+autossh -M50000 -t server.example.com â€˜screen -raAd mysessionâ€™
+
+Transfer SSH public key to another machine in one step
+ssh-keygen; ssh-copy-id user@host; ssh user@host
+This command sequence allows simple setup of password-less SSH logins.
+Be careful, as if you already have an SSH keypair in your ~/.ssh directory
+on the local machine, there is a possibility ssh-keygen may overwrite them.
+ssh-copy-id copies the public key to the remote host
+and appends it to the remote accountâ€™s ~/.ssh/authorized_keys file. When trying ssh,
+if you used no passphrase for your key,
+the remote shell appears soon after invoking ssh user@host.
+
+Copy stdin to your X11 buffer
+ssh user@host cat /path/to/some/file | xclip
+-----
+Copy stdin to clipboard on Macssh user@host cat /path/to/some/file | pbcopy
+-----
+To keep an ssh session forever, you could also add the following line to ssh_config.
+ServerAliveInterval 10
+
+The client sends a keepalive packet every 10 seconds.
+-----
+I don't have a box to test this on right now
+but you might have to set HISTCONTROL=ignorespace for that to work.
+-----
+Isn't this what history -d is for?
+I always delete passwords and important information from my bash history.
+-----
+One cool application of ssh port forwarding missing from the list is
+https://github.com/progrium/localtunnelIt
+lets you temporarily give a behind-the-firewall web server a public, port 80 URL.
+-----
+ssh -D9999 user@remotehost.com
+And now I have a local SOCKS proxy running.
+Just change the proxy configuration in your browser using SOCKS4a at localhost:9999
+and I can surf as if I were on remotehost
+-----
+ssh -ND 9999
+Doesn't open a shell.
+This may stop you from accidentally shutting down your tunnel
+thinking it's just another ssh session.
+-----
+ssh -D plus FoxyProxy
+-----
+tsocks might help also for apps which do not have native socks support.
+-----
+If remote editing vim is your only requirement, it should be noted
+that up-to-date versions of vim will handle
+scp://, as in "vim scp://hostname/file_to_edit".
+(Emacs users have Fish) (you should already have ssh keys setup)
+-----
+As already noted, commands that deal with a lot of data will copy that
+data to your machine to process, and copy it back.
+This is a drawback of both NFS and sshfs.
+NFS, however, doesn't encrypt, while sshfs does,
+so if you don't care about encryption, NFS will be a lot faster.
+The proper way to do what you want is to install those desktop tools on
+the remote machine, and then use ssh X forwarding
+(ForwardX11 and ForwardX11Trusted in the manual, also -X and -Y)
+to have those programs run on the remote machine,
+but display their GUIs on your local desktop.
+This way you get the nice graphical interfaces
+while still doing all the hard work on the remote machine,
+without copying tons of data back and forth.
+-----
+Suspend current SSH session
+~<Ctrl-Z>
+-----

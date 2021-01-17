@@ -1,0 +1,33 @@
+# Present new LUN
+
+# Rescan
+for i in $(ls -l /sys/class/scsi_host/host*/scan | awk {'print $9'}) ; do echo "- - -" > $i ; done
+
+# Check for new devices:
+cat /proc/scsi/scsi | grep scsi | uniq
+fdisk -l
+
+# Multipath
+systemctl restart multipathd
+multipath -v2
+multipath -ll
+
+# Add to /etc/multipath.conf:
+
+           multipath {
+                wwid                    3600601600c703e00bfeeff5fc14fd258
+                alias                   newDisk2
+        }
+...
+
+# Create Logical Vol
+
+pvcreate /dev/mapper/newDisk
+vgcreate vg_newDisk /dev/mapper/newDisk
+lvcreate -l 100%FREE -n lv_newDisk vg_newDisk
+
+# Create FS
+mkfs.xfs /dev/mapper/vg_newDisk-lv_newDisk
+
+# Mount
+alias=newDisk2 && echo "$(blkid | grep /dev/nvme0n2| awk {'print $2'})    /$alias    xfs    defaults    0 0" >> /etc/fstab && mkdir /$alias && mount -av && restorecon /$alias && umount /$alias && mount -av

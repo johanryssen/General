@@ -1,0 +1,17 @@
+[1] Insert Linux USB
+[2] win-Key + R: type diskmgmt.msc
+[3] Note the Disk number of the USB device
+[4] cd %programfiles%\Oracle\VirtualBox
+     VBoxManage.exe internalcommands createrawvmdk -filename C:\usb.vmdk -rawdisk \\.\PhysicalDrive#
+-or-
+[5] Full path: "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+internalcommands createrawvmdk -filename "C:\Users\user01\VirtualBox VMs\usb.vmdk" -rawdisk \\.\PhysicalDrive2
+[6] This will create a 1KB file: usb.vmdk
+[7] Start Oracle VirtualBox as administrator
+[8] Create a new VM
+[9] On the 'Create Virtual Machine' window -> Choose: 'Use an existing virtual hard drive file' -> select 'usb.vmdk'\
+[10] Boot VM
+
+DISKMGMR.EXE
+cd %programfiles%\Oracle\VirtualBox
+VBoxManage internalcommands createrawvmdk -filename C:\usb.vmdk -rawdisk \\.\PhysicalDriveX

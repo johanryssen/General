@@ -10,3 +10,7 @@ echo "eth0 IP: $IP" > /etc/issue
 # Ubuntu / Debian:
 IP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 echo "eth0 IP: $IP" > /etc/issue
+
+---------------
+http://www.figlet.org/fontdb.cgi
+---------------

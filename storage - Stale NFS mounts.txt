@@ -1,0 +1,31 @@
+Stale NFS mounts:
+
+# Check:
+df -h
+
+# Flush stale nfs mounts
+service autofs restart
+-or-
+fuser /net/n-bkpstore/data/col1/store
+
+lsof /net/
+lsof /net/n-bkpstore
+
+# Unload kernel modules
+lsmod | grep nfs
+
+# try this, maybe works:
+modprobe -r nfs
+
+# Kernel modules are shown with [brackets] around it in 'ps' output
+# Should not be killable ^^
+service nfs-common stop
+service autofs stop
+service snmpd stop
+service networker stop
+
+# next
+lsmod | grep nfs
+lockd ..... ntf3
+
+rmmod -f nfs3

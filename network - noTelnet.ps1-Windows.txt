@@ -1,0 +1,21 @@
+[CmdletBinding()]
+Param(
+  [Parameter(Mandatory=$True,Position=1)]
+   [string]$ip,
+
+   [Parameter(Mandatory=$True,Position=2)]
+   [int]$port
+)
+
+$connection = New-Object System.Net.Sockets.TcpClient($ip, $port)
+if ($connection.Connected) {
+    Return "Connection Success"
+}
+else {
+    Return "Connection Failed"
+}
+
+## Usage:
+## PS C:\> telnet.ps1 -ip 8.8.8.8 -port 53
+## or
+## PS C:\> telnet.ps1 8.8.8.8 53

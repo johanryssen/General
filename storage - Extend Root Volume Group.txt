@@ -1,0 +1,55 @@
+----- Extend Root Volume Group -----
+
+# Extend Disk 0 on Hypervisor
+
+
+# Rescan device
+[root@server01 ~]# echo 1 > /sys/block/sda/device/rescan
+
+
+# View new disk size
+[root@server01 ~]# fdisk -l /dev/sda
+Disk /dev/sda: 214.7 GB, 214748364800 bytes, 419430400 sectors
+Units = sectors of 1 * 512 = 512 bytes
+...
+
+
+# Physical Volume still shows old size:
+[root@server01 ~]# pvscan
+  PV /dev/sda2   VG centos          lvm2 [<49.51 GiB / 0    free]
+  Total: 1 [<49.51 GiB] / in use: 1 [<49.51 GiB] / in no VG: 0 [0   ]
+
+
+# Extend partition
+[root@server01 ~]# growpart /dev/sda 2
+CHANGED: partition=2 start=1026048 old: size=103831519 end=104857567 new: size=418404319 end=419430367
+
+
+# Resize Physical Volume    
+[root@server01 ~]# pvresize /dev/sda2
+  Physical volume "/dev/sda2" changed
+  1 physical volume(s) resized or updated / 0 physical volume(s) not resized
+
+
+# Extend the Logical Volume  
+[root@server01 ~]# lvextend -l +100%FREE /dev/mapper/centos-root
+  Size of logical volume centos/root changed from <48.51 GiB (12418 extents) to <198.51 GiB (50818 extents).
+  Logical volume centos/root successfully resized.
+
+
+# Grow XFS Filesystem
+[root@server01 ~]# xfs_growfs /dev/mapper/centos-root
+meta-data=/dev/mapper/centos-root isize=256    agcount=23, agsize=555008 blks
+...
+data blocks changed from 12716032 to 52037632
+
+
+-or-
+resize2fs /dev/mapper/centos-root
+
+
+
+# View new size
+[root@server01 ~]# df -h /dev/mapper/centos-root
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root  199G   16G  183G   9% /

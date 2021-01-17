@@ -1,0 +1,25 @@
+Forwarding one port to another
+
+
+To forward a TCP port from your local workstation to another host.
+(Used for debugging purposes):
+
+mkfifo pipe ; cat pipe | nc -l 8080 | nc google.com 80 > pipe ; rm pipe
+
+What this does:
+
+1) Create a fifo (First in First out) file.
+This is a very simple type of file,
+you can put stuff in there with an output redirect (>) and get stuff out there with cat.
+It acts as a temporary buffer.
+
+2) Open that newly created pipe.
+Anything that gets in, will be printed. (and forwarded in this example to "nc")
+
+3) Open a listening port on your local workstation, listening on port 8080.
+
+4) Open a connection to google.com, on port 80.
+
+5) Send al the output to the earlier created pipe.
+
+6) Remove the pipe when done.

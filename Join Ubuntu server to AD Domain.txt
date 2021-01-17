@@ -3,7 +3,10 @@ apt -y update
 
 
 ## Install required packages
-apt -y install realmd libnss-sss libpam-sss sssd sssd-tools adcli samba-common-bin oddjob oddjob-mkhomedir packagekit
+apt -y install realmd libnss-sss libpam-sss sssd sssd-tools sssd-ad adcli samba-common-bin oddjob oddjob-mkhomedir packagekit
+
+### Optional packages
+krb5-user smbclient
 
 
 ## Set FQDN
@@ -24,17 +27,27 @@ vim /etc/resolv.conf
 
 
 ## Discover domain
-realm discover domain.local
+## Note: "login-formats"
+
+realm -v discover domain.local
+ * Resolving: _ldap._tcp.domain.local
+ * Performing LDAP DSE lookup on: 10.10.20.20
+ * Performing LDAP DSE lookup on: 10.10.30.20
+ * Successfully discovered: domain.local
 domain.local
   type: kerberos
-  realm-name: DOMAIN.LOCAL
+  realm-name: domain.local
 ...
+  login-formats: %U@domain.local
+...
+
 
 
 ## Join domain
 The realm join command will set up the local machine for use with a specified domain by configuring both the LOCAL SYSTEM SERVICES and the entries in the IDENTITY DOMAIN.
 
-realm join -U Administrator domain.local
+realm join -v -U Administrator domain.local
+...
 
 
 ## View current realmd details.
@@ -57,6 +70,10 @@ Session-Type: Additional
 Session:
         required                        pam_mkhomedir.so umask=0022 skel=/etc/skel
 EOF
+
+
+## -or try:
+pam-auth-update --enable mkhomedir
 
 
 ### Then activate with:
@@ -123,4 +140,7 @@ user1@domain.local	ALL=(ALL)   ALL
 
 
 ## Test SSH Access
-ssh user1@domain.local@ubuntu01
+# ssh user1@domain.local@ubuntu01
+
+# login
+ad-client login: user1@domain.local

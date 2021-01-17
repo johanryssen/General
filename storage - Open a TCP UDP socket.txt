@@ -1,0 +1,91 @@
+## OPEN OR CLOSE A TCP/UDP SOCKET IN BASH SHELL
+
+# Syntax:
+$ exec {file-descriptor}<>/dev/{protocol}/{host}/{port}
+
+# Open a bi-directional TCP socket port 443 and file descriptor 3:
+$ exec 3<>/dev/tcp/example.com/443
+
+# Close an input connection:
+$ exec {file-descriptor}<&-
+
+# Close an output connection:
+$ exec {file-descriptor}>&-
+
+==========================
+
+## READ FROM OR WRITE TO A TCP/UDP SOCKET IN BASH SHELL
+
+Once a socket is opened, you can write a message to or read a message from the socket.
+
+To write a message stored in $MESSSAGE to a socket:
+
+$ echo -ne $MESSAGE >&3
+$ printf $MESSAGE >&3
+
+To read a message from a socket and store it in $MESSAGE:
+
+$ read -r -u -n $MESSAGE <&3
+$ MESSAGE=$(dd bs=$NUM_BYTES count=$COUNT <&3 2> /dev/null)
+
+==========================
+
+## TCP/UDP SOCKET EXAMPLES IN BASH SHELL
+
+
+# 1. Fetch a remote web page and print its content
+
+#!/bin/bash
+exec 3<>/dev/tcp/example.com/80
+echo -e "GET / HTTP/1.1\r\nhost: example.com\r\nConnection: close\r\n\r\n" >&3
+cat <&3
+
+
+# 2. Display a remote SSH server version
+
+#!/bin/bash
+exec 3</dev/tcp/192.168.0.10/22
+timeout 1 cat <&3
+
+In fact, the above script can be shortened to the following one-liner:
+
+#!/bin/bash
+timeout 1 cat </dev/tcp/192.168.0.10/22
+
+
+# 3. Display the current time from nist.gov
+
+#!/bin/bash
+cat </dev/tcp/time.nist.gov/13
+
+
+# 4. Check the Internet connectivity
+
+#!/bin/bash
+ 
+HOST=www.mit.edu
+PORT=80
+ 
+(echo >/dev/tcp/${HOST}/${PORT}) &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "Connection successful"
+else
+    echo "Connection unsuccessful"
+fi
+
+
+# 5. Perform TCP port scanning against a remote host
+
+#!/bin/bash
+host=$1
+port_first=1
+port_last=65535
+for ((port=$port_first; port<=$port_last; port++))
+do
+  (echo >/dev/tcp/$host/$port) >/dev/null 2>&1 && echo "$port open"
+done
+
+# Note
+Opening a socket in bash requires that the bash shell have net-redirections enabled (compiled with "--enable-net-redirections").
+Old distributions may have this feature disabled for bash, in which case you will encounter the following error.
+/dev/tcp/example.com/80: No such file or directory
