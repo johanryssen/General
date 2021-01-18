@@ -1,0 +1,105 @@
+##### NCurses Disk Usage #####
+
+https://dev.yorhel.nl/ncdu
+https://dev.yorhel.nl/download/ncdu-1.15.1.tar.gz
+
+
+# Dependencies:
+yum clean all
+yum install ncurses ncurses-devel -y
+
+
+# Install:
+./configure --prefix=/usr
+make
+make install
+
+
+# Path:
+/usr/bin/ncdu
+
+
+---------------- Usage --------------------
+ncdu <options> <directory>
+
+-h,--help                  This help message
+-q                         Quiet mode, refresh interval 2 seconds
+-v,-V,--version            Print version
+-x                         Same filesystem
+-e                         Enable extended information
+-r                         Read only
+-o FILE                    Export scanned directory to FILE
+-f FILE                    Import scanned directory from FILE
+-0,-1,-2                   UI to use when scanning (0=none,2=full ncurses)
+--si                       Use base 10 (SI) prefixes instead of base 2
+--exclude PATTERN          Exclude files that match PATTERN
+-X, --exclude-from FILE    Exclude files that match any pattern in FILE
+-L, --follow-symlinks      Follow symbolic links (excluding directories)
+--exclude-caches           Exclude directories containing CACHEDIR.TAG
+--exclude-kernfs           Exclude Linux pseudo filesystems (procfs,sysfs,cgroup,...)
+--confirm-quit             Confirm quitting ncdu
+--color SCHEME             Set color scheme (off/dark)
+
+
+
+----- Navigation -----
+up, k		-	Move cursor up
+down, j		-	Move cursor down
+right/enter	-	Open selected directory
+left, <, h	-	Open parent directory
+n			-	Sort by name (ascending/descending)
+s			-	Sort by size (ascending/descending)
+C			-	Sort by items (ascending/descending)
+M			-	Sort by mtime (-e flag)
+d			-	Delete selected file or directory
+t			-	Toggle dirs before files when sorting
+-------------------------------------------
+
+
+
+##### DUC #####
+
+http://duc.zevv.nl/
+https://github.com/zevv/duc/releases/download/1.4.4/duc-1.4.4.tar.gz
+-or-
+apt-get install duc 
+
+
+# Dependencies:
+yum clean all
+yum install pango-devel cairo-devel tokyocabinet tokyocabinet-devel ncurses ncurses-devel -y
+
+If "tokyocabinet-devel" is not availble from repo:
+yum install http://mirror.centos.org/centos/7/os/x86_64/Packages/tokyocabinet-devel-1.4.48-3.el7.x86_64.rpm
+
+
+# Install:
+$ ./configure
+$ make
+# make install
+
+
+# Path:
+/usr/local/bin/duc
+
+
+---------------- Usage --------------------
+usage: duc <cmd> [options] [args]
+
+Available subcommands:
+
+help      : Show help
+index     : Scan the filesystem and generate the Duc index
+info      : Dump database info
+ls        : List sizes of directory
+xml       : Dump XML output
+graph     : Generate a sunburst graph for a given path
+cgi       : CGI interface wrapper
+gui       : Interactive X11 graphical interface
+ui        : Interactive ncurses user interface
+-------------------------------------------
+
+# Examples:
+duc ui /
+duc gui /
+duc ls /
