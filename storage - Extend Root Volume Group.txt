@@ -20,6 +20,8 @@ Units = sectors of 1 * 512 = 512 bytes
   Total: 1 [<49.51 GiB] / in use: 1 [<49.51 GiB] / in no VG: 0 [0   ]
 
 
+yum install -y cloud-utils-growpart
+
 # Extend partition
 [root@server01 ~]# growpart /dev/sda 2
 CHANGED: partition=2 start=1026048 old: size=103831519 end=104857567 new: size=418404319 end=419430367

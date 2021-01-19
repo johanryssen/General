@@ -1,0 +1,95 @@
+##### Term0 #####
+journalctl --follow
+
+
+wpa_supplicant[1177]: wlp2s0: SME: Trying to authenticate with c4:ad:34:7b:02:4c (SSID='Lotus 4219' freq=5520 MHz)
+kernel: wlp2s0: authenticate with c4:ad:34:7b:02:4c
+kernel: iwlwifi 0000:02:00.0: Microcode SW error detected.  Restarting 0x2000000.
+kernel: wlp2s0: failed to insert STA entry for the AP (error -5)
+kernel: iwlwifi 0000:02:00.0: Failed to send MAC context (action:2): -5
+wpa_supplicant[1177]: nl80211: deinit ifname=p2p-dev-wlp2s0 disabled_11b_rates=0
+wpa_supplicant[1177]: nl80211: deinit ifname=wlp2s0 disabled_11b_rates=0
+wpa_supplicant[1177]: rfkill: WLAN soft blocked
+NetworkManager[1171]: <info>  [1611010919.3520] device (wlp2s0): supplicant interface state: disconnected -> scanning
+
+
+##### Term1 #####
+
+apt install resolvconf
+
+# Add Nameserver:
+echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/tail
+
+# Disable Wifi Powersave:
+sed -i 's/wifi.powersave = 3/wifi.powersave = 2/g ' /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
+
+# Run update scripts:
+resolvconf -u
+
+# View:
+systemd-resolve --status
+
+------------
+
+# rfkill list
+
+# rfkill unblock wlan
+	<info>  [1611010799.8146] manager: rfkill: WiFi now enabled by radio killswitch
+...
+
+# rfkill list
+0: hci0: Bluetooth
+        Soft blocked: yes
+        Hard blocked: no
+1: phy0: Wireless LAN
+        Soft blocked: no
+        Hard blocked: no		<---
+
+------------
+
+dhclient wlp2s0
+
+------------
+
+cat /etc/NetworkManager/system-connections/mySSID123
+
+[connection]
+id=mySSID123
+uuid=f3951e37-2cbc-4eb3-a690-26a4c24d4471
+type=wifi
+permissions=
+
+[wifi]
+mac-address=B4:34:E9:12:B3:22
+mac-address-blacklist=
+mode=infrastructure
+ssid=mySSID123
+
+[wifi-security]
+key-mgmt=wpa-psk
+psk=46374987
+
+[ipv4]
+dns-search=
+method=auto
+
+[ipv6]
+addr-gen-mode=stable-privacy
+dns-search=
+method=auto
+
+------------
+
+--todo--
+
+# Install wicd-gtk:
+apt install wicd-gtk
+
+# Remove NetworkManager:
+apt remove network-manager-gnome network-manager
+
+# Remove config files for NetworkManager:
+dpkg --purge network-manager-gnome network-manager
+
+
+---

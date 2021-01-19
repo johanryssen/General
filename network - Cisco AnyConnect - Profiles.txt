@@ -1,0 +1,10 @@
+C:\ProgramData\Cisco\Cisco AnyConnect Secure Mobility Client\Profile\vpn.name.xml
+
+# End of file:
+
+<ServerList>
+	<HostEntry>
+		<HostName>VPN Name</HostName>
+		<HostAddress>vpn.remote.example.com</HostAddress>
+	</HostEntry>
+</ServerList>

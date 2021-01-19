@@ -1,0 +1,9 @@
+## AnyConnect via Linux ##
+
+sudo openconnect --authgroup="<GROUP>" -u <USERNAME> --passwd-on-stdin <VPN_ADDRESS>
+-or-
+sudo openconnect -u <USERNAME> --passwd-on-stdin <VPN_ADDRESS>
+
+Enter password on blank line.
+
+https://wiki.archlinux.org/index.php/OpenConnect
