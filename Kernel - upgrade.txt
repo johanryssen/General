@@ -1,0 +1,59 @@
+## STEP 1 - Update and upgrade CentOS 7
+yum -y update
+yum -y install yum-plugin-fastestmirror
+
+
+## STEP 2 - Checking kernel version
+cat /etc/redhat-release
+cat /etc/os-release
+uname -msr
+
+
+## STEP 3 - Add ELRepo Repository
+Before installing new kernel version, we need to add new repository ELRepo repository.
+That's because we want to use the kernel version from the ELRepo community.
+
+Add ELRepo gpg key to the system.
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+Now add new ELRepo repository with rpm command.
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+
+Check all repositories enabled on the system, and make sure ELRepo is on the list.
+yum repolist
+
+
+## STEP 4 - Install new Kernel version
+yum --enablerepo=elrepo-kernel install kernel-ml
+--enablerepo is an option to enable specific repository on CentOS system.
+By default, 'elrepo' repository is enabled, but for our case, we needed 'elrepo-kernel'.
+
+Check all of the available repositories on the system (enabled as well as disabled)
+yum repolist all
+
+
+## STEP 5 - Configure Grub2 CentOS 7
+Make the new kernel the default (when the system is starting).
+
+Check all available kernel versions with the awk command below.
+awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+
+In the output, you'll see that we've two kernel versions - 3.10 and 4.11.2.
+We want to use kernel 4.11 as our default, so you can use the following command to make this happen.
+grub2-set-default 0
+
+When you want to revert back to the old kernel, you can change the value of the grub2-set-default command to 1.
+
+Then generate the grub2 config with 'gurb2-mkconfig' command, and then reboot the server.
+grub2-mkconfig -o /boot/grub2/grub.cfg
+reboot
+
+uname -msr
+
+
+## STEP 6 - Remove old kernel (optional)
+For this purpose, we need to install the yum-utils utility from the repository.
+yum install yum-utils
+
+Now clean your old kernel with the following command.
+package-cleanup --oldkernels

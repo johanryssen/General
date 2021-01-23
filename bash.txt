@@ -1,0 +1,119 @@
+##### Change LS display colors [DIR=yellow, EXEC=green] #####
+
+LS_COLORS='rs=0:di=1;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
+
+# Change BASH prompt in .bashrc:
+PS1='\e[36;1m\u\e[37;1m@\e[35m\h\e[37;1m \e[32m\W\e[0m\$ '
+
+export LS_COLORS PS1
+
+# VIM background:
+echo "set background=dark" >> .vimrc
+
+# Disable bell sound when hitting the backspace
+echo "set bell-style none" >> .inputrc
+
+
+
+##### Misc #####
+
+# Print last command without executing it:
+!!:p
+
+
+# Search for cmd containing a string (eg. 'tc') and exec it:
+!?tc
+# eg. cd /etc
+# Same as: Ctrl r
+
+
+# Omit # and empty lines
+grep -Ev '^\s*(#|$)' httpd.conf
+-or-
+grep -Ev "^$|#" httpd.conf
+
+
+# Recall the last parameter from the last command in history?
+alt+.
+!*
+esc-.
+
+---------------------------------
+
+# Delete to end of line:
+Ctrl+K
+
+# Delete to start of line:
+Ctrl+U
+
+# Stop all output to the screen:
+Ctrl+S
+
+# Resume output to the screen after stopping it with Ctrl+S.
+Ctrl+Q
+
+---------------------------------
+
+## Moving the Cursor
+
+Ctrl+A or Home: Go to the beginning of the line.
+
+Ctrl+E or End: Go to the end of the line.
+
+Alt+B: Go left (back) one word.
+
+Ctrl+B: Go left (back) one character.
+
+Alt+F: Go right (forward) one word.
+
+Ctrl+F: Go right (forward) one character.
+
+Ctrl+XX: Move between the beginning of the line and the current position of the cursor.
+This allows you to press Ctrl+XX to return to the start of the line, change something, and then press Ctrl+XX to go back to your original cursor position.
+
+---------------------------------
+
+## Deleting Text
+
+Ctrl+D or Delete: Delete the character under the cursor.
+
+Alt+D: Delete all characters after the cursor on the current line.
+
+Ctrl+H or Backspace: Delete the character before the cursor.
+
+---------------------------------
+
+## Cutting and Pasting
+
+Ctrl+W: Cut the word before the cursor, adding it to the clipboard.
+
+Ctrl+K: Cut the part of the line after the cursor, adding it to the clipboard.
+
+Ctrl+U: Cut the part of the line before the cursor, adding it to the clipboard.
+
+Ctrl+Y: Paste the last thing you cut from the clipboard. The y here stands for “yank”.
+
+---------------------------------
+
+## Working With Your Command History
+
+# You can quickly scroll through your recent commands, which are stored in your user account’s bash history file:
+
+Ctrl+P or Up Arrow: Go to the previous command in the command history. Press the shortcut multiple times to walk back through the history.
+
+Ctrl+N or Down Arrow: Go to the next command in the command history. Press the shortcut multiple times to walk forward through the history.
+
+Alt+R: Revert any changes to a command you’ve pulled from your history if you’ve edited it.
+
+----------------
+
+# Bash also has a special “recall” mode you can use to search for commands you’ve previously run:
+
+Ctrl+R: Recall the last command matching the characters you provide. Press this shortcut and start typing to search your bash history for a command.
+
+Ctrl+O: Run a command you found with Ctrl+R.
+
+Ctrl+G: Leave history searching mode without running a command.
+
+---------------------------------
+

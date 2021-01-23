@@ -1,0 +1,22 @@
+## Remove Repository and a Product from a Content View ##
+
+(1) Get Organization_ID:
+# hammer organization list
+
+(2) Get the Product_ID:
+# hammer product list --organization-id <Organization_ID>
+
+(3) Get the Content_View_ID:
+# hammer content-view list
+
+(4) Get the Repository_ID:
+# hammer content-view info --id <Content_View_ID>
+
+(5) Remove the Repository_ID from the Content_View:
+# hammer content-view remove-repository --repository-id <Repository_ID> --id <Content_View_ID>
+
+(6) Confirm the removal of the repository:
+# hammer content-view info --id Content_View_ID
+
+(7) Delete the Product:
+# hammer product delete --id Product_ID

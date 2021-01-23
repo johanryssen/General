@@ -1,5 +1,29 @@
 Test TCP port without Telnet
 
+-------------------------------------
+$ exec 5<>/dev/tcp/time.nist.gov/13; cat <&5 & cat >&5; exec 5>&-
+
+Without netcat, telnet, FTP
+
+/dev/tcp/(hostname)/(port) is a bash builtin that bash can use to open connections to TCP and UDP ports.
+
+Open a connection on a port to a server and lets you read and write to it from the terminal.
+
+(1) exec sets up a redirect for /dev/tcp/$server/$host to file descriptor 5.
+
+(2) Launch a redirect from file descriptor 5 to STDOUT and send that to the background
+(which is what causes the PID to be printed when the commands are run),
+and then redirect STDIN to file descriptor 5 with the second cat.
+
+(3) When second cat dies (the connection is closed), clean up the file descriptor with 'exec 5>&-'
+
+Can be used to test FTP, HTTP, NTP, or can connect to netcat listening on a port (makes for a simple chat client)
+
+# UDP
+Replace /tcp/ with /udp/
+
+-------------------------------------
+
 ## BASH ##
 $ cat < /dev/tcp/127.0.0.1/22
 SSH-2.0-OpenSSH_5.3

@@ -1,0 +1,92 @@
+HANDBRAKE
+
+Remove the 'Release' HandBrake and install HandBrake-SnapShot (More options, eg. MP4)
+
+apt-get remove handbrake-gtk handbrake-cli
+add-apt-repository ppa:stebbins/handbrake-snapshots
+apt-get update
+apt-get install handbrake-gtk handbrake-cli
+
+=========================
+
+avconv -i input.mkv -codec copy output.mp4
+
+=========================
+
+apt-get install gpac mkvtoolnix
+
+=========================
+-- FFMPEG --
+To convert all the mkv files in current directory, run a simple loop in terminal:
+
+for i in $(ls *mkv); do ffmpeg -i $i -vcodec copy -acodec copy $i.mp4; done;
+
+=========================
+-- VLC --
+Download and install VLC player with one of the options provided here:
+http://www.videolan.org/vlc/download-ubuntu.html
+
+Then run it by executing this command in Terminal:
+
+vlc
+
+Then once the program is open go "Media > Convert / Save...":
+
+"Media > Convert / Save..." option
+
+And in this interface which comes up click the "Add" button and locate the MP4 file which
+you wish to convert:
+
+Open Media window
+
+Then select the "Convert / Save" option at the bottom which now becomes enabled (not
+greyed out). Next select the profile "Video - H.264 + MP3 (MP4)" and then click on the
+little tool icon next to the pull-down menu and make sure that the option "MKV" is
+selected and not the default "MP4/MOV" like this:
+
+Profile edition options
+
+Then click the "Save" button at the bottom left. Then select the destination to where you
+want VLC player to export the file to and press "Start". Ignore any errors telling you
+about encoding problems. The progress bar which normally shows how far into the program
+you are will now show the progress of the conversion. When the progress bar has finished,
+your video will have been converted and ready to play.
+
+=========================
+-- AVCONV --
+Install avconv
+sudo apt-get install libav-tools
+
+Translate via command line
+
+avconv -i filme.mp4 -c copy filme.mkv
+
+Converting this way produces a file with a similar size.
+We need do add extra options to define what transformations should be done to reduce
+space. (See avconv -h)
+
+=========================
+-- AVIDEMUX --
+Avidemux is a free video editor designed for simple cutting, filtering and encoding tasks.
+It supports many file types, including AVI, DVD compatible MPEG files, MP4 and ASF, using
+a variety of codecs. Tasks can be automated using projects, job queue and powerful
+scripting capabilities.
+Avidemux is available for Linux, BSD, Mac OS X and Microsoft Windows under the GNU GPL
+license. The program was written from scratch by Mean, but code from other people and
+projects has been used as well.
+
+1) Open the mkv file in avidemux and Select safe mode if prompted.
+
+2) Leave the video as copy.
+
+3) Choose File-> Properties. Check if the audio codec is aac.
+
+4) If audio codec is NOT aac, select aac(faac).
+
+Otherwise, leave it as copy. (Sometimes using this option the audio may be out of sync or
+distorted, in that case select aac(faac) instead.)
+Select mp4 for format.
+
+5) Select save, choose location and type a filename with .mp4 as the extension.
+
+=========================

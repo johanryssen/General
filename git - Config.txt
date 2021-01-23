@@ -1,0 +1,32 @@
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+
+-----
+
+[user]
+	name = myusername
+	email = myemail@example.com
+[help]
+	autocorrect = 1
+[core]
+	excludesfile = ~/.gitignore
+	editor = notepad++
+	autocrlf = true
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[color]
+	ui = auto
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+[color "status"]
+	added = green bold
+	changed = yellow bold
+	untracked = red bold

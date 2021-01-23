@@ -1,8 +1,10 @@
 # Download
-http://www.citrix.com/downloads/citrix-receiver/linux/receiver-for-linux-131.html
+https://www.citrix.com/downloads/citrix-receiver/linux/receiver-for-linux-latest.html
+
 # Install
 sudo dpkg -i icaclient*.deb
 sudo apt-get update
 sudo apt-get -f install
+
 # Link certs
 sudo ln -s /usr/share/ca-certificates/mozilla/* /opt/Citrix/ICAClient/keystore/cacerts/

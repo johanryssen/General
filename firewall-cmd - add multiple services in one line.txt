@@ -1,2 +1,0 @@
-for i in http https ldap ldaps kerberos kpasswd dns ntp; do firewall-cmd --permanent --add-service $i; done
-firewall-cmd --reload

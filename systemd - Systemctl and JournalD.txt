@@ -1,0 +1,28 @@
+# Tail / follow user04:
+journalctl -f -u user04
+
+# Journal entries from the current boot, add the -b flag:
+journalctl -b
+
+# Kernel messages, such as those that are typically represented by dmesg, you can use the -k flag:
+journalctl -k
+
+# Limit this only to the current boot by appending the -b flag:
+journalctl -k -b
+
+# Show messages for the specified systemd unit:
+journalctl -f -u apache2
+
+# A unit file contains the parameters that systemd uses to manage and run a unit.
+# See the full contents of a unit file:
+systemctl cat nginx.service
+
+# See the dependency tree of a unit (which units systemd will attempt to activate when starting the unit):
+systemctl list-dependencies nginx.service
+
+# This will show the dependent units, with target units recursively expanded.
+# To expand all dependent units recursively, pass the --all flag:
+systemctl list-dependencies --all nginx.service
+
+# See the low-level details of the unit's settings on the system:
+systemctl show nginx.service

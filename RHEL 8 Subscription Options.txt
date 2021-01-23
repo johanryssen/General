@@ -1,0 +1,69 @@
+---------- INTERACTIVELY ----------
+
+1. Register with Subscription Management Portal:
+subscription-manager register --username <username> --password <password>
+
+# Register System Purpose, and then auto attach:
+subscription-manager role --set=<ROLE>
+subscription-manager service-level --set=<SERVICE-LEVEL>
+subscription-manager usage --set=<USAGE>
+subscription-manager attach
+
+
+## Where ROLE is either:
+"Red Hat Enterprise Linux Server"
+"Red Hat Enterprise Linux Workstation"
+"Red Hat Enterprise Linux Compute Node"
+
+## Where SERVICE-LEVEL is either:
+"Premium"
+"Standard"
+"Self Support"
+
+## Where USAGE is either:
+"Production"
+"Development/Test"
+"Disaster Recovery"
+
+
+2. Register your systems to Red Hat Insights:
+insights-client --register
+
+
+
+---------- KICKSTART ----------
+
+# To register your system in Anaconda using KICKSTART, edit the:
+# %post section
+# of the kickstart file to include the following options:
+
+
+%post
+
+# COMMANDS_SUB_RHSM_KICKSTART_3
+/usr/sbin/subscription-manager register --username <REDHAT_LOGIN_USERNAME> --password <REDHAT_LOGIN_PASSWORD> --autosubscribe
+
+# COMMANDS_INTENT
+subscription-manager role --set="Red Hat Enterprise Linux Server"
+subscription-manager service-level --set="Self-Support"
+subscription-manager usage --set="Development/Test"
+subscription-manager attach
+
+# Register your systems to Red Hat Insights.
+insights-client --register
+
+###
+Using the --autosubscribe option above will allow the system to automatically apply the most relevant and applicable entitlement to this system based on what is available from the account tied to this login information.
+
+To register only to entitlements tied to specific support levels, include the
+--servicelevel
+
+/usr/sbin/subscription-manager register --servicelevel=<LEVEL> --username <REDHAT_LOGIN_USERNAME> --password <REDHAT_LOGIN_PASSWORD> --autosubscribe
+
+# Where LEVEL is either of:
+STANDARD
+NONE
+PREMIUM
+
+
+-------------------------------

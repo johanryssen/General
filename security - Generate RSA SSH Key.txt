@@ -1,0 +1,5 @@
+Generate RSA SSH Key
+ssh-keygen -b 4048 -t rsa -C "Some comments"
+
+then copy the public key into:
+/root/.ssh/authorized_keys

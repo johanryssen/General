@@ -1,5 +1,8 @@
 SFTP setup
 
+# Install FTP server:
+yum install vsftpd -y
+
 (1) vim /etc/ssh/sshd_config
 ## Comment out:
 Subsystem sftp /usr/local/libexec/sftp-server

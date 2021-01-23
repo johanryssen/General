@@ -1,0 +1,27 @@
+# Copy a File from a LOCAL Server to a Remote Server with SSH
+john@example02:~$ rsync -avzhe 'ssh -p 9401' /home/john/GIT john@example01:/home/jo/BACKUPS/
+
+# Copy a File from a REMOTE Server to a Local Server with SSH
+john@example01:~$ rsync -avzhe 'ssh -p 3714' john@example02:/home/jo/GIT /home/jo/BACKUPS/
+
+	* -a : archive mode. Allows copying files recursively and also preserves symbolic links, file permissions, user & group ownerships and timestamps
+	* -v : verbose
+	* -z : compress file data
+	* -h : human-readable format
+	* -e : specify protocol name with port number
+	* -u, --update : skip files that are newer on the receiver
+	* -r : copies data recursively (but don’t preserve timestamps and permission while transferring data)
+	* -n, --dry-run : perform a trial run with no changes made
+	* --list-only : list the files instead of copying them
+	* -t, --times : preserve modification time
+	* --port=PORT : specify double-colon alternate port number
+	* --stats : give some file-transfer stats
+	* --progress : show progress during transfer
+
+LOCAL:
+mount /dev/sdc /mnt/my-backup
+rsync -azvP /etc/* /mnt/my-backup
+umount /dev/sdc
+
+REMOTE:
+rsync -azvP /etc/* username@remote_host:/backup/

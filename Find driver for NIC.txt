@@ -60,8 +60,8 @@ wpa-psk "network-password"
 
 allow-hotplug wlan0
 iface wlan0 inet dhcp
-wpa-ssid "TPG-CJ8C"
-wpa-psk "P3rsisten7"
+wpa-ssid "mySSID"
+wpa-psk "myP@ssword"
 
 -------------------------------
 
@@ -71,8 +71,8 @@ update_config=1
 country=AU
 
 network={
-     ssid="TPG-CJ8C"
-     psk="P3rsisten7"
+     ssid="mySSID"
+     psk="myP@ssword"
      key_mgmt=WPA-PSK
 }
 

@@ -1,0 +1,13 @@
+# Add Pycharm-Edu launcher to Linux menu #
+
+vi /usr/local/share/applications/jetbrains-pycharm-edu.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PyCharm CE
+Icon=/opt/pycharm-community-2020.3.2/bin/pycharm.png
+Exec="/opt/pycharm-community-2020.3.2/bin/pycharm.sh" %f
+Comment=Python Edu
+Categories=Development;IDE;
+Terminal=false
+StartupWMClass=jetbrains-pycharm-ce

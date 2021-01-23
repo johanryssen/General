@@ -1,0 +1,97 @@
+########## OpenConnect ##########
+
+----- Install -----
+
+apt-get update
+apt install network-manager-openconnect vpnc-scripts libopenconnect-dev libopenconnect5 openconnect -y
+
+
+----- Usage -----
+
+sudo openconnect --authgroup="<GROUP>" -u <USERNAME> --passwd-on-stdin <VPN_ADDRESS>
+-or-
+sudo openconnect -u <USERNAME> --passwd-on-stdin <VPN_ADDRESS>
+
+Enter password on blank line.
+
+https://wiki.archlinux.org/index.php/OpenConnect
+
+
+
+########## Cisco AnyConnect ##########
+
+
+-----  Prerequisites -----
+
+# Install dependencies:
+apt-get update
+apt-get install lib32z1 lib32ncurses5 network-manager-openconnect libxml2:i386 libstdc++6:i386
+
+# Unpack:
+tar -zxvf anyconnect-linux64-4.9.05042-predeploy-k9.tar.gz
+
+# Install:
+/home/jo/Downloads/anyconnect-linux64-4.9.05042/vpn/vpn_install.sh
+
+# Set up aliases:
+$ cat >> ~/.bash_aliases
+alias vpn='/opt/cisco/anyconnect/bin/vpn'
+alias vpnui='/opt/cisco/anyconnect/bin/vpnui'
+^D
+
+
+----- Usage -----
+
+1. Start vpn:
+/opt/cisco/anyconnect/bin/vpn connect vpn.example.com
+
+2. Disconenct
+/opt/cisco/anyconnect/bin/vpn disconnect
+
+
+----- Profiles -----
+
+/opt/cisco/anyconnect/profile/vpn.example.com.xml
+
+Example Profile: https://gist.github.com/JosefJezek/dc251a71cab6336f55bd
+
+<AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
+  <ClientInitialization>
+    <WindowsLogonEnforcement>SingleLocalLogon</WindowsLogonEnforcement>
+    <WindowsVPNEstablishment>AllowRemoteUsers</WindowsVPNEstablishment>
+  </ClientInitialization>
+  <ServerList>
+    <HostEntry>
+      <HostName>VPN 1</HostName>
+      <HostAddress>vpn1.example.com</HostAddress>
+    </HostEntry>
+
+    <HostEntry>
+      <HostName>VPN 2</HostName>
+      <HostAddress>vpn2.example.com</HostAddress>
+    </HostEntry>
+  </ServerList>
+</AnyConnectProfile>
+
+
+----- Troubleshooting -----
+
+..the connect error... can be resolved by sym-linking the cisco ca directory to the system ca directory as cisco only seems to include one root certificate by default.
+Or you can install the certificate chain from the VPN provider.
+
+$ cd /opt/.cisco/certificates
+$ sudo mv ca ca.orig
+$ sudo ln -sf /etc/ssl/certs/ ca
+$ sudo /etc/init.d/vpnagentd restart
+
+-----
+
+The VPN subsytem needs to be started before launching /opt/cisco/anyconnect/bin/vpn or /opt/cisco/anyconnect/bin/vpnui
+
+The VPN subsytem is started with the vpnagentd binary:
+/opt/cisco/anyconnect/bin# ./vpnagentd
+/opt/cisco/anyconnect/bin# ./vpnui
+
+systemctl daemon-reload
+
+-----

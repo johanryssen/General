@@ -1,0 +1,40 @@
+(1) Create a script:
+
+cat << EOF >> /usr/local/bin/test-daemon.sh
+#!/bin/sh
+
+i=0
+while sleep 2
+do
+    echo "<$i>I'm alive!"
+    i=$(((i+1)%8))
+done
+
+EOF
+
+chmod +x /usr/local/bin/test-daemon.sh
+
+
+It will generate a message, every 2 seconds, cycling through all log level prefixes.
+
+(2) To hook this up to systemd, Create a two-line service file:
+
+cat << EOF >>  /etc/systemd/system/test.service
+[Service]
+ExecStart=/usr/local/bin/test-daemon.sh
+EOF
+
+(3)Make systemd find the new service file:
+systemctl daemon-reload
+
+(4) Start it:
+systemctl start test
+
+(5) Check status:
+systemctl status test
+
+(6) View the log / journal:
+journalctl -f -u test
+
+(7) Edit the service if needed:
+systemctl edit test --full
