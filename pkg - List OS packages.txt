@@ -1,0 +1,7 @@
+## List OS packages
+
+RHEL / SUSE / ORACLE
+rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n'
+
+UBUNTU
+dpkg-query -W -f='${Status} ${Package} ${Version} ${Architecture}\n'|awk '($1 == "install") && ($2 == "ok") {print $4" "$5" "$6}'

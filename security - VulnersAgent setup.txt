@@ -1,0 +1,49 @@
+VulnersAgent setup
+
+# Create account and API:
+https://vulners.com/
+
+
+# Repo
+/etc/yum.repos.d/vulners.repo
+[vulners]
+name=Vulners Agent
+baseurl=https://repo.vulners.com/redhat/el7/
+enabled=1
+gpgcheck=0
+
+
+# Install Package
+yum install vulners-agent
+
+
+# Install dependencies:
+pip3 install vulners distro getmac ifaddr pytimeparse arrow pytz
+
+
+# Add API key to /etc/vulners/vulners_agent.conf
+api_key = SADFASDGFASDGFASDFASDF.....
+
+
+# Link config file
+mkdir /opt/vulnersAgent/config
+ln -s /etc/vulners/vulners_agent.conf /opt/vulnersAgent/config/
+chown vulners. -R /opt/vulnersAgent/config/
+
+
+# Logs
+/var/log/vulners-agent/
+
+
+# Usage
+/opt/vulnersAgent/application.py --app Ticker
+/opt/vulnersAgent/application.py --app Migration
+/opt/vulnersAgent/application.py --app Scanner
+
+# View scans:
+https://vulners.com/scan
+
+
+## Manual Audit ##
+
+https://vulners.com/audit

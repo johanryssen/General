@@ -2,6 +2,8 @@
 
 # Extend Disk 0 on Hypervisor
 
+yum install -y cloud-utils-growpart
+
 
 # Rescan device
 [root@server01 ~]# echo 1 > /sys/block/sda/device/rescan
@@ -19,8 +21,6 @@ Units = sectors of 1 * 512 = 512 bytes
   PV /dev/sda2   VG centos          lvm2 [<49.51 GiB / 0    free]
   Total: 1 [<49.51 GiB] / in use: 1 [<49.51 GiB] / in no VG: 0 [0   ]
 
-
-yum install -y cloud-utils-growpart
 
 # Extend partition
 [root@server01 ~]# growpart /dev/sda 2

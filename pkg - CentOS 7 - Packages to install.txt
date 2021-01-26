@@ -1,4 +1,8 @@
 ## yum -y install $(awk '{print $1}' pkg.txt)
+ansible
+rhel-system-roles
+openscap
+openscap-scanner
 bash-completion
 bc
 binutils
