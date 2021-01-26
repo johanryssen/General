@@ -25,8 +25,8 @@ content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
 
 # Set vars:
 profile="pci-dss" ;
-results="/OpenSCAP/scan1/server01.xml" ;
-report="/OpenSCAP/scan1/server01.html" ;
+results="/OpenSCAP/scan1/`hostname`.xml" ;
+report="/OpenSCAP/scan1/`hostname`.html" ;
 cpe="/usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml" ;
 content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml" ;
 
@@ -34,7 +34,7 @@ content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml" ;
 oscap xccdf eval --profile $profile --results $results --report $report --cpe $cpe $content ; true 
 
 # Generate Ansible Playbook
-oscap xccdf generate fix --fix-type ansible --profile $profile --output /OpenSCAP/scan1/server01-fix.yml $content
+oscap xccdf generate fix --fix-type ansible --profile $profile --output /OpenSCAP/scan1/`hostname`-fix.yml $content
 
 
 ---------------------------------------
