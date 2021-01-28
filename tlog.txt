@@ -1,0 +1,35 @@
+# Install
+yum -y install cockpit-session-recording tlog
+
+# Browse to Cockpit webUI > Session Recording
+https://<IP>:9090/session-recording
+
+# Click the gear icon:
+## General Configuration > Log User's Input > Save
+## SSSD Configuration > Scope = "All" > Save
+
+# General Configuration
+cat /etc/tlog/tlog-rec-session.conf
+
+# SSSD Configuration:
+cat /etc/sssd/conf.d/sssd-session-recording.conf
+
+# SSH into the host and run some commands, then exit.
+
+# Wait a min or 2, then Browse to Cockpit webUI > Session Recording
+
+# CLI to view:
+tlog-play
+
+# Default configuration - data sent to journald:
+journalctl -o verbose | grep -P "\"rec\".*?\,"
+
+# Replay the session:
+## Obtain "IDENTIFIER" from above command
+
+## Syntax:
+tlog-play -r journal -M TLOG_REC=<IDENTIFIER>
+
+## Example:
+tlog-play -r journal -M TLOG_REC="f785c9edad1c423589e2c2631b897f7e-156e-19112"
+
