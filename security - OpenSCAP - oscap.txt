@@ -21,7 +21,10 @@ cpe="/usr/share/xml/scap/ssg/content/ssg-rhel7-cpe-dictionary.xml"
 5. Set "Conent" variable
 content="/usr/share/xml/scap/ssg/content/ssg-rhel7-xccdf.xml"
 
------
+----------
+XCCDF: Extensible Configuration Checklist Description Format
+OVAL: Open Vulnerability and Assessment Language
+----------
 
 # Set vars:
 profile="pci-dss" ;
