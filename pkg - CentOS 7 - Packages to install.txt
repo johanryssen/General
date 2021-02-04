@@ -1,8 +1,5 @@
 ## yum -y install $(awk '{print $1}' pkg.txt)
 ansible
-rhel-system-roles
-openscap
-openscap-scanner
 bash-completion
 bc
 binutils
@@ -29,18 +26,22 @@ nc
 net-tools
 nfs-utils
 nmap
+openscap
+openscap-scanner
 openssl-devel
 pciutils
 pciutils-libs
 postfix
+python-virtualenv
 python3
 python3-pip
-python-virtualenv
+rhel-system-roles
+screen
 screen
 strace
 sysstat
-tcpdump
 tcp_wrappers
+tcpdump
 traceroute
 unzip
 util-linux
@@ -48,4 +49,3 @@ vim
 wget
 which
 yum-utils
-screen

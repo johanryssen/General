@@ -5,6 +5,9 @@
 apt-get update
 apt install network-manager-openconnect vpnc-scripts libopenconnect-dev libopenconnect5 openconnect -y
 
+# Optional packages:
+apt install gmp-doc libgmp10-doc libmpfr-dev gnutls-doc gnutls-bin libmpfr-doc -y
+
 
 ----- Usage -----
 
@@ -31,7 +34,7 @@ apt-get install lib32z1 lib32ncurses5 network-manager-openconnect libxml2:i386 l
 tar -zxvf anyconnect-linux64-4.9.05042-predeploy-k9.tar.gz
 
 # Install:
-/home/jo/Downloads/anyconnect-linux64-4.9.05042/vpn/vpn_install.sh
+/home/user/Downloads/anyconnect-linux64-4.9.05042/vpn/vpn_install.sh
 
 # Set up aliases:
 $ cat >> ~/.bash_aliases
