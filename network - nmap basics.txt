@@ -1,3 +1,44 @@
+Nmap performs HOST DISCOVERY by sending four different probes:
+ICMP type 8 (echo request)
+ICMP type 13 (timestamp request)
+TCP SYN packet to port 443
+TCP ACK packet to port 80.
+Also: Nmap sends an ARP request for any hosts on the local network, filling in MAC address details.
+
+------------------------
+
+# Quick scan + traceroute:
+nmap -sn 10.10.1-10.0-255 --traceroute
+
+# Service version + OS scan:
+nmap -iL <ip list> -sV --version-intensity 5 -O -vv
+
+------------------------
+
+## Redirect output to file:
+nmap -sn 10.10.0.0/24 | awk '{/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "scanresults.out"}'
+
+## Save the scan output to different formats:
+-oA	- All formats
+-oN - Normal
+-oX - XML
+-oS - skript kiddie
+-oG - grep-able
+
+------------------------
+
+## Tracing a packet on a single IP
+nmap -vv -n -sn -PE -T4 --packet-trace 10.10.22.13
+
+-vv		(Increase verbosity)
+-n		(No DNS resolution. This speeds up our scan!)
+-sn		(No port scan)
+-PE		(Use ICMP echo request queries. This is what is displayed in the output above)
+-T4 	(prohibits the dynamic scan delay from exceeding 10 ms for TCP ports).
+--packet-trace (Trace sent and received packets)
+
+------------------------
+
 # Basic scan:
 nmap 192.168.0.0/24
 
@@ -6,22 +47,6 @@ nmap 192.168.0.0/24 10.80.0.0/24
 
 # Quick scan, no port scan:
 nmap -sn 192.168.0.0/24
-
-## same as:
-nmap -sP 192.168.0.0/24
-
-# Store IP addresses from the above output to a file:
-nmap -sn 192.168.0.0/24 | awk '/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "nmap_scanned_ips"}'
-
-Save the scan output to different formats.
--oN <file>	-	Normal
--oX <file>	-	XML
--oS <file>	-	s|<rIpt kIddi3
--oG <file>	-	Grepable
-
-eg.
-nmap -sn 192.168.0.0/24 -oG nmap_output
-
 
 # To view what an options does:
 nmap | grep -- -sV
@@ -32,17 +57,6 @@ nmap -sV -p 22,443 192.168.0.0/24 –open
 
 # Scan open port-range:
 nmap -sV -p 22-443 192.168.0.0/24 –open
-
-# Packet tracing:
-nmap -vv -n -sn -PE -T4 --packet-trace 192.168.2.3
-
--vv				(Increase verbosity)
--n				(No DNS resolution. This speeds up our scan!)
--sn				(No port scan)
--PE				(Use ICMP echo request queries. This is what is displayed in the output above)
--T4				(prohibits the dynamic scan delay from exceeding 10 ms for TCP ports. See man nmap).
---packet-trace	(Trace sent and received packets)
-
 
 ## Using recursive DNS proxies for a stealth scan
 
