@@ -1,5 +1,11 @@
 Cisco Networking
 
+# Show Interface status:
+show ip interface brief
+
+# Change hostname:
+(config)# hostname ASA123
+
 # Filtering (like grep)
 <some cmd> | i --> include
 <some cmd> | e --> exclude
@@ -246,3 +252,25 @@ Router1>enable
 Router1#configure terminal
 Router1(config)#interface FastEthernet0/1
 Router1(config-if)#ip access-group 101 out
+
+
+## Enable SSH on ASA ##
+
+Step 1: Configure Enable password. (Optional)
+ASA(config)# enable password myPasswd
+
+Step 2: Create a username with password.
+ASA(config)# username bipin password cisco@123
+
+Step 3: Configure this local username to authenticate with SSH.
+ASA(config)# aaa new-model
+ASA(config)# aaa authentication ssh console LOCAL
+
+Step 4: Create RSA key pair.
+ASA(config)# crypto key generate rsa modulus 1024
+INFO: The name for the keys will be: 
+Keypair generation process begin. Please wait...
+
+Step 5: Now specify only particular hosts or network to connect to the device using SSH.
+ASA(config)# ssh 192.168.1.0 255.255.255.0 trust
+ASA(config)# ssh 172.16.1.0 255.255.255.0 trust
