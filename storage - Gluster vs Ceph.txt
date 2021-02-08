@@ -1,0 +1,97 @@
+## CEPH - 2014 ##
+
+Best suited toward the rapid access of unstructured data, which constitutes the vast majority of files in the world.
+
+Ceph: scalable object storage with block and file capabilities
+
+Ceph is an object-oriented storage system that operates using binary objects, thereby eliminating the rigid block structure of classic data carriers.
+Physically, Ceph also uses hard drives, but it has its own algorithm for regulating the management of the binary objects, which can then be distributed among several servers and later reassembled.
+
+-----
+Software-Defined Storage (SDS)
+scalable
+Data analytics, artificial intelligence/machine learning (AI/ML), and emerging workloads
+Deployed on: industry-standard hardware.
+-----
+
+# Object-Based Storage for Unstructured Data
+
+Object stores rely on binary objects
+Store data in the form of BINARY OBJECTS.
+
+# Manages stored data as objects rather than as a file hierarchy, spreading binary data across the cluster
+
+Every component is decentralized, and all OSDs (Object-Based Storage Devices) are equal to one another.
+As such, any number of servers with different hard drives can be connected to create a single storage system.
+
+OBJECT STORE consists of two core components
+1. Object Storage Device (OSD).
+Each individual disk belongs to a Ceph cluster.
+OSDs are the data silos in Ceph that finally store the binary objects.
+Users communicate directly with OSDs to upload data to the cluster.
+OSDs in the background also deal independently with issues such as replication.
+
+2. MONITORING SERVER (MON)
+Which exists so that clients and OSDs alike always know which OSDs actually belong to the cluster at the moment: They maintain lists of all existing monitoring servers and OSDs and relay them on command to clients and OSDs.
+Moreover, MONs enforce a cluster-wide quorum: If a Ceph cluster breaks apart, only those cluster partitions can remain active that have the majority of MON servers backing them; otherwise, this could lead to a split-brain situation.
+
+Three interfaces in Ceph are important:
+1. CephFS is a Linux filesystem driver that lets you access Ceph storage like a normal filesystem.
+2. The RBD (RADOS Block Device) provides access to RADOS via a compatibility interface for blocks
+3. The RADOS Gateway offers RESTful storage in Ceph, which is accessible via the Amazon S3 client or OpenStack Swift client.
+
+
+
+## GLUSTER - 2011 ##
+
+Gluster is better for sequential data access (streaming video), or for applications where speed isn’t as important, like backup.
+
+Gluster: scalable file storage with object capabilities
+
+GlusterFS is a distributed file system with a modular design.
+Various servers are connected to one another using a TCP/IP network.
+As a POSIX (Portable Operating System Interface)-compatible file system, glusterfs can easily be integrated into existing linux server environments.
+
+-----
+Software-Defined Storage (SDS)
+General purpose workloads (backup and archival) and analytics.
+Hyperconvergence.
+Deployed on: bare metal, virtual, container, and cloud environments.
+-----
+
+# Block Storage in Hierarchical Trees
+
+Chunks of data are stored on open space on connected cluster devices.
+File stores
+
+BRICKS (Linux computers with free disk space) form the foundation of the storage solution.
+
+The space can be made up of partitions but is ideally complete hard drives or even RAID arrays.
+
+The number of data storage devices available per brick or the number many servers involved plays only a minor role.
+These bricks stick together in a trust relationship.
+GlusterFS groups these local directories to form a common namespace, which is still a rather coarse construction and only partially usable.
+
+TRANSLATORS
+These are small modules that provide the space to be shared with a particular property.
+The properties of the GlusterFS storage can be specified in the Admin Shell.
+In the background, the software brings the corresponding translators together.
+The result is a GlusterFS volume.
+One of GlusterFS's special features is its metadata management.
+Unlike with other shared storage solutions, there are no dedicated servers or entities.
+The user can choose from various interfaces for storing their data on GlusterFS.
+
+GlusterFS comes with four different interfaces:
+
+1. The first is the NATIVE FILESYSTEM DRIVER.
+This is not part of the Linux kernel and uses the FUSE approach (filesystem in userspace; Figure 2).
+
+2. Additionally, the storage solution comes with its own downgraded NFS SERVER.
+
+3. The obligatory RESTful interface is of course also present.
+
+4. The libgfapi library is the latest access option.
+
+Armed with this, GlusterFS is setting out to conquer the storage world.
+
+

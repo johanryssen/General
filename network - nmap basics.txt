@@ -1,3 +1,7 @@
+
+nmap -sC -sV <IP>
+
+
 Nmap performs HOST DISCOVERY by sending four different probes:
 ICMP type 8 (echo request)
 ICMP type 13 (timestamp request)
