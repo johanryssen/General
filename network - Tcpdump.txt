@@ -1,5 +1,50 @@
-Capture:
+## Show list of available interfaces: -D
+tcpdump -D
+
+## Give maximally human-readable timestamp output: -tttt
+tcpdump -i eth0 -tttt
+
+## Don’t resolve hostnames or port names: -nn
+tcpdump -i eth0 -nn
+
+## Capture:
 tcpdump -i eth0 -w /tmp/output.cap tcp and port 443
 
-Read:
+## Read:
 tcpdump -r /tmp/output.cap
+
+## Capture traffic to/from 10.10.10.10
+tcpdump host 10.10.10.10
+
+## Filtering by Source / Destination:
+tcpdump src 10.10.10.10
+tcpdump dst 10.10.10.50
+
+## Finding Packets by Network
+# Can combine this with the src and dst options as well.
+tcpdump net 1.2.3.0/24
+
+## Show Traffic Related to a Specific Port
+tcpdump port 22
+tcpdump src port 2345
+
+## You can find specific port traffic by using the port option followed by the port number.
+tcpdump port 3389
+tcpdump src port 1025
+
+## Show Traffic of One Protocol
+tcpdump icmp
+
+## Show only IP6 Traffic
+tcpdump ip6
+
+## Find Traffic Using Port Ranges
+tcpdump portrange 22-25
+
+## From specific IP and destined for a specific Port
+# All traffic from 10.10.10.15 going to any host on port 22.
+tcpdump -nnvvS src 10.10.10.15 and dst port 22
+
+## Capturing TCP packet communication between two Hosts
+# Capture TCP packets between two hosts 10.10.10.25 & 10.10.10.204
+tcpdump -w two-host-tcp-comm.pcap -i enp0s3 tcp and \(host 10.10.10.25 or host 10.10.10.204\)
