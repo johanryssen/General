@@ -15,7 +15,7 @@ multipath -ll
 # Add to /etc/multipath.conf:
 
            multipath {
-                wwid                    3600601600c703e00bfeeff5fc14fd258
+                wwid                    3600601600c023e00bfeeff2fc14fd258
                 alias                   newDisk2
         }
 ...

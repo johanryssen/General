@@ -13,45 +13,11 @@ total 100M
 [root@server1 ~]#
 
 3. Create a filesystem:
-# XFS:
-[root@server1 ~]# mkfs -t xfs VHD.img
-meta-data=VHD.img                isize=512    agcount=4, agsize=6400 blks
-         =                       sectsz=512   attr=2, projid32bit=1
-         =                       crc=1        finobt=0, sparse=0
-data     =                       bsize=4096   blocks=25600, imaxpct=25
-         =                       sunit=0      swidth=0 blks
-naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
-log      =internal log           bsize=4096   blocks=855, version=2
-         =                       sectsz=512   sunit=0 blks, lazy-count=1
-realtime =none                   extsz=4096   blocks=0, rtextents=0
-[root@server1 ~]#
+## XFS:
+[root@server1 ~]# mkfs.xfs VHD.img
 
-
-# EXT4:
+## EXT4:
 [root@server1 ~]# mkfs -t ext4 VHD.img
-mke2fs 1.42.9 (28-Dec-2013)
-VHD.img is not a block special device.
-Proceed anyway? (y,n) y
-Discarding device blocks: done
-Filesystem label=
-OS type: Linux
-Block size=1024 (log=0)
-Fragment size=1024 (log=0)
-Stride=0 blocks, Stripe width=0 blocks
-25688 inodes, 102400 blocks
-5120 blocks (5.00%) reserved for the super user
-First data block=1
-Maximum filesystem blocks=33685504
-13 block groups
-8192 blocks per group, 8192 fragments per group
-1976 inodes per group
-Superblock backups stored on blocks:
-        8193, 24577, 40961, 57345, 73729
-
-Allocating group tables: done
-Writing inode tables: done
-Creating journal (4096 blocks): done
-Writing superblocks and filesystem accounting information: done
 
 4. Create a mount point directory:
 [root@server1 ~]# mkdir /mnt/VHD
@@ -64,7 +30,7 @@ Writing superblocks and filesystem accounting information: done
 Filesystem                       Type      Size  Used Avail Use% Mounted on
 /dev/loop0                       xfs        97M  5.2M   92M   6% /mnt/VHD
 
-7. Confirm the type (If EXT4 was used in mkfs cmd):
-[root@server1 ~]# df -hT /mnt/VHD/
+7. Confirm the type:
+[root@server1 ~]# df -hTP /mnt/VHD/
 Filesystem     Type  Size  Used Avail Use% Mounted on
-/dev/loop0     ext4   93M  1.6M   85M   2% /mnt/VHD
+/dev/loop0     xfs    95M  6.0M   89M   7% /mnt/VHD

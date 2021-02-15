@@ -23,12 +23,11 @@ https://wiki.archlinux.org/index.php/OpenConnect
 
 ########## Cisco AnyConnect ##########
 
-
 -----  Prerequisites -----
 
 # Install dependencies:
 apt-get update
-apt-get install lib32z1 lib32ncurses5 network-manager-openconnect libxml2:i386 libstdc++6:i386
+apt-get install lib32z1 lib32ncurses5 network-manager-openconnect libxml2:i386 libstdc++6:i386 -y
 
 # Unpack:
 tar -zxvf anyconnect-linux64-4.9.05042-predeploy-k9.tar.gz
@@ -37,10 +36,9 @@ tar -zxvf anyconnect-linux64-4.9.05042-predeploy-k9.tar.gz
 /home/user/Downloads/anyconnect-linux64-4.9.05042/vpn/vpn_install.sh
 
 # Set up aliases:
-$ cat >> ~/.bash_aliases
+vim ~/.bash_aliases
 alias vpn='/opt/cisco/anyconnect/bin/vpn'
 alias vpnui='/opt/cisco/anyconnect/bin/vpnui'
-^D
 
 
 ----- Usage -----
