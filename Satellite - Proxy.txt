@@ -1,0 +1,43 @@
+# You should not need the proxy configuration in --> Administer --> Settings --> HTTP(s) Proxy
+Take a screenshot of that page and then nullify that value.
+
+# If the proxy password has been changed, then:
+
+1. Manually update /etc/rhsm/rhsm.conf
+
+2. Update proxy_password for satellite server, using satellite-installer:
+satellite-installer -S satellite --katello-proxy-password='proxy_password'
+
+3. Verify these files contain correct and identical proxy information:
+/etc/pulp/server/plugins.conf.d/*.json
+/etc/foreman/plugins/katello.yaml
+/etc/rhsm/rhsm.conf
+
+# Explanation:
+Infrastructure > HTTP Proxies > MyProxy > click "Test Connection" for https://aws.amazon.com > it works.
+But for https://cdn.redhat.com
+it fails with:
+SSL_connect error "certificate verify failed (self signed certificate in chain)"
+
+--> This is expected.
+--> cdn.redhat.com requires additional CA and certificates while trying to do a connection test,
+but the GUI method does not performs the test connection in that way.
+It directly hits the URL via the proxy, without any other options and hence the SSL error is returned.
+
+----------
+
+# Restart satellite services 
+satellite-maintain service restart
+satellite-maintain service status
+
+# verify the proxy details on the mentioned files
+/etc/pulp/server/plugins.conf.d/*.json
+/etc/foreman/plugins/katello.yaml
+/etc/rhsm/rhsm.conf
+
+# Test sync one Red Hat and a custom repo.
+
+# CLI - Test the connectivity of custom repos:
+unset http_proxy
+unset https_proxy
+curl -vvv --proxy-user proxyUser:S0mePasswd --proxy proxy.example.com:8080 https://dl.fedoraproject.org/pub/epel/7/x86_64/

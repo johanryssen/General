@@ -17,3 +17,15 @@ AD.DOMAIN\user
 
 %AD3.INTERNAL\\linuxAdmins ALL=(ALL) ALL
 %linuxAdmins@AD3.INTERNAL ALL=(ALL) ALL
+
+-------------
+
+# Update nsswitch and pam
+authconfig --enablesssd --enablesssdauth --enablemkhomedir --update
+
+# Lookup realm ldap details
+dig +short -t SRV _ldap._tcp.dc._msdcs.<AD_REALM>
+
+# Lookup realm kerberos details
+dig +short -t SRV _kerberos._tcp.dc._msdcs.<AD_REALM>
+

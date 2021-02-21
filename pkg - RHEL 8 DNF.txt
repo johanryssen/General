@@ -1,7 +1,7 @@
 dnf clean all --verbose
 dnf autoremove
 # Create metadata cache for downloads
-time dnf makecache timers
+time dnf makecache timer
 
 updatedb
 mandb

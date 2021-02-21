@@ -24,6 +24,17 @@ root@rhel83 ~# getent passwd Administrator@lab.local
 
 ----------
 
+# Update nsswitch and pam
+authconfig --enablesssd --enablesssdauth --enablemkhomedir --update
+
+# Lookup realm ldap details
+dig +short -t SRV _ldap._tcp.dc._msdcs.<AD_REALM>
+
+# Lookup realm kerberos details
+dig +short -t SRV _kerberos._tcp.dc._msdcs.<AD_REALM>
+
+----------
+
 ## Test
 root@server43 ~# ssh adminuser01@lab.local@rhel83
 adminuser01@lab.local@rhel83's password:
@@ -63,3 +74,4 @@ AD.DOMAIN\user
 3. systemctl start sssd
 
 ----------
+
