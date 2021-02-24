@@ -1,11 +1,17 @@
 ssh -f -L 8080:localhost:80 user2@server4 -N
-
+---------------
 -f						-	Background
 
 -L 8080:localhost:80	-	Listen on port 8080, and then via SSH, send information that's going to be redirected to the localhost on the remote SSH server, to port 80.
-So if I connect as user2@server4, then what we're going to see is the information that I sent to port 8080, on my server1 system is going to be ended up being encrypted through SSH, being received by the SSH server on server4, and server4 then sends it through to its own localhost on port 80
+So if I connect as user2@server4, then what we're going to see is the information that I sent to port 8080,
+on my server1 system is going to be ended up being encrypted through SSH,
+being received by the SSH server on server4, and server4 then sends it through to its own localhost on port 80
 
 -N						-	Not running a command in SSH
+---------------
 
 Connect with:
 w3m http:localhost:8080	-	This tunnels via p8080 to p80 on "server4"
+
+(w3m - A text-based web browser)
+---------------

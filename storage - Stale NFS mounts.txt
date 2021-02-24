@@ -26,6 +26,6 @@ service networker stop
 
 # next
 lsmod | grep nfs
-lockd ..... ntf3
+lockd ..... nfs3
 
 rmmod -f nfs3

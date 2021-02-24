@@ -1,0 +1,48 @@
+---------- Info Gathering ----------
+
+1. PKGINFO:
+pkginfo -l
+
+
+2. EXPLORER:
+# To enable explorer
+/usr/sbin/explorer -g
+
+# To run:
+/usr/sbin/explorer
+[n]
+
+/var/explorer/output/...
+
+3. PACKAGE LIST
+pkg list
+
+
+4. ZONES:
+zoneadm list -c
+zoneadm list -v
+zoneadm list -i
+
+
+5. NETWORK:
+dladm show-phys 
+dladm show-ether
+dladm show-link
+
+netadm list
+
+ipadm show-if
+ipadm show-addr
+
+# Restart networking service
+svcadm restart physical
+
+
+6. CPU:
+psrinfo -v
+
+
+7. SERVICES:
+svcs -av
+svcs -xv
+

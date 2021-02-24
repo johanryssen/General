@@ -21,8 +21,14 @@ vgs
   vg_test   3   1   0 wz--n-  <2.99g 88.00m
 
 # LOGICAL VOLUME
-lvcreate --name lv_test --size 500M vg_test
-lvs
+# with -L|--size 
+lvcreate -n lv_test -L 500M vg_test
+
+-or-
+
+# With -l|--extents
+lvcreate -n lv_test -l 100%FREE vg_test
+
 
 [root@server1 ~]# lvs
   LV      VG      Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert

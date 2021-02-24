@@ -1,0 +1,19 @@
+# Steps to add new RPM to Satellite Channel #
+gpg --gen-key
+gpg --list-keys
+gpg --export -a 'MyNewPackage002.x86_64.rpm' > RPM-GPG-KEY-MyNewPackage002
+
+cat RPM-GPG-KEY-MyNewPackage002
+rpm --import RPM-GPG-KEY-MyNewPackage002
+
+cp RPM-GPG-KEY-MyNewPackage002 /etc/pki/rpm-gpg/
+cp RPM-GPG-KEY-MyNewPackage002 /var/www/html/gpg_keys/
+
+chmod 644 /var/www/html/gpg_keys/RPM-GPG-KEY-MyNewPackage002
+chmod 644 /etc/pki/rpm-gpg/RPM-GPG-KEY-MyNewPackage002
+
+rhnpush -c fcl_sac_repo_x86_64 --server=localhost /tmp/MyNewPackage002.x86_64.rpm
+
+# SYNTAX:
+rhnpush -c <CHANNEL_LABEL> --server=localhost <PACKAGE_TO_ADD.rpm>
+# NB - Use the Satellite CHANNEL LABEL above, not the Repo Label.

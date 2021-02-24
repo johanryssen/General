@@ -1,0 +1,11 @@
+SSL Cert password: password
+
+wget -O /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT https://sat57.vm.local/pub/RHN-ORG-TRUSTED-SSL-CERT --no-check-certificate
+
+vim /etc/sysconfig/rhn/up2date
+
+serverURL=https://sat57.vm.local/XMLRPC
+noSSLServerURL=http://sat57.vm.local/XMLRPC
+sslCACert=/usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+
+rhn_register

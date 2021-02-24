@@ -1,0 +1,57 @@
+Active Directory permissions required to join Linux Computers to Domain using realm.
+
+# Issue
+What are the list of permissions required in order to allow Active Directory service account to join Linux computers to Active Directory.
+
+Command
+"realm join example.com --user=domain-join-service" fails with error
+"Insufficient permissions to join the domain example.com".
+
+# Resolution
+Microsoft AD requires certain permissions as discussed below, for a service account to join Linux computers while using realm and adcli.
+The account should have delegation control of objects in the appropriate Computers container in Active Directory.
+In order to differentiate Linux hosts from other AD-joined computers, create a custom Linux folder in AD.
+
+# On the object types:
+* Computer
+Account shall have following permissions on this object.
+
+# (Standard permissions required for joining all systems to an AD)
+*Reset password
+*Read account restrictions
+*Write account restrictions
+*Validated write to DNS host name
+*Validated write to service principal name
+
+# (Additional permissions required for joining Linux systems to an AD)
+*Read DNS host name attributes
+*Write DNS host name attributes
+*Read DNSHostName
+*Write DNSHostName
+*Read msDS-AddtionalSamAccountName
+*Write msDS-AddtionalSamAccountName
+*Read msDS-SupportedEncryptionTypes
+*Write msDS-SupportedEncryptionTypes
+*Read Operating System
+*Write Operating System
+*Read Operating System Version
+*Write Operating System Version
+*Read OperatingSystemServicePack
+*Write OperatingSystemServicePack
+*Read servicePrincipalName
+*Write servicePrincipalName
+*Read userAccountControl
+*Write userAccountControl
+*Read userPrincipal Name
+*Write userPrincipal Name
+
+Run "realm join" with "--membership-software=adcli".
+realm join example.com --user=domain-join-service --membership-software=adcli
+
+# Root Cause
+Attempting to join a Linux computer to Active Directory using "realm join" with an account which has incorrect or insufficient permissions.
+
+# Diagnostic Steps
+Failed to join domain: failed to join domain 'example.com' over rpc: Access denied
+! Insufficient permissions to join the domain example.com
+realm: Couldn't join realm: Insufficient permissions to join the domain example.com
