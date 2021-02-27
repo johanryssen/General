@@ -1,0 +1,24 @@
+# Generate ssh key without prompts:
+ssh-keygen -b 4096 -t rsa -f ~/.ssh/id_rsa -q -N "" -C "devops@home.lab"
+
+-b	-	key size
+-t	-	type of key 
+-f	-	filename
+-q	-	silent
+-N	-	new passphrase / -P passphrase
+-C 	-	comment
+
+# Copy ssh to remote host + create remote .ssh dir
+cat ~/.ssh/id_rsa.pub | ssh devops@server1 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+
+
+# Distribute SSH keys to multiple servers:
+for i in {1..4}; do ssh-copy-id -i ~/.ssh/id_rsa devops@server$i; done
+
+
+# Disable SSH password auth:
+vim /etc/ssh/sshd_config
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+-----------

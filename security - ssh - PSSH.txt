@@ -1,0 +1,80 @@
+Use parallel ssh (PSSH) for executing ssh in parallel on a number of servers
+
+Parallel versions of the openssh tools:
+ssh		= pssh
+scp		= pscp
+rsync	= prsync
+nuke	= pnuke
+slurp	= pslurp
+
+
+1. Create a text file (e.g. .pssh_hosts) from which pssh read hosts names.
+## SYNTAX
+[user@]host[:port]
+
+$ cat ~/.pssh_hosts
+user1@server23
+root@10.10.10.20
+root@10.10.10.30
+root@10.10.10.123
+Run the date command all hosts:
+$ pssh -i -h ~/.pssh_hosts date
+
+## Output:
+[1] 04:43:11 [SUCCESS] root@10.10.10.123
+Thu Mar 14 04:43:11 IST 2019
+[2] 04:43:11 [SUCCESS] user1@server23
+Thu Mar 14 04:43:11 IST 2019
+[3] 04:43:11 [SUCCESS] root@10.10.10.30
+Thu Mar 14 04:43:11 IST 2019
+[4] 04:43:11 [SUCCESS] root@10.10.10.20
+Thu Mar 14 04:43:11 IST 2019
+
+
+2. Run uptime command on each host:
+$ pssh -i -h ~/.pssh_hosts uptime
+
+## Sample outputs:
+[1] 04:46:21 [SUCCESS] root@10.10.10.30
+ 04:46:21 up  2:29,  0 users,  load average: 0.00, 0.00, 0.01
+[2] 04:46:21 [SUCCESS] user1@server23
+ 04:46:21 up 19:06,  0 users,  load average: 0.13, 0.22, 0.24
+[3] 04:46:21 [SUCCESS] root@10.10.10.123
+ 04:46:21 up  1:55,  0 users,  load average: 0.00, 0.01, 0.01
+[4] 04:46:21 [SUCCESS] root@10.10.10.20
+ 6:11PM  up 1 day, 21:38, 0 users, load averages: 0.10, 0.12, 0.06
+
+
+3. Automate sysadmin tasks (e.g. patching)
+## SYNTAX
+pscp -h ~/.pssh_hosts -- <COMMAND>
+
+$ pssh -h ~/.pssh_hosts -- sudo yum -y update
+
+
+4. Use pscp to copy file multiple servers
+## SYNTAX
+pscp -h ~/.pssh_hosts <SRC> <DEST>
+
+## To copy $HOME/myFile.txt to /tmp/ on all servers, enter:
+$ pscp -h ~/.pssh_hosts $HOME/myFile.txt /tmp/
+
+## Sample outputs:
+[1] 04:51:01 [SUCCESS] user1@server23
+[2] 04:51:01 [SUCCESS] root@10.10.10.30
+[3] 04:51:01 [SUCCESS] root@10.10.10.123
+[4] 04:51:01 [SUCCESS] root@10.10.10.20
+
+## Use the prsync command to copy files:
+$ prsync -h ~/.pssh_hosts /etc/passwd /tmp/
+$ prsync -h ~/.pssh_hosts *.html /var/www/html/
+
+
+5. kill processes on multiple hosts
+
+## SYNTAX
+$ pnuke -h .pssh_hosts <PROCESS_NAME>
+
+### kill httpd and squid on hosts:
+$ pnuke -h ~/.pssh_hosts squid
+$ pnuke -h ~/.pssh_hosts httpd
