@@ -1,0 +1,82 @@
+### Create local repository and sync in Satellite 6 ###
+
+
+## ON THE REPO-SERVER:
+
+# Install packages:
+yum install yum-utils createrepo mod_ssl httpd -y
+
+# Create Repo directory:
+mkdir /var/www/html/newRepo
+
+# Copy files/RPMS into new folder:
+cp /tmp/uploads/* /var/www/html/newRepo
+
+# Set permissions:
+chmod o+r /var/www/html/newRepo -R
+
+
+# Repository metadata script :
+
+## vim /tmp/regenerate_metadata.sh
+
+#!/bin/bash
+
+REPOSITORY="$1"
+
+if [ -z "$REPOSITORY" ]; then
+   echo "Please specify a directory to run against as an absolute path."
+   exit 1
+elif [ ! -d "$REPOSITORY" ]; then
+   echo "Please ensure you specify a directory!"
+   exit 1
+fi
+
+if ! [[ "$REPOSITORY" =~ /$ ]]; then
+   REPOSITORY="$REPOSITORY/"
+fi
+
+if [ -e "$REPOSITORY/PULP_MANIFEST" ];then
+   rm -f "$REPOSITORY/PULP_MANIFEST"
+   echo "Cleaned old manifest at $REPOSITORY/PULP_MANIFEST, creating new!"
+fi
+
+for file in `find $REPOSITORY -type f`;do
+   checksum=$(sha256sum $file | awk '{print $2","$1}')
+   size=$(stat -Lc "%s" $file)
+   echo "Adding File: $file.."
+   echo -e "$checksum,$size" >> "$REPOSITORY/PULP_MANIFEST"
+done
+
+# Ensure file names do not include paths to repo directory
+sed -i -e 's-^./--g' $REPOSITORY/PULP_MANIFEST
+sed -i -e "s-^$REPOSITORY--g" $REPOSITORY/PULP_MANIFEST
+echo "Done."
+
+
+## Generate metadata using above script:
+/tmp/regenerate_metadata.sh /var/www/html/newRepo
+
+
+
+# Run createrepo:
+createrepo -v /var/www/html/newRepo
+
+
+
+## Confirm the httpd configuration, then restart the service :
+httpd -t
+systemctl restart httpd
+
+## Test access:
+curl http://reposerver.test.lab/newRepo/
+
+# Fix for "403 forbidden error":
+chcon -R -t httpd_sys_content_t /var/www/html/newRepo
+
+
+
+## ON SAT 6 - CREATE REPO AND SYNC:
+hammer product create --name <ProductName> --organization <Organization>
+hammer repository create --product <ProductName> --name <newRepoName> --url http://reposerver.test.lab/newRepo/ --organization <Organization> --content-type file
+hammer repository synchronize --name <newRepoName> --product <ProductName> --organization <Organization>

@@ -1,6 +1,9 @@
 
-nmap -sC -sV <IP>
+# store IP addresses in a file
+nmap -sn 10.10.0.0/24 | awk '/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "nmap_discovered_ips"}'
 
+
+nmap -sC -sV <IP>
 
 Nmap performs HOST DISCOVERY by sending four different probes:
 ICMP type 8 (echo request)
