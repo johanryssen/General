@@ -1,8 +1,11 @@
-# vi /etc/rc.local
+# vim /etc/rc.local
 
-##### Ubuntu / Debian #####
-IP=$(/sbin/ifconfig eth0 | grep inet | head -1 | awk {'print $2'})
-echo "IP: $IP" > /etc/issue
+--------------------------
+
+## Ubuntu / Debian
+IP=$(/sbin/ifconfig eth0 | grep inet | head -1 | awk {'print $2'}) ; echo "IP: $IP" > /etc/issue
+
+chmod +x /etc/rc.local
 
 -or-
 
@@ -15,12 +18,14 @@ printf "%s\n%s\n\n" "$MSG" "IP: $IP" > /etc/issue
 
 # chmod +x /etc/network/if-up.d/update-issue
 
+--------------------------
 
-##### CentOS / RHEL #####
-IP=$(ip a | grep "inet" | grep "ens" | awk -F/ '{print $1}' | awk '{print $2}')
-echo "IP: $IP" > /etc/issue
+## CentOS / RHEL
+IP=$(ip a | grep "inet" | grep "ens" | awk -F/ '{print $1}' | awk '{print $2}') ; echo "IP: $IP" > /etc/issue
 
 # chmod +x /etc/rc.d/rc.local
 
+--------------------------
 
 eth0: \4{eth0}
+

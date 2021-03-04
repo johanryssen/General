@@ -1,8 +1,8 @@
 # Copy a File from a LOCAL Server to a Remote Server with SSH
-john@example02:~$ rsync -avzhe 'ssh -p 9401' /home/john/GIT john@example01:/home/jo/BACKUPS/
+john@example02:~$ rsync -avzhe 'ssh -p 9401' /home/john/GIT john@example01:/home/user1/BACKUPS/
 
 # Copy a File from a REMOTE Server to a Local Server with SSH
-john@example01:~$ rsync -avzhe 'ssh -p 3714' john@example02:/home/jo/GIT /home/jo/BACKUPS/
+john@example01:~$ rsync -avzhe 'ssh -p 3714' john@example02:/home/user1/GIT /home/user1/BACKUPS/
 
 	* -a : archive mode. Allows copying files recursively and also preserves symbolic links, file permissions, user & group ownerships and timestamps
 	* -v : verbose

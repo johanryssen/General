@@ -65,5 +65,5 @@ NAME      TYPE      SIZE USED PRIO
 /dev/dm-1: UUID="4e57509f-5da1-4ed4-9a42-fba54e2ab875" TYPE="swap"
 
 
-## Pring info about sdb and partitions on sdb
+## Print info/partitions on /dev/sdb
 [root@localhost ~]# wipefs /dev/sdb

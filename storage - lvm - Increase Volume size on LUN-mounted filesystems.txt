@@ -62,9 +62,20 @@ pvresize /dev/mapper/data01
   /dev/mapper/data01      vg_data01     lvm2 a--    <3.00t    0
 
 
+
+
+# -r flag indicates not only to resize LOGICAL VOLUME but also FILESYSTEM on it:
+lvextend –size 200M -r /dev/VOLUME_GROUP/LOGICAL_VOLUME
+
+lvextend -l +100%FREE -r /dev/vg_backup/lv_backup
+lvextend -l +100%FREE -r /dev/vg_data01/lv_data01
+
+--- or ---
+
 # Extend the Logical Volumes:
 lvextend -l +100%FREE /dev/vg_backup/lv_backup
 lvextend -l +100%FREE /dev/vg_data01/lv_data01
+
 
 # Confirm Logical Volumes extends:
 # lvs

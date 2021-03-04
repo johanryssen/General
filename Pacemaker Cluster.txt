@@ -1,5 +1,5 @@
 1. Install Pacemaker & PCS on each cluster node:
-# yum install -y pacemaker pcs
+# yum install pcs pacemaker fence-agents-all
 
 2. Start & enable the 'pcsd' service on each cluster node:
 # systemctl start pcsd

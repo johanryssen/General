@@ -1,3 +1,0 @@
-IP=$(/sbin/ifconfig ens33 | grep 'inet ' | awk {'print $2'}) ; echo "IP: $IP" > /etc/issue.net
--or-
-IP=$(/sbin/ip a s ens33 | grep 'inet ' | awk {'print $2'}) ; echo "IP: $IP" > /etc/issue.net 
