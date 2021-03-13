@@ -1,7 +1,10 @@
 # Present new LUN
 
 # Rescan
-for i in $(ls -l /sys/class/scsi_host/host*/scan | awk {'print $9'}) ; do echo "- - -" > $i ; done
+for host in $(ls -l /sys/class/scsi_host/host*/scan | awk {'print $9'}) ; do echo "- - -" > $host ; done
+-or-
+for host in `ls /sys/class/scsi_host/` ; do echo "- - -" > /sys/class/scsi_host/${host}/scan; done
+
 
 # Check for new devices:
 cat /proc/scsi/scsi | grep scsi | uniq

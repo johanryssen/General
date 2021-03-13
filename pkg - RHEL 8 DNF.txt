@@ -40,3 +40,4 @@ dnf updateinfo summary all -v
 
 # Update the packages to the specified version
 dnf [options] upgrade-to <package-nevr-specs>
+

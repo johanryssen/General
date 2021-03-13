@@ -3,6 +3,7 @@ find <dir> -executable -type f
 
 # Disable bell sound when hitting the backspace
 echo "set bell-style none" >> .inputrc
+bind -f ~/.inputrc
 
 --------------------
 

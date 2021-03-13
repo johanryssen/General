@@ -8,6 +8,7 @@ bzip2-devel
 chrony
 crontabs
 curl
+dnf-plugins-core
 epel-release
 gcc
 gcc-c++
@@ -42,6 +43,7 @@ strace
 sysstat
 tcp_wrappers
 tcpdump
+tmux
 traceroute
 unzip
 util-linux

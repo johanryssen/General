@@ -6,9 +6,10 @@
 partprobe
 
 # Rescan LUNs:
-for host in `ls /sys/class/scsi_host/` ; 
-do echo "- - -" > /sys/class/scsi_host/${host}/scan;
-done
+for host in `ls /sys/class/scsi_host/` ; do echo "- - -" > /sys/class/scsi_host/${host}/scan; done
+-or-
+for host in $(ls -l /sys/class/scsi_host/host*/scan | awk {'print $9'}) ; do echo "- - -" > $host ; done
+
 
 # Restart multipathd
 systemctl restart multipathd

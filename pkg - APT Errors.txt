@@ -12,4 +12,5 @@ sh -c 'for i in /var/lib/apt/lists/*_Packages; do dpkg --merge-avail "$i"; done'
 dpkg --configure -a
 apt-get -f install
 apt-get clean
-apt-get update && sudo apt-get upgrade
+apt-get update && apt-get upgrade && apt autoremove
+

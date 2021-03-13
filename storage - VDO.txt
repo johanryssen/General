@@ -1,0 +1,160 @@
+(1) Install VDO
+
+yum install -y vdo kmod-kvdo
+
+VDO provides block level, inline data reduction in the form of deduplication, compression, and thin provisioning.
+
+VDO packages:
+kmod-kvdo (kernel modules),
+vdo (user-space utilities).
+
+VDO can be used for local or cloud storage.
+VDO can benefit Filesystems, Ceph, hypervisors, and container environments.
+
+## VDO is comprised of:
+
+# Two Kernel modules
+- kvdo - manages block storage and compression,
+- uds - manages the deduplication index.
+
+# User space utilities
+- vdo - vdo manager used to create, remove or modify volumes,
+- vdostats - view volume statistics.
+
+man vdo
+man vdostats
+
+
+--------------------
+
+
+(2) Create a block device
+
+A free BLOCK device is required to create the VDO volume.
+Use a temporary loopback device to illustrate.
+Data for our backing device will exist as a file in /tmp.
+
+# Create a 10G file:
+truncate -s 10g /tmp/vdo.trunc
+
+The vdo.trunc file will be used to create the loopback device.
+
+# Associate a loop device with a file:
+losetup  /dev/loop1 /tmp/vdo.trunc
+
+# View the loopback device:
+lsblk
+
+NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+loop1           7:1    0   10G  0 loop
+...
+
+
+--------------------
+
+
+(3) Create VDO volume.
+
+VDO uses thin-provisioning to help achieve space savings.
+VDO is able to present a device to the filesystem that is larger than the physical size, since deduplication maps multiple (duplicate) logical blocks to the same physical block.
+
+# Set the VDO volume to be 10x the size of /dev/loop1 (or 100GB).
+vdo create --name=vdo1 --device=/dev/loop1 --vdoLogicalSize=100G
+
+Creating VDO vdo1
+Starting VDO vdo1
+Starting compression on VDO vdo1
+VDO instance 1 volume is ready at /dev/mapper/vdo1
+
+VDO volume has been created at /dev/mapper/vdo1.
+
+# View the volume:
+vdostats --human-readable
+
+Device                    Size      Used Available Use% Space saving%
+/dev/mapper/vdo1         10.0G      4.0G      6.0G  40%            0%
+
+The volume has 0% space savings and there is 4G used (Reserved space for metadata).
+
+
+--------------------
+
+
+(4) Format VDO volume
+
+# Format VDO volume with XFS to demonstrate space savings in this setup:
+mkfs.xfs -K /dev/mapper/vdo1
+
+"-K" options tells mkfs to not send discards to VDO during the format.
+
+# Create a directory to mount new filesystem:
+mkdir /data
+
+# Mount the file system.
+mount -o discard /dev/mapper/vdo1 /data
+
+"-o discard" option lets the filesystem know to send discards to the thin-provisioned layer when a file is deleted.
+Discards are required to accurately report space savings.
+
+
+--------------------
+
+
+(5) Deduplication
+
+Create a file of random data & make several copies of it.
+
+# Generate a unique 1GB file:
+dd if=/dev/urandom of=/data/file.1 bs=1M count=1000
+
+# Check VDO stats:
+vdostats --human-readable
+
+Device                    Size      Used Available Use% Space saving%
+/dev/mapper/vdo1         10.0G      5.0G      5.0G  49%            4%
+
+Note: Writing the random data increased the "Used" value by nearly the amount written.
+Because the data was random there was little or no opportunity for deduplication, and the space saving was small.
+
+
+--------------------
+
+
+(6)
+
+We can see that the Used went up from 4.0G to 5.0G and the Space saving is 4%.
+
+The output of df shows 1.8G being used.
+
+1G is from the new file that was just created and the 800M is from the filesystem's metadata.
+
+df -h|grep vdo
+/dev/mapper/vdo1       100G  1.8G   99G   2% /data
+
+# Make 4 copies of the file to demonstrate having duplicate data in the filesystem.
+for i in 2 3 4 5; do echo "copy $i";cp file.1 file.$i; done
+
+
+--------------------
+
+
+(7)
+
+# Run the sync command to flush any data in the file system’s page cache to VDO.
+sync
+
+# Review the output of df -h and vdostats to see the space savings.
+df -h /dev/mapper/vdo1
+/dev/mapper/vdo1       100G  5.7G   95G   6% /data
+
+(df is reporting 5.7G used from the 5, 1G files created).
+
+# Look at the output of vdostats.
+vdostats --human-readable
+Device                    Size      Used Available Use% Space saving%
+/dev/mapper/vdo1         10.0G      5.0G      5.0G  49%           80%
+
+The Used amount hasn’t changed since the creation of the first file.
+The space savings is now reporting 80%
+
+--------------------

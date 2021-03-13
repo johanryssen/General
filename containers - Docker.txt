@@ -1,3 +1,135 @@
+# Docker Tutorial:
+
+$ docker run -dp 80:80 docker/getting-started
+
+Browser:
+<HOSTIP>:80
+
+### Dockerfile Content
+
+# Required:
+FROM: Define the base image used to start the build process.
+MAINTAINER: Define the full name and email address of the image creator.
+RUN: Central executing directive for Dockerfiles.
+CMD: Execute a specific command within the container.
+
+# Optional:
+ADD: Copy files from a source on the host to the container’s own filesystem at the set destination.
+ENTRYPOINT: Set a default application to be used every time a container is created with the image.
+ENV: Set environment variables.
+EXPOSE: Expose a specific port to enable networking between the container and the outside world.
+USER: Set the UID (the username) that will run the container.
+VOLUME: Enable access from the container to a directory on the host machine.
+WORKDIR: Set the path where the command, defined with CMD, is to be executed.
+
+-----
+
+# Example 1 - Dockerfile:
+FROM ubuntu
+MAINTAINER NAME EMAIL
+RUN apt-key adv --keyserver keyserver.ubuntu.com:80 --recv 7F0CEB10
+RUN apt-get update
+RUN apt-get -y install apt-utils
+RUN apt-get -y install mongodb-10gen
+CMD [“usr/bin/mongod”, “--config”, “etc/mongodb.conf”]
+
+docker build -f ~/Files/Dockerfile
+
+
+# Example 2 - Dockerfile:
+FROM ubuntu
+MAINTAINER NAME EMAIL
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    curl \
+    make
+
+
+
+## Build a Docker Image from the Dockerfile
+# Build the Dockerfile using the docker build command within the same directory.
+# Substitute NAME in the following example with the name of the image to be created:
+
+$ docker build --tag=“Build-Essential:Dockerfile” /path/to/file .
+
+## To build three images using the same Dockerfile, give each image a new name.
+docker build -t “webdev1:Dockerfile” .
+docker build -t “webdev2:Dockerfile” .
+docker build -t “webdev3:Dockerfile” .
+
+
+## Each image created will be tagged 'Dockerfile'.
+# To change the TAG during build, change Dockerfile:
+docker build -t “debian-webdev3:dev” .
+
+
+----------------
+
+### Running your Docker Images
+
+# Run Your Docker Image as a Container
+
+# Syntax:
+$ docker run [OPTIONS] my-image-name [COMMAND] [ARG…]
+
+Run the webdev1 Docker image in a container:
+$ docker run webdev1
+
+Note - If the docker run command is executed and the Docker image is not available in your current working directory, it is pulled from the Docker registry instead.
+
+## Run Your Docker Image as a Container in Detached Mode
+
+When you execute the docker run my-image-name command, you launch a Docker container that is tied to your terminal session.
+This is also referred to as running a process in the FOREGROUND.
+
+When your root process is in the foreground and is tied to a terminal session, your container exits as soon as you close the terminal session.
+If you want your container to run even after your terminal session is closed, you can run your container in DETACHED MODE.
+This runs your container in the background.
+
+To run a Docker image as a container in detached mode, use the -d argument.
+You can run the webdev1 image as a container in the background by executing the following command:
+$ docker container run -dti webdev1
+
+Once you run this command, the root process keeps running in the background even when the terminal session is closed.
+To view all containers running in the background execute the following command:
+$ docker ps
+CONTAINER ID   IMAGE    COMMAND  CREATED        STATUS       PORTS          NAMES
+3a4sak1aday2   webdev1  "bash"   6 minutes ago  Up 29 minutes 2222->3000/tcp webdev1
+
+To remove the container you just started, use the following command:
+$ docker rm webdev1
+
+To confirm that your container has been removed, run the following command:
+$ docker ps -all
+
+
+## Configure your Docker Container’s Ports
+
+You can use the run command’s options to configure different aspects of your container.
+When your container runs on a remote host and serves its running application, you should configure its ports in order to expose the app to users.
+
+Eg. you can configure your webdev1 container to use host port 20 and container port 22 as displayed in the example command.
+Notice the -d option used in the command to run the container as a DETACHED process.
+$ docker run --name webdev1 -p 20:22 -d webdev1
+
+The general syntax for this command is the following:
+$ docker run -–name <container name> -p <network port> <container port> <container image name>
+
+Each parameter is described in the following list:
+
+<container name>: Name of the Docker container
+<host port>: Host port that is mapped to the container’s open port
+<container port>: Port where Docker container listens
+<container image name>: Docker image name used for your deployment
+
+To stop and delete your container, run the following command:
+$ docker rm webdev1
+
+
+======================================
+
+
 --------------------
 --- USING DOCKER ---
 --------------------

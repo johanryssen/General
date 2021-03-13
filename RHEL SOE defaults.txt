@@ -1,0 +1,96 @@
+### SOE defaults ###
+
+===== Silent Bell =====
+
+echo "set bell-style none" >> .inputrc
+bind -f ~/.inputrc
+
+===== vim config =====
+
+# vim .vimrc
+colo desert
+set paste
+
+===== PS1 =====
+
+# pwd only
+export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # "
+
+
+# Path to pwd
+export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\w\[\e[m\] # "
+
+
+===== Packages to install =====
+
+# yum -y install $(awk '{print $1}' pkg.txt)
+bash-completion
+bc
+bind-utils
+binutils
+bzip2-devel
+chrony
+crontabs
+curl
+epel-release
+logrotate
+logwatch
+lsof
+make
+mlocate
+mtr
+nc
+net-tools
+nfs-utils
+nmap
+python3
+python3-pip
+python3-virtualenv
+rhel-system-roles
+screen
+strace
+sysstat
+tcp_wrappers
+tcpdump
+traceroute
+unzip
+util-linux
+vim
+wget
+which
+yum-utils
+
+===== DNF =====
+
+# Create metadata cache for downloads
+time dnf makecache timer
+
+# Plugins:
+dnf install dnf-plugins-core -y
+
+# Automatic Package Updates
+dnf -y install dnf-automatic
+systemctl list-timers *dnf*
+sed -i 's/apply_updates = no/apply_updates = yes/g' /etc/dnf/automatic.conf
+systemctl enable --now dnf-automatic.timer
+
+===== Cleanup =====
+
+# vim cleanUP.sh
+#!/bin/bash
+/bin/updatedb
+/bin/mandb
+/bin/yum clean all
+rm -rf /var/cache/yum/*
+rm -rf /var/cache/dnf/*
+/sbin/logrotate -f /etc/logrotate.conf
+/bin/rm -rf /tmp/*
+/bin/rm -rf /tmp/.*
+/bin/rm -rf /var/tmp/*
+/bin/rm -rf /var/log/*2021* /var/log/*.0
+/bin/rm -rf /var/log/*/*2021*
+/bin/updatedb
+/bin/mandb
+echo > /root/.bash_history
+
+=====
