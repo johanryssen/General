@@ -1,0 +1,34 @@
+### WHILE LOOP
+
+while true
+do
+  df -k | grep home
+  sleep 1
+done
+
+
+
+### WAITING FOR A CONDITION TO BECOME TRUE
+
+#!/bin/bash
+
+while [ ! -d directory_expected ]
+do
+   echo "`date` - Still waiting" 
+   sleep 1
+done
+
+echo "DIRECTORY IS THERE!!!"
+
+
+
+### USING A WHILE LOOP TO MANIPULATE A FILE
+
+#!/bin/bash
+
+cat servers.txt | grep -v CPU | while read servername cpu ram ip
+do
+   echo $ip $servername
+done
+
+
