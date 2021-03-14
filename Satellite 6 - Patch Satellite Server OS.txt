@@ -1,7 +1,23 @@
-# Patch Satellite Server OS #
-$ subscription-manager repos --disable=* 
-$ subscription-manager repos --enable=rhel-7-server{extras,optional}-rpms
-$ yum clean all
-$ foreman-maintain service stop
-$ yum update
-$ reboot now (if necessary)
+'yum update' and 'yum install' is blocked by the new feature 'foreman-protector'.
+
+To update Satellite server OS:
+# satellite-maintain packages update
+
+--- old way ---
+In order to do a full update such as yum update would do, you must unlock packages, do the update, and then lock the packages.
+You will then need to also run the satellite-installer manually:
+
+# satellite-maintain packages unlock
+# yum update
+# satellite-maintain packages lock
+# satellite-installer --upgrade
+
+
+==============
+
+## Install/Update a package:
+# satellite-maintain packages install package_name
+-or-
+# satellite-maintain packages update package_name
+
+

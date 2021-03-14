@@ -1,0 +1,6 @@
+about:config
+Set to true:
+
+browser.tabs.loadBookmarksInTabs
+browser.search.openintab
+browser.urlbar.openintab

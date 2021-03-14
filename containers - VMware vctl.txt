@@ -1,0 +1,210 @@
+3 executables of the vctl command-line utility:
+
+(1) containerd.exe
+This is a runtime daemon that runs in the background.
+The containerd daemon must be started first before you can run any container related operation.
+# Start: 
+vctl system start
+# Stop
+vctl system stop
+
+(2) containerd-shim-crx-v2.exe
+When a new container is started, a new containerd-shim-crx-v2 process is launched and works as an ADAPTER between the container in CRX VM and the containerd daemon.
+
+(3) bin/vctl.exe
+It is a command-line utility that runs in the foreground and relays the user input to the containerd daemon.
+
+
+Note: The vctl CLI runs every container inside a lightweight virtual machine, called CRX VM.
+By default, a CRX VM is created and starts up when a container starts.
+It shuts down and is removed when the container stops.
+The name of the CRX VM is same as the container.
+
+--- CRX ---
+Container Runtime Executive
+-or-
+Container Runtime for ESXi
+
+CRX is similar to a VM from the perspective of Hostd and vCenter Server.
+CRX includes a paravirtualized Linux kernel that works together with the hypervisor.
+CRX uses the same hardware virtualization techniques as VMs and it has a VM boundary around it.
+A direct boot technique is used, which allows the Linux guest of CRX to initiate the main init process without passing through kernel initialization.
+This allows vSphere Pods to boot nearly as fast as containers.
+-----------------
+CRX is a VM that is highly optimized to run a Linux kernel that itself is highly optimized to run containers.
+
+CRX cosist of three components: 
+1. Customized VMX
+2. Linux kernel
+3. Container Engine
+Several running processes in ESXi are marked as “VMX”.
+-----------------
+### Commands Related to CRX VM ###
+
+## Get shell access to a CRX VM ##
+# By Specifying the container hosted by the CRX VM.
+> vctl execvm --sh -c myContainer
+# By specifying the vmx path of the CRX VM.
+
+## Note: To get the vmx path, run:
+vctl describe myContainer
+and refer to the Host virtual machine value in the output.
+
+> vctl execvm --sh %userprofile%\.vctl\.r\vms\myContainer\myContainer.vmx
+
+## Execute a command within a CRX VM ##
+# By specifying the container hosted by the CRX VM.
+> vctl execvm -c myContainer /bin/ls
+# By specifying the vmx path of the CRX VM.
+
+## Note: To get the vmx path, run:
+> vctl describe myContainer
+and refer to the Host virtual machine value in the output.
+
+> vctl execvm %userprofile%\.vctl\.r\vms\myContainer\myContainer.vmx /bin/ls
+
+
+---------------------------------------------------------
+
+
+### Enabling KIND to Use vctl Container as Nodes to Run Kubernetes Clusters ###
+
+It enables KIND to use vctl container instead of Docker container as nodes to run local Kubernetes clusters.
+vctl provides a way to alias docker commands to run on the vctl containerd runtime.
+
+# Prerequisites
+vctl assigns 2 GB memory for every CRX VM that hosts the vctl container node.
+
+# Procedure
+1. Open PowerShell
+vctl system start
+vctl kind
+
+1.1 This command performs the following four tasks:
+(a) Creates a bin folder in the <Home_Folder_of_Your_Account>\.vctl folder.
+(2) Downloads kubectl.exe, kind.exe and crx.vmdk files, and saves them to the bin folder.
+(3) Creates a docker shortcut that points to C:\Program Files (x86)\VMware\VMware Workstation\bin\vctl.exe by default.
+(4) Opens a Command Prompt or Windows PowerShell window and creates a vctl-based KIND context by adding
+<Home_Folder_of_Your_Account>/.vctl/bin to the PATH environment variable and makes it the first searchable path.
+
+2. Create basic cluster:
+> kind create cluster
+
+## Loading an image into a kind cluster
+# vctl supports auto-loading of a container image into an existing KIND cluster at build time.
+# You can use the following:
+> vctl build -t image:tag --kind-load .
+
+# If you have already pulled the image (instead of bulding it directly) you can use:
+> kind load docker-image image:tag
+
+# Once the image is in the cluster, you can run it directly, or apply a .yaml file that uses that image:
+> kubectl run --image image:tag --restart=Never --image-pull-policy=Never my-pod-name
+
+KIND Quick start:
+https://kind.sigs.k8s.io/docs/user/quick-start/
+
+
+---------------------------------------------------------
+
+
+# Start the service
+> vctl system start
+
+# To configure the virtual machine that hosts container with 4 CPU cores and 2GB memory by default.
+> vctl system config --vm-cpus 4 --vm-mem 2048
+
+# Pull an image from a remote registry
+Images are by default pulled from dockerhub, but a private image registry such as Harbor can be used as well.
+> vctl pull nginx
+
+# Log in to a remote registry
+> vctl login -u username -p password pvtreg:5000
+
+# Default = login to dockerhub, but you can specify a compatible registry like Harbor via fqdn:
+
+`> cat /path/to/password.txt | vctl login -u username -p password --password-stdin
+
+
+# Build a new container image
+Standard dockerfile
+> vctl build -t myImage:latest .
+
+# Run the container image
+> vctl run -n myNginx -t -d nginx
+
+# Verify
+> vctl ps
+
+# List all containers
+> vctl ps --all
+
+# List containers
+> vctl ps -a
+
+# Stop/Start the container
+> vctl stop myNginx
+
+# Re-start
+> vctl start myNginx -d
+
+# List images
+> vctl images
+
+# Detailed info:
+> vctl describe myNginx
+
+# Exec into the container / Run cmds from the host:
+
+## Interactivly:
+> vctl exec -it myNginx sh
+# ls -lsa
+-or-
+> vctl exec myNginx ls
+
+# Shell access:
+> vctl execvm --sh -c myNginx
+sh-4.4#
+
+# Keep the VM running after container stopped
+
+Add "-k" when running a container (when the container exits, its appliance vm will keep running).
+You can still use 
+vctl execvm --sh
+to access the container
+
+
+--- Running Containers ---
+
+# Run a container in detached mode using the nginx image, which is the same as docker.io/library/nginx:latest.
+> vctl run --name myContainer -d nginx
+
+# Run a container using --publish option and the fluentd image (here fluentd is equivalent to docker.io/library/fluentd:latest)
+> vctl run --name myContainer --publish 24224:24224/udp --publish 24224:24224 fluentd
+
+# Run multiple containers and enable discovery and communication with each other.
+- The vctl utility doesn't have a subnet or a link feature to connect multiple containers to a subnet.
+- To enable communication between multiple containers, start the container with the --publish option.
+- This binds the container port to the host port so that the service provided by the container is accessible from the outside.
+
+> vctl run --name mydb -m 2048 -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 mysql
+> vctl run --name mymatomo -m 4096 -p 8080:80 -e MATOMO_DATABASE_HOST=<Host_IP>:3306 matomo
+
+
+# Run a container using the --volume option and the bonita image (here bonita is equivalent to docker.io/library/bonita:latest)
+> vctl run --name myContainer -p 8080:8080 --volume %userprofile%\Documents\container:/opt/bonita bonita
+
+
+---------------------------------------------------------
+
+
+--- Clean up ---
+# Stop all running containers and stop container runtime.
+vctl system stop -f
+
+# Check if container runtime has stopped.
+vctl system info
+
+# Remove folder:
+<Home_Folder_of_Your_Account>/.vctl
+
