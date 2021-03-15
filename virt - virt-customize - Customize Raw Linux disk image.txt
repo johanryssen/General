@@ -1,0 +1,25 @@
+# Install package
+dnf -y install libguestfs-tools
+
+# Set LIBGUESTFS_BACKEND to direct
+export LIBGUESTFS_BACKEND=direct
+
+# Set root password
+virt-customize -a rhel83.qcow2 --root-password password:Pa55w0rd123
+
+# Register RHEL System
+virt-customize -a rhel83.qcow2 --run-command 'subscription-manager register --username=[username] --password=[password]'
+virt-customize -a rhel83.qcow2 --run-command 'subscription-manager attach   --pool [subscription-pool]'
+
+# Uploading files
+virt-customize -a rhel83.qcow2 --upload file1.txt:/opt/files/
+virt-customize -a rhel83.qcow2 --upload new_sshd:/etc/ssh/sshd_config
+
+# Set Timezone
+virt-customize -a rhel83.qcow2 --timezone "UTC"
+
+# Upload SSH public key
+virt-customize -a rhel83.qcow2  --ssh-inject user01:file:./id_rsa.pub
+
+# Relabel SELinux
+virt-customize -a rhel83.qcow2 --selinux-relabel

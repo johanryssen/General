@@ -1,5 +1,6 @@
 Virt-Manager
-[1] Install:
+
+## Install ##
 # apt-get -y install libvirt libvirt-bin libvirt0 python-libvir ebtables
 # apt-get autoremove
 ------------------------------------------
@@ -9,10 +10,6 @@ Virt-Manager
 2015-11-29 14:48:41.922+0000: 10562: info : libvirt version: 1.2.2
 ------------------------------------------
 # /etc/init.d/libvirt-bin start
-* Starting libvirt management daemon libvirtd                                        
-                                [ OK ]
-------------------------------------------
-# /etc/init.d/libvirt-bin start
 # service libvirt-bin start
 ------------------------------------------
 ## ERRORS ##
@@ -20,7 +17,7 @@ Error starting Virtual Machine Manager: No D-BUS daemon running
 -or-
 Unable to connect to libvirt.
 ------------------------------------------
-Verify that:
+## Verify ##
 - The 'libvirt-bin' package is installed
 - The 'libvirtd' daemon has been started
 - You are member of the 'libvirtd' group
@@ -32,9 +29,8 @@ FILES:
 /var/lib/ebtables/lock
 ------------------------------------------
 ## FIX ##
-
 dbus-launch virt-manager
-
-added:
-     eval `dbus-launch`
-to ~/.vnx/xstartup. It starts gnome session for me
+## added:
+eval `dbus-launch`
+to ~/.vnx/xstartup.
+Starts Gnome session
