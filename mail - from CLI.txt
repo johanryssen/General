@@ -1,4 +1,5 @@
 ## SENDMAIL ##
+
 # Create a file using following content.
 vim /tmp/email.txt
 
