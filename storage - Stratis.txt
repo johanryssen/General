@@ -1,0 +1,127 @@
+# Install
+dnf install stratisd stratis-cli -y
+
+# Start/enable
+systemctl enable --now stratisd
+
+# Locate an empty block device
+lsblk
+blkid -p /dev/sdc
+
+# clear device so it can be used by Stratis.
+blkid -p /dev/sdc
+wipefs -a /dev/sdc
+
+## Creating a pool
+# With one block device.
+stratis pool create pool_01 /dev/sdb
+usage:
+stratis pool create [-h] [--redundancy {none}] [--key-desc KEY_DESC] pool_name blockdevs [blockdevs ...]
+
+# View pool:
+stratis pool list
+
+# With 2 block devices (no redundancy).
+stratis pool create pool_02_devs /dev/sdd /dev/sdf
+
+# stratis pool list
+Name               Total Physical Size  Total Physical Used
+pool_01                    1 TiB               52 MiB
+pool_02_devs              16 GiB               56 MiB
+
+# Create filesystem from the pool
+stratis filesystem create pool_01 fs_001
+-or-
+stratis fs create pool_01 fs_001
+
+# View FS list:
+stratis filesystem list
+
+# Create a 2nd filesystem
+stratis filesystem create pool_01 fs_002
+usage:
+stratis filesystem create pool_name fs_name [fs_name ...]
+
+# Mount FS:
+mount /stratis/pool_01/fs_001 /mnt
+
+# Add mount to /etc/fstab:
+blkid -p /stratis/pool_01/fs_001
+
+systemctl daemon-reload
+
+
+# Add disk (blockdev) to an existing pool [add-data]
+stratis pool add-data pool_02_devs /dev/sdc
+usage:
+stratis pool add-data pool_name blockdev [blockdev ...]
+
+
+# Rename a pool [rename]
+stratis pool rename pool_02_devs pool_03_new_name
+usage:
+stratis pool rename current new
+
+
+# Rename a file system [rename]
+stratis filesystem rename pool_004 backstroke fs_new_name
+usage:
+stratis filesystem rename pool_name fs_name new_name
+
+
+# Initialize cache and add block device as cache device [init-cache]
+# (e.g. SSD)
+stratis pool init-cache pool_03_new_name /dev/sde
+usage:
+stratis pool init-cache pool_name blockdevs [blockdevs ...]
+
+
+# Add block device as cache to a pool with an existing cache [add-cache]
+stratis pool add-cache pool_03_new_name /dev/sdg
+usage:
+stratis pool add-cache pool_name blockdev [blockdev ...]
+
+
+# Destroy a pool - no file systems can exist in pool [destroy]
+stratis pool destroy pool_03_new_name
+
+# Remove a Stratis provided filesystem [destroy]
+# ensure it’s not in use, then destroy
+stratis filesystem list
+stratis filesystem destroy pool_01 fs_002
+stratis filesystem list
+
+# Create a snapshot [snapshot]
+stratis filesystem snapshot pool_004 fs_new_name fs_new_name_snapshot
+usage:
+stratis filesystem snapshot pool_name origin_name snapshot_name
+stratis filesystem snapshot pool_name filesystem  snapshot_name
+
+stratis filesystem list pool_004
+
+
+## Misc ##
+# Query which block devices belong to a pool or all of Stratis.
+stratis blockdev list pool_004
+stratis blockdev list
+
+# Query redundancies that Stratis supports
+stratis daemon redundancy
+
+
+## Revert to a previous snapshot using a fs ##
+# First unmount & destroy the original fs:
+umount /stratis/<pool>/filesystem
+# e.g In pool_2 (to revert to snapshot_2) unmount the file system: fs_2
+umount /stratis/pool_2/fs_2
+
+# Create copy of the snapshot from the original fs:
+# stratis filesystem snapshot <pool>
+usage:
+stratis filesystem snapshot pool_name origin_name snapshot_name
+# e.g
+stratis filesystem snapshot pool_2 snapshot_2-2020-05-25 database
+
+# mount the snapshot using the file system mount point
+mount /stratis/pool_2/fs_2 /database
+

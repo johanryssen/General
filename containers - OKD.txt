@@ -1,0 +1,30 @@
+--- OKD ---
+
+https://www.okd.io/
+
+https://github.com/openshift/okd#getting-started
+
+Openshift installer & client:
+Client tools for OpenShift - OKD
+https://github.com/openshift/okd/releases
+
+$ podman pull quay.io/openshift/okd@sha256:2597be07a16ae6ef8df7752c039190bf5b238f81f88aca129d0c2d542239b537
+
+---------------------
+
+If you have the openshift client (oc) already installed,
+you can use it to download and extract the openshift installer and client from our container image:
+
+$ oc adm release extract --tools quay.io/openshift/okd:4.5.0-0.okd-2020-07-14-153706-ga
+
+NOTE: You need a 4.x version of oc to extract the installer and the latest client:
+https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+
+Extract the downloaded tarballs and copy the binaries into your PATH.
+
+Then run the following from an empty directory:
+$ openshift-install create cluster
+
+
+
+

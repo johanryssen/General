@@ -1,0 +1,9 @@
+# REPO SERVER (10.10.10.123)
+cp *.rpm /var/www/html/newrepo/
+chmod o+r /var/www/html/newrepo/
+createrepo -v /var/www/html/newrepo/
+
+# SAT 6:
+hammer product create --name MyProduct --organization "Home Lab"
+hammer repository create --product MyProduct --name myNewRepo --url http://10.10.10.123/newrepo/ --organization "Home Lab" --content-type yum
+hammer repository synchronize --name myNewRepo --product MyProduct --organization "Home Lab"
