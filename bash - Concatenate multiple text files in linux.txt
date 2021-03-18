@@ -1,0 +1,7 @@
+Concatenate multiple text files in linux
+
+cat *.txt > merged.txt
+-or-
+find /path/to/files/ -name *.txt -print0 | xargs -0 -I file cat file > merged.txt
+-or-
+sed r *.txt > merged

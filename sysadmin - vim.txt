@@ -1,0 +1,74 @@
+# Visual Block
+
+## Add / or remove a line of text, eg #
+(1) Ctrl + v
+(2) Select a vertical line(s) of text
+(3) Shift + I (To start inserting before every line of the block)
+(4) or press 'x' if you want to delete the selected block
+(5) Type what you want to insert
+(6) hit the ESC key twice (once to exit insert mode, then to apply the change you made)
+
+The operators that can be used are:
+~    switch case [ g~iw ]
+d    delete
+c    change
+y    yank
+>    shift right
+<    shift left
+!    filter through external command
+
+# Add / remove Tab-space in block of text
+(1) Shift + v
+(2) Select a vertical line of text
+(3) Shift + . # Same as the > key
+
+==============================================
+
+## Read the contents of another file into the open file:
+:r filename
+
+## To edit your .vimrc file from within a vim session:
+:e $MYVIMRC
+
+## Modelines
+# Syntax:
+$ vim ~/.vimrc
+syntax on
+set modeline
+autocmd BufNewFile,BufRead *.py set syntax=python
+set ai ts=4 sts=4 sw=4 et ft=python
+// ## Which is the same as:
+// set autoindent tabstop=4 softtabstop=4 shiftwidth=4 expandtab  filetype=python
+
+==============================================
+
+## Change case:
+
+~    : Changes the case of current character.
+guu  : Change current line from upper to lower.
+gUU  : Change current LINE from lower to upper.
+guw  : Change to end of current WORD from upper to lower.
+guaw : Change all of current WORD to lower.
+gUw  : Change to end of current WORD from lower to upper.
+gUaw : Change all of current WORD to upper.
+g~~  : Invert case to entire line
+g~w  : Invert case to current WORD
+guG  : Change to lowercase until the end of document.
+
+==============================================
+
+(1) Access man pages from within vim:
+# echo "source $(locate man.vim | grep ftplugin)" >> ~/.vimrc
+** A file type plugin (ftplugin) is a script that is run automatically when 
+	Vim detects the type of file when the file is created or opened.
+** The type can be detected from the file name (for example, file sample. c has file type c ), 
+	or from the file contents.
+
+(2) Open a text file, e.g.
+# vim /etc/selinux/config
+
+(3) Access the corresponding man page:
+:Man selinux
+** Note the Capital "M" in :Man above.
+
+==============================================

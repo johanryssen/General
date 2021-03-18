@@ -1,0 +1,4 @@
+VLC support for h265
+apt-add-repository ppa:strukturag/libde265
+apt-get update
+apt-get install vlc-plugin-libde265

@@ -1,0 +1,16 @@
+# CentOS / Red Hat:
+IP = $(ip a | grep "inet " | grep -v 127.0.0.1  | awk -F'[/ ]+' '{ print $3 }')
+echo "IP: $IP" > /etc/issue
+
+-or-
+
+IP=$(/sbin/ifconfig ens33 | grep 'inet ' | awk {'print $2'})
+echo "eth0 IP: $IP" > /etc/issue
+
+# Ubuntu / Debian:
+IP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+echo "eth0 IP: $IP" > /etc/issue
+
+---------------
+http://www.figlet.org/fontdb.cgi
+---------------

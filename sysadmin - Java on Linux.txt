@@ -1,0 +1,165 @@
+java - on linux
+add-apt-repository ppa:webupd8team/java
+apt-get update -y
+apt-get install oracle-java8-installer -y
+
+
+[1] Download Java:
+     http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+     -or-
+     wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz
+
+[2] Install the Oracle version of Java:
+     update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_112/bin/java 1
+
+[3] List the available java versions
+     # update-alternatives --list java
+     /opt/jdk1.8.0_112/bin/java
+     /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+     /usr/lib/jvm/java-9-openjdk-amd64/bin/java
+
+[4] Set the Oracle version as the default
+     # update-alternatives --config java
+     There are 3 choices for the alternative java (providing /usr/bin/java).
+
+       Selection    Path                                            Priority   Status
+     ------------------------------------------------------------
+     * 0            /usr/lib/jvm/java-9-openjdk-amd64/bin/java       1091      auto mode
+       1           /opt/jdk1.8.0_112/bin/java                      1      manual mode
+       2            /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java   1081      manual mode
+       3            /usr/lib/jvm/java-9-openjdk-amd64/bin/java       1091      manual mode
+
+     Press <enter> to keep the current choice[*], or type selection number: 1
+
+[6] Display
+     # update-alternatives --display java
+     java - manual mode
+       link best version is /usr/lib/jvm/java-9-openjdk-amd64/bin/java
+       link currently points to /opt/jdk1.8.0_112/bin/java
+       link java is /usr/bin/java
+       slave java.1.gz is /usr/share/man/man1/java.1.gz
+     /opt/jdk1.8.0_112/bin/java - priority 1
+     /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java - priority 1081
+       slave java.1.gz: /usr/lib/jvm/java-8-openjdk-amd64/jre/man/man1/java.1.gz
+     /usr/lib/jvm/java-9-openjdk-amd64/bin/java - priority 1091
+       slave java.1.gz: /usr/lib/jvm/java-9-openjdk-amd64/man/man1/java.1.gz
+
+[7] Query
+     # update-alternatives --query java
+     Name: java
+     Link: /usr/bin/java
+     Slaves:
+     java.1.gz /usr/share/man/man1/java.1.gz
+     Status: manual
+     Best: /usr/lib/jvm/java-9-openjdk-amd64/bin/java
+     Value: /opt/jdk1.8.0_112/bin/java
+
+     Alternative: /opt/jdk1.8.0_112/bin/java
+     Priority: 1
+     Slaves:
+
+     Alternative: /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+     Priority: 1081
+     Slaves:
+     java.1.gz /usr/lib/jvm/java-8-openjdk-amd64/jre/man/man1/java.1.gz
+
+     Alternative: /usr/lib/jvm/java-9-openjdk-amd64/bin/java
+     Priority: 1091
+     Slaves:
+     java.1.gz /usr/lib/jvm/java-9-openjdk-amd64/man/man1/java.1.gz
+
+
+java - Firefox
+
+## ROOT ##
+mkdir /opt/jdk
+cd /opt/jdk1
+Download latest JDK
+tar -zxvf jdk-8u66-linux-x64.tar.gz
+update-alternatives --display java
+update-alternatives --display javac
+update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.8.0_66/bin/java 100
+update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.8.0_66/bin/javac 100
+update-alternatives --display java
+
+## USER ##
+cd ~/.mozilla/
+mkdir plugins
+cd plugins/
+sudo updatedb
+locate libnpjp2.so
+ln -s /opt/jdk/jdk1.8.0_66/jre/lib/amd64/libnpjp2.so
+firefox http://www.java.com/en/download/installed8.jsp
+
+
+java - Enable JAVA plugin in FireFox
+
+Default: Firefox uses IcedTea as the Java plugin - But it often fails.
+
+[1] Download Java:
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+-or-
+wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz
+
+[2] kill -9 firefox
+
+[3] Extract to /opt/jdk
+
+[4] update-alternatives (Maintain symbolic links determining default commands)
+update-alternatives --install /usr/bin/java java /opt/jdk/jdk.new.version/bin/java 110
+update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk.new.version/bin/javac 11
+
+[5] Create symbolic link to FireFox plugins directory:
+sudo ln -s ${JAVA_HOME}/jre/lib/amd64/libnpjp2.so /usr/lib/firefox-addons/plugins/libnpjp2.so
+sudo ln -s /opt/JRE/jre1.8.0_66/lib/amd64/libnpjp2.so /usr/lib/firefox-addons/plugins/
+
+[6] Test the plugin:
+firefox http://java.com/en/download/installed8.jsp
+
+
+java - Manual Installation and Registration of Java Plugin for Linux
+
+Manual Installation and Registration of Java Plugin for Linux
+       JDK Documentation
+
+When you install the Java platform, the Java plugin file is included as part of that install. If you want to use Java within Firefox, you need to manually create a symbolic link from the plugin file in the release to one of the locations that Firefox expects. To make the plugin available to all users, create the link inside of the Firefox application's directory, in the plugins subdirectory. Alternatively, you can create the symbolic link in your home directory, in ~/.mozilla/plugins. In the remainder of this document, the text, " Firefox plugins directory ", implies either of these locations.
+
+This release provides the Next-Generation Java plugin. If you have been using the classic plugin, see the Notes for further information.
+
+The plugin file for Linux is located here:
+<JRE>/lib/i386/libnpjp2.so
+
+If you are using a 32-bit Firefox, you should use the 32-bit Java Plugin (from the lib/i386 directory). To determine which version of Firefox you are running, launch the application, and select the menu item Help -> About Mozilla Firefox. At the bottom of the window is a version string line that contains either "Linux i686" (32-bit) or "Linux x86_64" (64-bit).
+
+To install the Java Plugin follow these steps:
+
+1. Exit Firefox.
+
+2. Uninstall any previous installations of Java Plugin.
+
+Only one Java Plugin can be used at a time. When you want to use a different plugin, or version of a plugin, remove the symbolic links to any other versions and create a fresh symbolic link to the new one.
+
+Remove the symbolic links (or move them to another directory) to javaplugin-oji.so and libnpjp2.so from the Firefox plugins directory.
+
+3. Create a symbolic link to the Java Plugin in the Firefox plugins directory.
+
+    Create a symbolic link to the Java Plugin libnpjp2.so file in the Firefox plugins directory:
+
+        cd 
+                 
+    <Firefox>/plugins
+        ln -s 
+                 
+    <JRE>/lib/i386/libnpjp2.so .
+
+4. Start the Firefox browser .
+
+Type about:plugins in the Location bar to confirm that the Java Plugin is loaded. You can also click the Tools menu to confirm that Java Console is there.
+
+Notes
+
+    The classic plugin file was located here:
+    <JRE>/plugin/i386/javaplugin-oji.so
+
+    This file should no longer be used and all symbolic links to it removed.
+    See Browsers Supported by Next-Generation Java Plugin for information about browser support in the new Java Plugin.

@@ -1,0 +1,121 @@
+## General
+Disable PF
+pfctl -d
+
+Enable PF
+pfctl -e
+
+Run quiet
+pfctl -q
+
+Verbose
+pfctl -v -v
+
+
+## Loading PF Rules
+Load /etc/pf.conf
+pfctl -f /etc/pf.conf
+
+Test
+pfctl -n -f /etc/pf.conf
+
+
+## Clear rules
+Flush ALL:
+pfctl -F all
+
+Clear counters
+pfctl -z
+
+
+
+## Info
+# Show everything
+pfctl -s all
+
+# Filters
+pfctl -s rules
+-or-
+pfctl -sr
+
+# Show filter info for which FILTER rules hit
+pfctl -v -s rules
+
+# LABEL info
+pfctl -s label
+
+# STATE table:
+pfctl -s state
+
+
+## Maintenance
+# Show table addvhosts
+pfctl -t addvhosts -T show
+
+# View global information about all tables
+pfctl -vvsTables
+
+# Add entry to table addvhosts
+pfctl -t addvhosts -T add 192.168.0.5
+
+# Add a network to table addvhosts
+pfctl -t addvhosts -T add 192.168.0.0/16
+
+# Delete nework from table addvhosts
+pfctl -t addvhosts -T delete 192.168.0.0/16
+
+# Remove all entries from table addvhosts
+pfctl -t addvhosts -T flush
+
+# Delete table addvhosts entirely
+pfctl -t addvhosts -T kill
+
+# Reload table addvhosts on the fly
+pfctl -t addvhosts -T replace -f /etc/addvhosts
+
+# Find ip address 192.168.0.140 in table addvhosts
+pfctl -t addvhosts -T test 192.168.0.140
+
+# Load a new table definition
+pfctl -T load -f /etc/pf.conf
+
+# Output stats for each ip address in table addvhosts
+pfctl -t addvhosts -T show -vi
+
+# Reset all counters for table addvhosts
+pfctl -t addvhosts -T zero
+
+
+====================================
+
+
+## Config
+# /etc/rc.conf
+pf_enable="YES"
+pf_rules="/etc/pf.conf"
+pflog_enable="YES"
+pflog_logfile="/var/log/pflog"
+
+
+----- Prevent lockout -----
+# Disable PF after 2 min - In screen or tmux run:
+sleep 120; pfctl -d
+
+-- or --
+
+# Add sudo:
+visudo -f /usr/local/etc/sudoers
+joe    ALL= NOPASSWD: /sbin/pfctl
+
+# Disable PF after 2 min - Crontab:
+*/2 * * * * /usr/local/bin/sudo /sbin/pfctl -d
+------------------------------
+
+
+## Basic ruleset
+# pf.conf
+# Macro:
+tcp_pass = "{ 80 22 25 110 123 }"
+block all
+pass out on em0 proto tcp to any port $tcp_pass keep state
+

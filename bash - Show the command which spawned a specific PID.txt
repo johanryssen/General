@@ -1,0 +1,2 @@
+Show the command which spawned a specific PID
+ps h -o %a 21679

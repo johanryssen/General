@@ -1,0 +1,110 @@
+
+/var/spool/postfix
+
+POSTSUPER - postfix superintendent
+(maintenance jobs on postfix queue)
+
+postsuper -d <QUEUE_ID> # Delete msg with this queue ID
+
+POSTQUEUE - Postfix queue control
+postqueue -f    # Flush the queue
+
+sendmail -q        # Flush the queue
+
+dig didata.com.au a        # A Record
+dig didata.com.au mx    # MX Record
+
+DNSBL - DNS Black Lists
+
+DSN - Delivery Status Notification - if msg was undeliverable.
+
+Set up mail forwarding:
+1. Create New file: .forward in your home dir.
+2. In this file, put the addy to forward to.
+
+
+#########################
+# Postfix Configuration
+
+Core components:
+                master
+                qmgr / nqmgr – nqmgr is the default for postfix v2.0+
+Input:
+                smtpd
+                bounce
+                cleanup
+Delivery Agents:
+                local
+virtual
+                smtp
+Configuration files:
+                /etc/postfix/master.cf        - Configures the master daemon
+                /etc/postfix/main.cf           - Configures the domains, etc.
+Aliases   - /etc/aliases
+[Spaces or tabs are interpreted as a continuation of the previous line]
+--------------------
+eg.
+hostname = server.example.com
+$ à used to prepend some variables
+eg.
+mydomain = example.com
+myhostname server
+--------------------
+/etc/postfix/main.cf
+Client setup
+# Using (AL)PINE with google, copy default .pinerc:
+	* 
+cp .pinerc  .pine-google
+
+
+Create shell script called pgoo (for Pine Google)
+	* 
+more pgoo
+
+
+#!/bin/bash
+echo using pine for google.com
+alpine –p .pine-google
+# Over-rides your full name from Unix password file. Required for PC-Alpine.
+personal-name=john
+# Set login
+user-id=user1@gmail.com
+# Sets domain part of From: and local addresses in outgoing mail.
+user-domain=gmail.com
+# List of SMTP servers for sending mail. If blank: Unix Alpine uses sendmail.
+smtp-server=smtp.gmail.com:587/tls/user= user1@gmail.com
+# NNTP server for posting news. Also sets news-collections for news reading.
+nntp-server=
+# Path of (local or remote) INBOX, e.g. ={mail.somewhere.edu}inbox
+# Normal Unix default is the local INBOX (usually /usr/spool/mail/$USER).
+inbox-path={imap.gmail.com:993/ssl/novalidate-cert/user= user1@gmail.com}INBOX
+# List of features; see Alpine's Setup/options menu for the current set.
+# e.g. feature-list= select-without-confirm, signature-at-bottom
+# Default condition for all of the features is no-.
+feature-list=enable-full-header-cmd,
+        enable-unix-pipe-cmd,
+        include-text-in-reply,
+        enable-alternate-editor-implicitly,
+        save-will-not-delete
+# Specifies the column of the screen where the composer should wrap.
+composer-wrap-column=80
+# Specifies the string to insert when replying to a message.
+reply-indent-string=' # '
+# Specifies the introduction to insert when replying to a message.
+reply-leadin=#
+# A list of alternate addresses the user is known by
+alt-addresses=user1@gmail.com
+# Sets the format of the command used to open a UNIX secure
+# shell connection.  The default is "%s %s -l %s exec /etc/r%sd"
+# NOTE: the 4 (four) "%s" entries MUST exist in the provided command
+# where the first is for the command's path, the second is for the
+# host to connect to, the third is for the user to connect as, and the
+# fourth is for the connection method (typically "imap")
+ssh-command=imap
+# Patterns and their actions are stored here:
+pattern-roles=LIT:pattern='/NICK=Alternate Role/FLDTYPE=EMAIL action='/ROLE=1/FROM=john <user1@gmail.com>RTYPE=YES/FTYPE=YESCTYPE=NO'
+LDAP integration:
+vi /etc/postfix/main.cf and add:
+ldap.example.com        example
+vi /etc/postfix/ldap-aliases.cf
+      enable LDAP SSL and STARTTLS

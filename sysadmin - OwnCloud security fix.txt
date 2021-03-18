@@ -1,0 +1,25 @@
+OwnCloud Security fix
+
+# vi /etc/apache2/sites-enabled/default-ssl.conf
+<VirtualHost *:443>
+    # Guarantee HTTPS for 1 Year including Sub Domains
+    Header always set Strict-Transport-Security "max-age=31536000;
+
+# apachectl restart
+
+## didn't test: 
+## Header always add Strict-Transport-Security "max-age=15768000; includeSubDomains; preload"  ##
+
+##############################
+Memcache
+
+# apt-get -y install redis-server php5-redis
+
+# vim /var/www/owncloud/config/config.php
+'memcache.local' => '\OC\Memcache\Redis',
+'redis' => array(
+     'host' => 'localhost',
+     'port' => 6379,
+      ),
+#
+# apachectl restart

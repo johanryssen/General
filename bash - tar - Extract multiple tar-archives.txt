@@ -1,0 +1,14 @@
+cat *.tar | tar -xvf - -i
+
+The -i option ignores the EOF at the end of the tar archives, from the man page:
+-i, --ignore-zeros
+ignore blocks of zeros in archive (normally mean EOF)
+
+for *.tar.gz
+for file in *.tar.gz; do tar -zxf $file; done
+
+for *.tar.bz2
+for file in *.tar.bz2; do tar -jxf $file; done
+
+for *.tar.xz
+for file in *.tar.xz; do tar -Jxf $file; done

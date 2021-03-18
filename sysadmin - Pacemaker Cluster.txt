@@ -1,0 +1,67 @@
+1. Install Pacemaker & PCS on each cluster node:
+# yum install pcs pacemaker fence-agents-all
+
+2. Start & enable the 'pcsd' service on each cluster node:
+# systemctl start pcsd
+# systemctl enable pcsd
+
+3. Set the password for the 'hacluster' user on each cluster:
+# passwd hacluster
+
+4. On 'pacemakerA', use 'pcs' to authenticate to 'pcsd' on the cluster nodes as the 'hacluster' user:
+# pcs cluster auth pacemakerA pacemakerB
+
+5. Generate & synchronize the Corosync configuration to both cluster nodes for a cluster named 'clusterA'.
+Generate & synchronize the Corosync configuration:
+# pcs cluster setup --name clusterA pacemakerA pacemakerB
+Start up the cluster:
+# pcs cluster start --all
+
+6. Set the "stonith-enabled" property to "false".
+# pcs property set stonith-enabled=false
+
+7. Add an IP RESOURCE:
+Name: 'cluster_ip'
+IP address: '10.10.10.20'
+Netmask: 24
+Monitor interval: 30s
+# pcs resource create cluster_ip ocf:heartbeat:IPaddr2 ip=10.10.10.20 cidr_netmask=24 op monitor interval=30s
+
+8. Add an Apache HTTP server as a cluster RESOURCE:
+Name: 'apache'
+Configuration file: '/etc/httpd/conf/httpd.conf'
+Status URL: 'http://localhost/serverstatus
+Monitor interval: 1min
+# pcs resource create apache ocf:heartbeat:apache configfile=/etc/httpd/conf/httpd.conf statusurl="http://localhost/serverstatus" op monitor interval=1min
+
+9. Set a COLOCATION CONSTRAINT so that the 'apache' & 'cluster_ip' resources always run on the same host.
+Use the pcs constraint command to set the colocation constraint:
+# pcs constraint colocation add apache with cluster_ip INFINITY
+
+10. Set an ORDER CONSTRAINT so that the 'cluster_ip' resource starts BEFORE the 'apache' resource.
+Use the pcs constraint command to set the order constraint:
+# pcs constraint order cluster_ip then apache
+
+11. View cluster status:
+# pcs status
+
+Cluster name: clusterA
+Stack: corosync
+Current DC: pacemakerB (version 1.1.20-5.el7_6.4-3c4b593q11) - partition with quorum
+Last updated: Sat Oct 10 07:37:21 2020
+Last change: Sat Oct 10 07:24:14 2020 by root via cibadmin on pacemakerA
+
+2 nodes configured
+2 resources configured
+
+Online: [ pacemakerA pacemakerB ]
+
+Full list of resources:
+
+ cluster_ip     (ocf::heartbeat:IPaddr2):       Started pacemakerA
+ apache (ocf::heartbeat:apache):        Started pacemakerA
+
+Daemon Status:
+  corosync: active/disabled
+  pacemaker: active/disabled
+  pcsd: active/enabled

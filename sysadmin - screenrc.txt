@@ -1,0 +1,22 @@
+autodetach on
+
+# Big scrollback
+defscrollback 50000
+
+# Disable startup message & vbell
+startup_message off
+vbell of
+
+# Display the status line at the bottom
+hardstatus on
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
+
+# Setup screens
+screen -t 0 bash
+screen -t 1 bash
+screen -t 2 bash
+select 0
+
+## Scrolling with mouse wheel ##
+termcapinfo xterm* ti@:te@

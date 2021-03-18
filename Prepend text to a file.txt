@@ -1,2 +1,0 @@
-Prepend text to a file
-$ echo "text to prepend" | cat - file

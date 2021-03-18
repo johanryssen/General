@@ -1,0 +1,114 @@
+## Download and Compile Nagios Core ##
+1. Edit the SELinux config file.
+vim /etc/selinux/config
+
+2. Change the line defining the SELINUX variable to the following.
+SELINUX=permissive
+
+3. Save the changes and exit the editor.
+
+4. Modify the current mode for SELinux.
+setenforce 0
+
+5. Check the current SELinux mode. Verify we are in permissive mode.
+getenforce
+
+6. Install all necessary prerequisites.
+yum install -y gcc glibc glibc-common wget unzip httpd php gd gd-devel perl postfix
+
+7. Download the Nagios Core.
+wget https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.3.tar.gz
+
+8. Extract the files from the repository.
+tar -xvzf nagios-4.4.3.tar.gz
+
+9. Navigate to the appropriate directory.
+cd nagioscore-nagios-4.4.3
+
+10. Run the configuration script.
+./configure
+
+11. Compile the necessary files.
+make all
+
+
+## Install Nagios ##
+1. Create a user and group for Nagios.
+make install-groups-users
+
+2. Add the Nagios user to the Apache group.
+usermod -a -G nagios apache
+
+3. Install the necessary binaries.
+make install
+
+4. Configure Nagios to run as a daemon.
+make install-daemoninit
+
+5. Enable the web server.
+systemctl enable httpd.service
+
+6. Install the Nagios command mode.
+make install-commandmode
+
+7. Install sample files for Nagios.
+make install-config
+
+8. Install Apache configuration files.
+make install-webconf
+
+
+## Configure and Run Nagios ##
+1. Configure a firewall rule for Nagios.
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+
+2. Reload the firewall.
+firewall-cmd --reload
+
+3. Create a "nagiosadmin" user and remember the password you assign. The password is up to you.
+htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+
+4. Start the web server.
+systemctl start httpd.service
+
+5. Start the Nagios service.
+systemctl start nagios.service
+
+6. Check that the web server is running.
+systemctl status httpd
+
+7. Check that Nagios is running
+systemctl status nagios
+
+
+## Add Nagios Plugins and Verify Nagios ##
+1. Open up a browser and navigate to the public IP address provided in the lab instructions.
+Attempt to login using nagiosadmin and the password you supplied in a previous step.
+
+2. Install necessary prerequisites.
+yum install -y gcc glibc glibc-common make gettext automake autoconf wget openssl-devel net-snmp net-snmp-utils epel-release unzip perl-Net-SNMP
+
+3. Download the plugins.
+wget https://github.com/nagios-plugins/nagios-plugins/archive/master.zip
+
+4. Unzip the file.
+unzip master.zip
+
+5. Nagivate to the appropriate directory.
+cd nagios-plugins-master/
+
+6. Run the setup command.
+./tools/setup
+
+7. Run the configure command.
+./configure
+
+8. Compile the necessary files.
+make
+make install
+
+9. Restart Nagios.
+systemctl restart nagios
+
+10. Switch back to your browser and refresh it.
+Click on 'Hosts' in the left-hand menu.

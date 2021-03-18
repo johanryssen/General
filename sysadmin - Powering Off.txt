@@ -1,0 +1,39 @@
+Powering Off
+
+1. Schedule a shutdown for 10 minutes from now and notify all users on the system of the shutdown.
+shutdown +10 Shutting down in 10 min!
+
+2. Reboot immediately.
+shutdown -r now
+-or-
+shutdown -r +0
+
+3. Shutdown the system.
+shutdown now 
+-or-
+shutdown +0 
+
+    Alternatively, not using the shutdown command:
+
+init 0
+-or-
+systemctl halt
+
+4. Schedule the system for a shutdown at 2:10 am in the morning.
+shutdown 02:10
+
+5. Cancel the scheduled shutdown.
+shutdown -c
+
+6. Using systemctl, reboot the the system.
+systemctl reboot
+
+7. Power off the system.
+
+systemctl halt
+-or-
+systemctl poweroff
+-or-
+shutdown -P
+-or-
+init 0
