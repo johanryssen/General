@@ -1,0 +1,271 @@
+--- 1 INSTALL ---
+yum -y install stratisd stratis-cli
+
+
+--- 2 START & ENABLE ---
+
+systemctl --now enable stratisd
+systemctl status stratisd --no-pager
+
+stratis version
+stratis daemon version
+
+
+--- 3 LOCATE EMPTY BLOCK DEVICES ---
+
+A block storage device (or block device) is a device that can read and write data in “blocks” of a given size.
+
+You will need to obtain empty block devices for this tutorial.
+(1) Use the lsblk utility to view a list of block devices on your machine.
+
+lsblk
+
+NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sr0            11:0    1  7.3G  0 rom
+vda           252:0    0 39.1G  0 disk
+├─vda1        252:1    0    1G  0 part /boot
+└─vda2        252:2    0 38.1G  0 part
+  ├─rhel-root 253:0    0 34.2G  0 lvm  /
+  └─rhel-swap 253:1    0  3.9G  0 lvm  [SWAP]
+
+From the above output, you can see that the two existing block devices on the machine, /dev/vda1 and /dev/vda2, are currently in use for /boot and logical volumes rhel-root and rhel-swap, respectively.
+
+(2) Therefore you will instead create a 10 GiB file [truncate] within the existing root filesystem and 
+(3) Access that space through the looback interface [losetup].
+
+truncate -s 10g /tmp/myfile.trunc
+[truncate - shrink or extend the size of a file to the specified size]
+
+losetup /dev/loop1 /tmp/myfile.trunc
+[truncate - shrink or extend the size of a file to the specified size]
+
+(4) Verify that the loopback device has been created.
+lsblk
+
+ NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+ loop1           7:1    0   10G  0 loop
+...
+
+From the above output, you can see that loop1 is now listed as a newly created block device.
+
+(5) Create one more block device for this lab.
+truncate -s 10g /tmp/myfile2.trunc
+losetup /dev/loop2 /tmp/myfile2.trunc
+
+# Check that the two devices are displayed.
+lsblk
+
+ NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+ loop1           7:1    0   10G  0 loop
+ loop2           7:2    0   10G  0 loop
+...
+
+You should now see loop1 and loop2 devices reported in the output of lsblk.
+These correspond to the two loopback device you configured with the losetup command.
+When these block devices are written to, the data will be stored in the /tmp/myfile1.trunc and /tmp/myfile2.truc files backing these loopback block devices.
+
+
+
+--- 4 CREATE A POOL ---
+
+A pool is a quantity of storage set aside by an administrator.
+A Stratis pool is created from one or more block devices.
+All pools must have a name; you can name the pool my_pool.
+
+(1) Create my_pool from the block device that you just identified, /dev/loop1.
+stratis pool create my_pool /dev/loop1
+
+(2) View:
+blkid
+...
+ /dev/loop1: UUID="e28d5230c62349ae954c73373ffaca50" POOL_UUID="f2dd9526bc2a4653a431f322ed85b0f5" BLOCKDEV_SECTORS="20971520" BLOCKDEV_INITTIME="1588558543" TYPE="stratis"
+ 
+The other loopback device is not in use, and therefore is not listed.
+
+(3) View pool list
+stratis pool list
+Name                     Total Physical   Properties
+my_pool   10 GiB / 37.63 MiB / 9.96 GiB      ~Ca,~Cr
+
+You should see my_pool listed.
+
+NOTE: stratis pool list will provide you with a list of any storage pools created on the system using stratis.
+
+
+
+---- 5 ADD A BLOCK DEVICE TO AN EXISTING POOL ---
+
+All pools contain a data tier, which contains one or more block devices used to store data.
+The block devices used to create the pool belong to the pool's data tier.
+
+You can add additional block devices to a pool as data devices, thereby increasing the disk space provided to the Stratis pool.
+This is helpful when you have exhaused the available space initially allocated to the pool.
+
+The pool you created, my_pool, has 10 GiB of space.
+
+(1) Add /dev/loop2 as a data device to my_pool.
+stratis pool add-data my_pool /dev/loop2
+
+(2) List the pools:
+stratis pool list
+
+Name                      Total Physical   Properties
+my_pool   20 GiB / 41.64 MiB / 19.96 GiB      ~Ca,~Cr
+
+You should see that my_pool now has a size of 20 GiB.
+
+(3) List block devices
+
+Now that the pool consists of multiple block devices, it may be useful to find out which block devices belong to which pools.
+
+stratis blockdev list
+ Pool Name  Device Node  Physical Size  Tier
+ my_pool    /dev/loop1          10 GiB  Data
+ my_pool    /dev/loop2          10 GiB  Data
+ 
+You can see that both /dev/loop1 and /dev/loop2 belong to my_pool.
+
+
+
+--- 6 CREATE A FILESYSTEM ---
+
+A filesystem is a hierarchy of directories that is used to organize files on a storage media.
+Multiple Stratis filesystems may be created from a pool.
+Like pools, all filesystems must have a name; you can name the filesystem my_first_fs.
+
+(1) Create my_first_fs from the pool that you created, my_pool.
+stratis filesystem create my_pool my_first_fs
+
+(2) List filesystems
+stratis filesystem list
+ Pool Name  Name         Used     Created            Device                        UUID
+ my_pool    my_first_fs  546 MiB  May 07 2020 14:55  /stratis/my_pool/my_first_fs  e2688231488f40808507ede7502aad01
+
+You can see the new filesystem, my_first_fs, listed with the corresponding pool and additional information.
+
+NOTE: There is a shorter version of the filesystem listing command: stratis fs:
+stratis fs
+
+(3) Rename a filesystem
+This may be useful for a variety of reasons, such as updating the name of a test filesystem to a production ready name.
+
+# Rename my_first_fs to a new name, my_fs:
+stratis filesystem rename my_pool my_first_fs my_fs
+
+# A filesystem list command will now yield the filesystem with its new name:
+stratis fs
+ Pool Name  Name   Used     Created            Device                  UUID
+ my_pool    my_fs  546 MiB  May 07 2020 14:55  /stratis/my_pool/my_fs  e2688231488f40808507ede7502aad01
+
+The filesystem is now listed as my_fs under the Name column.
+
+
+
+--- 7 MOUNT A FILESYSTEM ---
+
+Mounting a filesystem means making the particular filesystem accessible at a certain point in the Linux directory tree.
+Your filesystem is unmounted, and cannot be used to store, read from, or write to files.
+
+Choose a mount point, the directory in which the filesystem will be mounted.
+
+(1) You will mount the filesystem, my_fs, in the directory /mnt/test_mnt:
+mkdir /mnt/test_mnt
+
+(2) Mount the filesystem using the mount command:
+mount /stratis/my_pool/my_fs /mnt/test_mnt
+
+The mount point, /mnt/test_mnt, will now be the root directory of the filesystem.
+
+Warning: If you do not choose an empty directory, the directory's previous contents will become hidden until the filesystem is unmounted.
+
+(3) Confirm that the filesystem has been mounted by running the mount command.
+[root@208472f53bfc ~]# mount | column -t | grep stratis
+/dev/mapper/stratis-1-1fbf4a68120f4a998b725fcb73662d8e-thin-fs-929d575cf0fc4a8d943f178620e89265  on  /mnt/test_mnt                    type  xfs         (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,sunit=2048,swidth=2048,noquota)
+
+
+From the above output, you can see that the filesystem is now mounted successfully in the /mnt/test_mnt directory.
+
+(4) Create files on mounted filesystem
+Create two empty files in the filesystem, my_fs.
+touch /mnt/test_mnt/my_first_file
+touch /mnt/test_mnt/my_second_file
+
+(5) Check that the files have been created.
+
+ls /mnt/test_mnt
+
+ my_first_file  my_second_file
+Both files are now accessible in the /mnt/test_mnt directory.
+
+
+
+
+--- 8 CREATE A SNAPSHOT ---
+
+A snapshot of a filesystem is a read/writeable thinly provisioned point in time copy of the source filesystem.
+To create a snapshot, you will need:
+- The name of the pool in which the filesystem is located
+- The name of the filesystem
+- The name of the snapshot of the filesystem.
+
+(1) Create a snapshot of the filesystem. Name the snapshot my_snapshot.
+stratis filesystem snapshot my_pool my_fs my_snapshot
+
+(2) Check that the snapshot was created successfully by listing the stratis filesystems.
+stratis fs
+
+ Pool Name  Name         Used     Created            Device                        UUID
+ my_pool    my_fs        546 MiB  May 08 2020 12:19  /stratis/my_pool/my_fs        0f808d165a264b779cb9108f7176c098
+ my_pool    my_snapshot  546 MiB  May 08 2020 12:29  /stratis/my_pool/my_snapshot  cf5ac541bb7440a9b1cf5b2ebe936f05
+
+You should see my_snapshot listed in the output.
+
+(3) Access the snapshot to recover files
+E.g. How a snapshot can be used to recover deleted files from a filesystem.
+
+# Delete the first file that you created in the previous step.
+rm -f /mnt/test_mnt/my_first_file
+
+# Check that my_first_file has been deleted.
+ls /mnt/test_mnt
+ my_second_file
+
+You can see that my_first_file has been removed from the directory, and only my_second_file remains.
+
+# You can now mount the snapshot and get access to both files, since the snapshot was created before the file was deleted.
+
+## First, create a new mountpoint to attach the snapshot into the filesystem, /mnt/test_mnt_snap.
+mkdir /mnt/test_mnt_snap
+
+## Next, mount the snapshot, my_snapshot.
+mount /stratis/my_pool/my_snapshot /mnt/test_mnt_snap
+
+## Confirm that the snapshot was mounted successfully.
+mount | column -t | grep stratis
+
+/dev/mapper/stratis-1-1fbf4a68120f4a998b725fcb73662d8e-thin-fs-929d575cf0fc4a8d943f178620e89265  on  /mnt/test_mnt                    type  xfs         (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,sunit=2048,swidth=2048,noquota)
+/dev/mapper/stratis-1-1fbf4a68120f4a998b725fcb73662d8e-thin-fs-d5253fd935134bd5b84d49f0b8077561  on  /mnt/test_mnt_snap               type  xfs         (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,sunit=2048,swidth=2048,noquota)
+
+
+From the output above, the snapshot is mounted on /mnt/test_mnt_snap.
+
+List the files stored within the snapshot on /mnt/test_mnt_snap.
+
+ls /mnt/test_mnt_snap
+
+ my_first_file  my_second_file
+Both files are listed!
+
+(4) Copy the file back to the original filesystem
+
+Now that you have access to the previously deleted file, my_first_file, you may want to copy it back into the original filesystem, my_fs.
+
+# To do this, copy the file, my_first_file back into the original filesytem.
+cp /mnt/test_mnt_snap/my_first_file /mnt/test_mnt
+
+# Lastly, confirm that my_first_file has been copied to /mnt/test_mnt.
+ls /mnt/test_mnt
+ my_first_file my_second_file
+
+The filesystem, my_fs, now contains the previously deleted file, my_first_file.
+
