@@ -2,4 +2,6 @@ sudo /etc/init.d/ssh restart
 cd ~
 echo ""
 ip a | grep "inet " | grep "eth0" | awk -F/ '{print $1}' | awk '{print $2}'
+# -or-
+# ip addr sh wifi0 | grep "inet " | awk -F/ '{print $1}' | awk '{print $2}'
 echo ""
