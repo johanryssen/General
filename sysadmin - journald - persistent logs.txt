@@ -1,0 +1,3 @@
+mkdir -p /var/log/journal ;
+systemd-tmpfiles --create --prefix /var/log/journal ;
+killall -USR1 systemd-journald ;

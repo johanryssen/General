@@ -1,0 +1,21 @@
+>  /dev/null discard STDOUT
+0> /dev/null discard STDOUT
+1> /dev/null discard STDOUT
+2> /dev/null discard STDERR
+&> /dev/null discard both STDOUT and STDERR
+
+STDIN	- 0
+STDOUT	- 1
+STDERR	- 2
+
+Send STDERR [2] into STDOUT [1], and send STDOUT to file.log
+./command > file.log 2>&1
+
+Redirect STDIN into a command that expects STDIN
+./command << file.txt
+
+Hide STDOUT:
+./command >/dev/null
+
+Hide STDOUT and STDERR:
+./command >/dev/null 2>&1

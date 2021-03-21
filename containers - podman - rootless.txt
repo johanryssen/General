@@ -5,15 +5,91 @@
 - persistent storage
 
 
+To run podman as rootless:
+
+# Prerequisites
+
+(1) Enable cgroups v2
+(2) To allow rootless operation of Podman containers:
+- Determine which user(s) and group(s) you want to use for the containers
+- Add their corresponding entries to /etc/subuid and /etc/subgid respectively.
+
+----------
+
+(1) Enable cgroups v2
+
+# Enable This Kernel Paramater
+
+$ echo 'kernel.unprivileged_userns_clone=1' > /etc/sysctl.d/userns.conf
+
+# Edit grub
+
+# Use one of them:
+- systemd.unified_cgroup_hierarchy=1	# Systemd will mount /sys/fs/cgroup as cgroup v2
+- cgroup_no_v1="all"					# The kernel will disable all v1 cgroup controllers
+
+---
+$ sudo vim /etc/default/grub
+GRUB_CMDLINE_LINUX_DEFAULT=".... systemd.unified_cgroup_hierarchy=1 --or-- cgroup_no_v1="all""
+---
+
+# Manual Method
+$ mount -t cgroup2 none /sys/fs/cgroup
+
+# To Check
+# For V2
+$ ls /sys/fs/cgroup
+
+cgroup.controllers      cgroup.subtree_control  init.scope/      system.slice/
+cgroup.max.depth        cgroup.threads          io.cost.model    user.slice/
+cgroup.max.descendants  cpu.pressure            io.cost.qos
+cgroup.procs            cpuset.cpus.effective   io.pressure
+cgroup.stat             cpuset.mems.effective   memory.pressure
+
+# V1 ( if you see these file then your cgroup is on v1 )
+$ ls /sys/fs/cgroup
+
+blkio/    cpu,cpuacct/  freezer/  net_cls@           perf_event/  systemd/
+cpu@      cpuset/       hugetlb/  net_cls,net_prio/  pids/        unified/
+cpuacct@  devices/      memory/   net_prio@          rdma/
+
+# Update
+$ sudo grub-mkconfig -o /boot/grub/grub.cfg
+$ reboot
+
+-----
+
+## 2.0 Enable Uid’ss and Gid’s for User
+
+# The following below commands enables the podman user and group to run containers.
+# It allocates the UIDs and GIDs from 100000to 165535 to the podman user and group respectively.
+
+$ sudo touch /etc/{subgid,subuid}
+$ sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 {USER}
+$ grep {USER} /etc/subuid /etc/subgid
+/etc/subuid:{USER}:100000:65536
+/etc/subgid:{USER}:100000:65536
+====================================================================
+
+
+
+
+--- Image & Containers Location ---
+Podman ( root ): /var/lib/containers
+Podman ( normal_user ): ~/.local/share/containers
+Docker: /var/lib/docker
+-----------------------------------
+
+
 $ mkdir ~/mongodir
 $ podman run -d -p 27017:27017 -v ~/mongodir:/data/db:Z --name myContainer01 docker.io/library/mongo:latest
 $ podman run -d -p 27017:27017 -v ~/mongodir:/data/db:Z --name con_$(date +%s) docker.io/library/mongo:latest
 
-The Z option tells Podman to label the content with a private unshared label.
-
-podman-run - Run a command in a new container
+The Z option tells Podman to label the content with a PRIVATE UNSHARED LABEL.
 
 
+# podman-run - Run a command in a new container
 podman run -d -p 8000:80 -v ~/alpine:/var/www/html:Z --name alpine01 docker.io/library/alpine:latest
-
 podman run -t -i -v /etc/:/testdir --rm fedora sh -c 'ls -l /testdir 2> /dev/null | head -n 10'
+
+

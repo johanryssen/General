@@ -1,0 +1,20 @@
+#!/bin/bash
+subscription-manager refresh
+/bin/dnf clean all
+/bin/updatedb
+/bin/mandb -q
+/sbin/logrotate -f /etc/logrotate.conf
+/bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
+/bin/rm -rf /var/tmp/*
+/bin/rm -rf /var/log/*2021* /var/log/*.? /var/log/*.gz
+/bin/rm -rf /var/log/*/*2021* /var/log/*/*.? /var/log/*/*.gz
+echo ""
+echo "--- Journal Disk Usage ---"
+journalctl --disk-usage
+echo "------------------------- "
+echo ""
+journalctl --rotate
+journalctl -m --vacuum-time=1s
+systemctl restart systemd-journald
+echo ""
+echo "--- Done ---"
