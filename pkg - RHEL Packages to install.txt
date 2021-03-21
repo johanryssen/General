@@ -1,4 +1,10 @@
-## yum -y install $(awk '{print $1}' pkg.txt)
+# yum -y install $(awk '{print $1}' pkg.txt)
+## epel-release
+## openscap
+## openscap-scanner
+EL8: dnf-plugins-core
+EL8: insights-client
+EL8: tlog
 ansible
 bash-completion
 bc
@@ -8,10 +14,6 @@ bzip2-devel
 chrony
 crontabs
 curl
-dnf-plugins-core
-epel-release
-gcc
-gcc-c++
 git
 glibc
 glibc-devel
@@ -28,8 +30,6 @@ nc
 net-tools
 nfs-utils
 nmap
-openscap
-openscap-scanner
 openssl-devel
 pciutils
 pciutils-libs

@@ -1,0 +1,489 @@
+--- LOGIN ---
+# Login to Registry
+podman login -u USER_NAME REGISTRY_URL
+
+# Login with token or password
+# eg: in OpenShift, retrieve token:
+# $ TOKEN=$(oc whoami -t)
+podman login -u USER_NAME -p ${TOKEN} REGISTRY_URL
+
+# Remove login credentials for registry.redhat.io
+podman logout quay.io
+
+# Remove login credentials for all registries
+podman logout --all
+
+
+--- SEARCH / PULL / LIST IMAGES ---
+# search for an image in registry
+podman search REGISTRY_URL/IMAGE_NAME
+
+# Search with filters:
+podman search httpd --filter=is-official
+
+# Downloading / pull image:
+podman pull registry.fedoraproject.org/f30/httpd
+
+# List images:
+podman images
+
+
+--- RUNNING A CONTAINER ---
+# Create a container
+podman run --name test -u 1234 -p 8080:8080 -d s2i-sample-app
+podman run -d --name TEST quay.io/USER_NAME/IMAGE_NAME:VERSION
+
+# Run basic HTTPD server:
+podman run -dt -p 8080:8080/tcp registry.fedoraproject.org/f30/httpd
+
+# List running containers
+podman ps
+
+# Build container image from Dockerfile and spec
+podman build -t NAME .
+
+# Detach from Container:
+CTRL + P , CTRL + Q
+
+
+
+--- TESTING THE HTTPD CONTAINER ---
+# Container is reachable via it's published port on your local machine.
+curl http://localhost:8080
+
+# From another machine, you need to use the IP Address of the host, running the container.
+$ curl http://<IP_Address>:8080
+
+
+--- INSPECTING A RUNNING CONTAINER ---
+# View metadata: environment variables, network settings, allocated resources.
+# Since, the container is running in rootless mode, no IP Address is assigned to the container.
+podman inspect -l | grep IPAddress
+...
+
+Note: The -l is a convenience argument for latest container.
+You can also use the container's ID or name instead of -l or the long argument --latest.
+
+# View container logs:
+podman logs -l
+podman logs CONTAINER_NAME
+
+# View container pids:
+podman top -l
+podman top CONTAINER_NAME
+
+
+--- STOP ---
+# Stop the container:
+podman stop -l
+podman stop CONTAINER_NAME
+
+# Check status:
+podman ps -a
+
+# Remove container:
+podman rm -l
+podman rm CONTAINER_NAME
+
+
+
+----- NETWORKING -----
+Differences in networking between ROOTLESS and ROOTFULL containers.
+
+--- Podman pods ---
+By definition, all containers in the same Podman pod share the same network namespace.
+Therefore, the containers will share the IP Address, MAC Addresses and port mappings.
+You can always communicate between containers in the same pod, using localhost.
+
+##### ROOTLESS NETWORKING #####
+When using Podman as a rootless user, the network is setup automatically.
+The container itself does NOT have an IP Address, because without root privileges, network association is not allowed.
+You will also see some other limitations.
+
+---------------
+By default, ROOTFULL containers use the CNI bridge plugin for its default configuration.
+In this case, NO NETWORK NAME must be passed to Podman.
+
+However, you can create additional bridged networks with the podman create command.
+In that case, you will have to set the network name.
+
+The following example shows how to set up a web server and expose it to the network outside the host as rootless.
+It will also show how an outside client can connect to the container.
+
+(rootfull) $ sudo podman run -dt --name webserver -p 8080:80 quay.io/libpod/banner
+00f3440c7576aae2d5b193c40513c29c7964e96bf797cf0cc352c2b68ccbe66a
+
+# For ROOTLESS containers using CNI, a network must first be created.
+$ podman network create
+/home/user1/.config/cni/net.d/cni-podman1.conflist
+
+# Now run the container.
+$ podman run -dt --name webserver --net cni-podman1 -p 8081:80 quay.io/libpod/banner
+269fd0d6b2c8ed60f2ca41d7beceec2471d72fb9a33aa8ca45b81dc9a0abbb12
+
+Note in the above run command, the container's port 80 (where the Nginx server is running) was mapped to the host's port 8080.
+Port 8080 was chosen to demonstrate how the host and container ports can be mapped for external access.
+The port could very well have been 80 as well (except for rootless users).
+
+To connect from an outside client to the webserver, simply point an HTTP client to the host's IP address at port 8080 for rootfull and port 8081 for rootless.
+---------------
+
+
+## Publishing Ports
+Port publishing as rootless containers can be done for "HIGH PORTS" only.
+All ports below 1024 are privileged and cannot be used for publishing.
+
+#Instead of:
+$ podman run -dt -p 80:8080/tcp registry.fedoraproject.org/f29/httpd
+
+#Use:
+$ podman run -dt -p 8080:8080/tcp registry.fedoraproject.org/f29/httpd
+
+Note: You can also use podman -P to automatically publish and map ports.
+
+## Container <-> Host Communication
+
+If you want to reach a rootless container from your localhost, you can use port publishing (as in the example above).
+
+# Check the ports published and occupied:
+$ podman port -l
+8080/tcp -> 0.0.0.0:8080
+
+Note: The -l is a convenience argument for latest container.
+You can also use the container's ID or name instead of -l or the long argument --latest.
+
+
+## Container <-> Container Communication
+
+Communicating between two rootless containers can be achieved in multiple ways.
+The easiest and most convenient way is to communicate via PUBLISHED PORTS and the UNDERLYING HOST.
+
+# Check if a "listening” container is running:
+$ podman ps
+
+# View the published ports:
+$ podman port <container_id>
+
+# View the address of your host:
+$ ip addr
+
+# Start a new container to contact your host + the published port:
+$ podman run -it --rm fedora curl <Host_IP_Address>:<Published_Port>
+
+
+
+##### ROOTFULL NETWORKING #####
+This section describes how networking can be used in rootfull containers.
+
+-----
+ROOTFULL containers use the CNI bridge plugin for its default configuration.
+In this case, no network name must be passed to Podman.
+However, you can create additional bridged networks with the podman create command.
+In that case, you will have to set the network name.
+
+The following example shows how to set up a web server and expose it to the network outside the host as both rootfull and rootless.
+It will also show how an outside client can connect to the container.
+
+(rootfull) $ sudo podman run -dt --name webserver -p 8080:80 quay.io/libpod/banner
+-----
+
+
+## Publishing Ports
+Port publishing works the same way as rootless containers, but you will be able to use PRIVILEGED PORTS, as long as they are free.
+
+$ sudo podman run -dt -p 80:8080/tcp registry.fedoraproject.org/f29/httpd
+
+Note: You can also use podman -P to automatically publish and map ports.
+
+
+## Container <-> Host Communication
+Rootfull containers are reachable via their published ports.
+
+# Check which ports are published:
+$ sudo podman port -l
+8080/tcp -> 0.0.0.0:80
+
+# Test from local machine:
+$ curl localhost
+
+
+## Container <-> Container Communication
+Rootfull containers can communicate via their IP Address in the same network.
+
+$ sudo podman inspect <container_id> | grep IPAddress
+            "IPAddress": "10.88.0.83",
+
+$ sudo podman run -it --rm fedora curl <Container_IP_Address>:<Container_Port>
+
+
+## Configuring Networking
+The installation of Podman provides a default network configuration commonly installed in /etc/cni/net.d/ as 87-podman-bridge.conflist.
+The default network name is defined in /usr/share/containers/libpod.conf.
+If you want to change the default network, you should copy the libpod.conf to /etc/containers/libpod.conf and change the new file.
+
+To create a new network, you can use the podman network create command, which will create a new file in /etc/cni/net.d/.
+
+## Using DNS in Container Networks
+Podman provides a convenient way to allocate local DNS records to containers via the dnsname plugin.
+This can become handy, if you want to communicate between 2 or more containers.
+
+The feature will be automatically enabled for newly created networks via podman network create.
+If you want to add this feature to the default network, you can either:
+(1) Create a new network and make it default or 
+(2) Add the needed lines to cat /etc/cni/net.d/87-podman-bridge.conflist - a reboot may be required.
+
+
+{
+  ...
+
+  "plugins": [
+
+    ...
+
+    {
+      "type": "dnsname",
+      "domainName": "example.com"
+    }
+  ]
+}
+
+
+--------------------------------
+
+
+## Step 1 ##
+
+# View the container images available.
+
+[root@podman ~]# podman images
+REPOSITORY                         TAG     IMAGE ID      CREATED      SIZE
+registry.redhat.io/rhel8/httpd-24  latest  b49449b8ae18  10 days ago  436 MB
+
+There is one container available in the local (localhost) repository: rhel8/httpd-24
+If there were multiple updated iterations of the conatiner available, you would use the IMAGE ID to work with those that are not tagged as latest.
+Also, from this list you are able to see the size, on disk, of the container image.
+
+------------------------
+
+## Step 2 ##
+
+The rhel8-httpd container includes a bash shell.
+Deploy the container in an interactive fashion, which will allow you to run commands within the deployed container.
+[root@podman ~]# podman run -it registry.redhat.io/rhel8/httpd-24 /bin/bash
+bash-4.4$
+
+# Notice that all of the filesystem contents are either memory-based (tmpfs, shm) or the overlay file associated with this runtime of the container image (overlay).
+
+bash-4.4$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          17G  2.9G   15G  17% /
+tmpfs            64M     0   64M   0% /dev
+tmpfs           897M  9.0M  888M   1% /etc/hosts
+shm              63M     0   63M   0% /dev/shm
+tmpfs           897M     0  897M   0% /sys/fs/cgroup
+
+
+# In another terminal:
+
+root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND    CREATED             STATUS                 PORTS   NAMES
+2a2000c8cb29  registry.redhat.io/rhel8/httpd-24  /bin/bash  About a minute ago  Up About a minute ago          ecstatic_cartwright
+
+
+------------------------
+
+## Step 3 ##
+
+Exit the container's shell
+exit
+
+When the process on an interactive container is closed, the container stops running.
+
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND    CREATED             STATUS                    PORTS   NAMES
+2a2000c8cb29  registry.redhat.io/rhel8/httpd-24  /bin/bash  About a minute ago  Exited (0) 3 seconds ago          ecstatic_cartwright
+
+STATUS field = Exited
+A container in this state can be resumed.
+
+Remove container:
+
+podman rm $(podman ps -a | grep Exited | cut -d" " -f1)
+-or-
+podman rm $(podman ps -a | grep Exited | awk {'print $1'})
+
+------------------------
+
+## Step 4 ##
+
+Create a new instance of this container in a detached mode.
+Configure port forwarding for the Apache web server so that connections to the host's port 8084 will redirect to the running container's port 80 (Apache service).
+
+[root@podman ~]# podman run -dt -p 8080:80/tcp registry.redhat.io/rhel8/httpd-24
+f5478a83ffd0a3a098306aa8ca7956b14be0e2ebb49b31fc517594ded5e92992
+
+
+# Verify:
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND               CREATED         STATUS             PORTS                 NAMES
+f5478a83ffd0  registry.redhat.io/rhel8/httpd-24  /usr/bin/run-http...  17 seconds ago  Up 17 seconds ago  0.0.0.0:8080->80/tcp  nostalgic_jang
+ 
+Observe that STATUS = Up and there is a new section in the output: PORTS that indicates the port forwarding defined for the container.
+
+
+------------------------
+
+## Step 5 ##
+
+Unlike interactive containers, detached containers are stopped using podman stop .
+
+podman stop $(podman ps -a | grep Up | cut -d" " -f1)
+-or-
+podman stop $(podman ps -a | grep Up | awk {'print $1'})
+
+# Verify:
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND               CREATED        STATUS                     PORTS                 NAMES
+498d6b63862c  registry.redhat.io/rhel8/httpd-24  /usr/bin/run-http...  4 minutes ago  Exited (0) 14 seconds ago  0.0.0.0:8090->80/tcp  modest_goodall
+
+
+------------------------
+
+
+
+[devops@podman 01]$ cat Dockerfile
+FROM centos:latest
+RUN yum -y install httpd
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUDN"]
+EXPOSE 80
+
+
+[devops@podman 01]$ podman build .
+STEP 1: FROM centos:latest
+Completed short name "centos" with unqualified-search registries (origin: /etc/containers/registries.conf)
+...
+STEP 2: RUN yum -y install httpd
+CentOS Linux 8 - AppStream                      4.1 MB/s | 6.3 MB     00:01
+...
+
+STEP 3: CMD ["/usr/sbin/httpd", "-D", "FOREGROUDN"]
+--> 966e9979589
+STEP 4: EXPOSE 80
+STEP 5: COMMIT
+--> 5eb2dcff57d
+5eb2dcff57daf0694ae9379123611cf064dbf2b1d14cd98b5f1031b6fea3a195
+[devops@podman 01]$
+
+
+/etc/containers/registries.conf
+
+[devops@podman 01]$ podman login registry.access.redhat.com
+Username: USERNAME
+Password: PASSWORD
+Login Succeeded!
+
+# Rootless Error:
+[devops@podman 01]$ podman run -p 80:80 -dit centos
+Error: rootlessport cannot expose privileged port 80, you can add 'net.ipv4.ip_unprivileged_port_start=80' to /etc/sysctl.conf (currently 1024), or choose a larger port number (>= 1024): listen tcp 0.0.0.0:80: bind: permission denied
+
+# SUDO:
+[devops@podman 01]$ sudo podman run -p 80:80 -dit centos
+bbc0c6e9baf5c1b25ca5dcd1a4b5b3aa90c3dcf6d747d45cd978fec5cea878e8
+[devops@podman 01]$
+
+=======================
+
+[devops@podman PODS]$ podman pod create
+0b5a83cc03ba33fdf45ebda384a7e7b041099a042d24e2084491802482078dce
+
+# option for 'podman pod create':
+
+--cgroup-parent value - Set the parent cgroup for the pod
+--infra - Create an infra container associated with the pod that will share namespaces
+--infra-command value - A command that will be run on the infra container when the pod is started (such as "/pause")
+--infra-image value - The infra container image to be associated with the pod
+--label value - Set metadata for a pod
+--label-file value - Set the metadata for a pod from a line-delimited file of labels
+--name value - Assign a name to the new pod
+--pod-id-file value - Write the pod ID to a file
+--publish value - Publish a container's port (or a range of ports) to the host
+--share value - A comma-delimited list of kernel namespaces to be shared with 
+
+
+[devops@podman PODS]$ podman pod list
+POD ID        NAME         STATUS   CREATED         INFRA ID      # OF CONTAINERS
+0b5a83cc03ba  gracious_wu  Created  41 seconds ago  9f02540db310  1
+
+
+[devops@podman PODS]$ podman pod inspect -l
+{
+     "Id": "0b5a83cc03ba33fdf45ebda384a7e7b041099a042d24e2084491802482078dce",
+     "Name": "gracious_wu",
+     "Created": "2021-03-08T15:57:53.483362632+10:00",
+...
+
+-------------
+
+
+PODMAN GENERATE
+
+Podman lets you generate Kubernetes DEFINITIONS from the existing runtime.
+E.g. if you have a running container, you can use 'podman generate' to create a YAML file to define that container.
+You can also do that with a pod.
+So, I manually defined one of my WordPress sites in Podman.
+
+Here are a few notes on that process.
+
+## Mapping ports
+
+In the Docker world, ports are mapped to containers.
+That's true in Podman as well—except when you're running inside a pod.
+See, the pod is like a container of containers.
+Networking within the pod is more similar to networking within a host OS.
+Pods reach each other over the local host, and external networking reaches the pod, not the containers directly.
+When you run containers in a pod, you need to map ports on the pod like you would on the container in Docker or 'docker-compose'.
+I also found that, although one of the benefits to Podman is the ability to run as a standard user,
+I had to do all of this as root because of some security problems I ran into when I created the pods.
+The problems were mainly centered around SELinux.
+
+## Create a pod:
+# Create a pod with port 8080 mapped to inside port 80.
+# If you then spin up a container listening on port 80, you'd have connectivity.
+[devops@podman PODS]$ sudo podman pod create --name my-pod -p 8080:80
+
+## Create a container in the pod
+
+To create a container in the pod, use podman run, but DON'T MAP A PORT.
+This makes more sense when you have more than one container to work with, so I'm going to create a database container and then a WordPress container.
+
+$ sudo podman run \
+-d --restart=always --pod=my-pod \
+-e MYSQL_ROOT_PASSWORD="myrootpass" \
+-e MYSQL_DATABASE="wp" \
+-e MYSQL_USER="wordpress" \
+-e MYSQL_PASSWORD="w0rdpr3ss" \
+--name=wptest-db mariadb
+
+
+$ sudo podman run \
+-d --restart=always --pod=my-pod \
+-e WORDPRESS_DB_NAME="wp" \
+-e WORDPRESS_DB_USER="wordpress" \
+-e WORDPRESS_DB_PASSWORD="w0rdpr3ss" \
+-e WORDPRESS_DB_HOST="127.0.0.1" \
+--name wptest-web wordpress
+
+
+Notice that I pointed the WORDPRESS_DB_HOST in the env: to LOCALHOST.
+That's because the WordPress container is going to find the database container on the local host.
+Our pod has three containers.
+We ran two, but the third is the container that does the pod magic.
+
+
+[devops@podman PODS]$ sudo podman ps
+CONTAINER ID  IMAGE                               COMMAND               CREATED             STATUS                 PORTS                 NAMES
+823887a27b9c  docker.io/library/wordpress:latest  apache2-foregroun...  About a minute ago  Up About a minute ago  0.0.0.0:8080->80/tcp  wptest-web
+f62b57cb465d  docker.io/library/mariadb:latest    mysqld                2 minutes ago       Up 2 minutes ago       0.0.0.0:8080->80/tcp  wptest-db
+76f059991485  k8s.gcr.io/pause:3.2                                      11 minutes ago      Up 2 minutes ago       0.0.0.0:8080->80/tcp  6923bf96cfa2-infra
+
+

@@ -1,0 +1,12 @@
+https://www.redhat.com/sysadmin/world-linux-containers
+
+https://github.com/containers/podman/blob/master/docs/tutorials/rootless_tutorial.md
+
+https://catalog.redhat.com/software
+https://catalog.redhat.com/software/containers/explore
+
+https://www.redhat.com/sysadmin/compose-podman-pods
+
+# Building, running, and managing containers
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/building_running_and_managing_containers/index
+
