@@ -6,6 +6,7 @@ pvcreate /dev/nvme0n2
 vgextend rhel /dev/nvme0n2
 
 lvextend -l +100%FREE -r /dev/mapper/rhel-root
+
 #-or- extend only by 200M
 lvextend –size 200M -r /dev/mapper/rhel-root
 

@@ -1,20 +1,48 @@
 #!/bin/bash
+echo ""
+echo "Refreshing Subscription Data"
 subscription-manager refresh
+echo "Done"
+echo ""
 /bin/dnf clean all
-/bin/updatedb
-/bin/mandb -q
-/sbin/logrotate -f /etc/logrotate.conf
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo ""
+echo "--- Temp file cleanup ---"
 /bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
 /bin/rm -rf /var/tmp/*
-/bin/rm -rf /var/log/*2021* /var/log/*.? /var/log/*.gz
-/bin/rm -rf /var/log/*/*2021* /var/log/*/*.? /var/log/*/*.gz
+echo "Done"
+echo ""
+echo "--- Log file cleanup ---"
+/bin/rm -rf /var/log/*-2021*
+/bin/rm -rf /var/log/*.?.log
+/bin/rm -rf /var/log/*.?
+/bin/rm -rf /var/log/*.0
+/bin/rm -rf /var/log/*.gz
+/bin/rm -rf /var/log/*log.old
+/bin/rm -rf /var/log/*log.?
+/bin/rm -rf /var/log/*/*-2021*
+/bin/rm -rf /var/log/*/*gz
+/bin/rm -rf /var/log/*/*xz
+echo "Done"
 echo ""
 echo "--- Journal Disk Usage ---"
 journalctl --disk-usage
 echo "------------------------- "
 echo ""
+echo "Results:"
 journalctl --rotate
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
 echo ""
+/bin/updatedb
+/bin/mandb -q
+echo ""
+echo "--- Disk Space ---"
+df -hTP | awk {'print $7 " " $6'} | column -t
+echo ""
+echo -e  "--- World Writeable Files --- \n`ls -lrta $(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002)`"
+## or
+## printf  "World Writeable Files: \n`ls -lrta $(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002)`\n"
+echo ""
 echo "--- Done ---"
+echo ""

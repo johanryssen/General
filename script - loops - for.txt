@@ -1,0 +1,42 @@
+### FOR LOOP
+## FOR a given set of items, DO a thing.
+# for <VARIABLE_NAME> in <LIST_OF_ITEMS> ; do <SOME_COMMAND> $<VARIABLE_NAME> ; done;
+
+---------------
+
+# Renaming files
+
+Take the output of: ls *.pdf
+and perform an action on each returned file name.
+
+E.g. Add date to the end of the file name (but before the file extension).
+
+for i in $(ls *.pdf); do mv $i $(basename $i .pdf)_$(date +%Y%m%d).pdf ; done
+
+---------------
+
+# Copy file to servers
+$ for i in server{0..7} ; do scp newFile.txt ${i}: ; done
+
+# With iterations:
+$ for i in db{0..4} sys{0..2} mon{a..c} ; do echo $i ; done
+
+$ for i in db-{us,ca}-{0..4} ; do echo $i ; done
+
+$ for i in $(cat inventoryList.txt) ; do echo "Stock Item: $i" ; done
+
+---------------
+
+# Adding FOR LOOP to a Bash script
+# Nested loop
+
+# !/bin/bash
+
+for i in dbFile{1..3};do
+  for x in DB{0..3};do
+    echo "Copying $i to server $x"
+    scp $i $x
+  done
+done
+
+---------------

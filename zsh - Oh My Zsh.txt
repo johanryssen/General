@@ -1,0 +1,14 @@
+# Install ohmyz.sh:
+$ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+-or-
+$ sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+
+# Plugins
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins
+
+e.g.
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/sublime
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/python
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kube-ps1
+
