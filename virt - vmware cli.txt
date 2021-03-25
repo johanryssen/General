@@ -1,0 +1,30 @@
+## Run the vmware Command
+
+C:\Program Files(x86)\VMware\VMware Workstation\vmware.exe [-n] [-x] [-X] [-t] [-q] [-s variable_name = value ] [-v] [ path_to_vm .vmx] [http[s]:// path_to_vm .vmx] 
+
+## vmware Command Options
+Option 	Description
+-n 	Opens a new Workstation Pro window.
+-t 	Opens a virtual machine in a new tab in the existing Workstation Pro window.
+-x 	Powers on the virtual machine when Workstation Pro starts. This option is equivalent to clicking Power On in the Workstation Pro toolbar.
+-X 	Powers on the virtual machine and switches the Workstation Pro window to full screen mode.
+-q 	Closes the virtual machine tab when the virtual machine powers off. If no other virtual machine is open, it also exits Workstation Pro. This option is useful when the guest operating system can power off the virtual machine.
+-s 	Sets the specified variable to the specified value. You can specify at the command line any variable names and values that are valid in the configuration file.
+-v 	Displays the product name, version, and build number.
+path_to_vm.vmx 	Launches a virtual machine by using the specified virtual machine configuration (.vmx) file. 
+
+On Linux hosts, you can pass X toolkit options as arguments, such as --display and --geometry.
+Some options, such as the size and title of the Workstation Pro window, cannot be overridden. 
+
+## Incorporate Workstation Pro Startup Options in a Windows Shortcut
+The most convenient way to use vmware command options is to incorporate them into the command that a Windows shortcut generates.
+
+# Procedure
+- Right-click the Workstation Pro shortcut and select Properties.
+- In the Target text box, add any options to use after the vmware.exe command and enclose the entire command string in quotation marks.
+- For example:
+
+"C:\Program Files(x86)\VMware\VMware Workstation\vmware.exe -X
+C:\Documents and Settings\username\My Documents\My Virtual Machines\Windows Me\Windows Me.vmx"
+
+------------------------
