@@ -1,12 +1,9 @@
-
-## Disable terminal bell:
+--- Disable terminal bell ---
 # Edit /etc/inputrc
-
 set bell-style none
 
 
-## Enable Ctrl + Arrow to navigate words:
-
+--- Enable Ctrl + Arrow to navigate words ---
 # Find key code
 
 Press: Ctrl V + Left-Arrow:
@@ -15,11 +12,11 @@ Press: Ctrl V + Left-Arrow:
 Press: Ctrl V + Right-Arrow:
 [root@el8 ~]# ^[[1;5C
 
-## Edit: /etc/inputrc
+
+# Edit: /etc/inputrc
 "\e[1;5C": forward-word
 "\e[1;5D": backward-word
 
 
-## Reload SHELL
+# Reload SHELL
 exec $SHELL -l
-

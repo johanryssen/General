@@ -46,3 +46,6 @@ echo -e  "--- World Writeable Files --- \n`ls -lrta $(df --local -P | awk {'if (
 echo ""
 echo "--- Done ---"
 echo ""
+history -c
+history -w
+exit 0

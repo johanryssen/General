@@ -1,7 +1,8 @@
 # Download latest:
 https://the.exa.website/#installation
 e.g:
-https://github.com/ogham/exa/releases/download/v0.9.0/exa-linux-x86_64-0.9.0.zip
+
+wget -c https://github.com/ogham/exa/releases/download/v0.9.0/exa-linux-x86_64-0.9.0.zip
 
 # Install:
 unzip exa-linux-x86_64-0.7.0.zip
@@ -9,7 +10,7 @@ mv exa-linux-x86_64 /bin/exa
 
 # Set up alias:
 echo "alias ls=exa" >> ~/.bashrc
-. ~/.bsahrc
+. ~/.bashrc
 
 ===================
 
