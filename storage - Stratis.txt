@@ -21,8 +21,14 @@ stratis pool create [-h] [--redundancy {none}] [--key-desc KEY_DESC] pool_name b
 # View pool:
 stratis pool list
 
-# With 2 block devices (no redundancy).
+# Add additional drive/device to POOL:
+stratis pool add-data pool_01 /dev/sdc
+
+# Or, create with 2 block devices (no redundancy).
 stratis pool create pool_02_devs /dev/sdd /dev/sdf
+
+# View current devices/disks in pool
+stratis blockdev
 
 # stratis pool list
 Name               Total Physical Size  Total Physical Used
@@ -110,10 +116,12 @@ stratis daemon redundancy
 
 
 ## Revert to a previous snapshot using a fs ##
-# First unmount & destroy the original fs:
+# unmount & destroy the original fs:
 umount /stratis/<pool>/filesystem
+
 # e.g In pool_2 (to revert to snapshot_2) unmount the file system: fs_2
 umount /stratis/pool_2/fs_2
+
 
 # Create copy of the snapshot from the original fs:
 # stratis filesystem snapshot <pool>
@@ -124,4 +132,36 @@ stratis filesystem snapshot pool_2 snapshot_2-2020-05-25 database
 
 # mount the snapshot using the file system mount point
 mount /stratis/pool_2/fs_2 /database
+
+
+
+##### Backup and Recovery #####
+
+--- Snapshot ---
+stratis fs snapshot POOL01 fileSystem01 fileSystem01-Snapshot
+
+> View snapshot:
+ls -ls /stratis/POOL01/filesystem01-snapshot
+
+
+--- Destroy Data ---
+Remove some data:
+rm -rf /stratis01/{1,3}
+
+--- Recover data ---
+> Mount SNAPSHOT on new dir:
+mount /stratis/POOL01/filesystem01-snapshot /root/recover_stratis_fs01/
+
+> View original data:
+ls -lsa /root/recover_stratis_fs01/
+
+> Destory SNAPSHOT:
+stratis filesystem destroy POOL01 filesystem01-snapshot
+
+> Destroy FileSystem 
+umount /stratis01
+stratis filesystem destroy POOL01 fileSystem01
+
+> Destroy POOL
+stratis pool destroy POOL01
 

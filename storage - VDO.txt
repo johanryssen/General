@@ -24,9 +24,11 @@ VDO can benefit Filesystems, Ceph, hypervisors, and container environments.
 man vdo
 man vdostats
 
-
 --------------------
 
+modprobe kvdo
+
+--------------------
 
 (2) Create a block device
 

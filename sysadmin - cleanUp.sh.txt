@@ -1,18 +1,28 @@
 #!/bin/bash
 echo ""
-echo "Refreshing Subscription Data"
+echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
 echo "Done"
 echo ""
-/bin/dnf clean all
-/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo "--- DNF Clean All ---"
+/bin/dnf clean all --verbose | tail -1
 echo ""
-echo "--- Temp file cleanup ---"
+echo "--- DNF AutoRemove ---"
+/bin/dnf autoremove -y
+echo ""
+echo "--- DNF MakeCache ---"
+/bin/dnf makecache timer
+echo ""
+echo "--- Log Rotate ---"
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo "Done"
+echo ""
+echo "--- Temp File Cleanup ---"
 /bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
 /bin/rm -rf /var/tmp/*
 echo "Done"
 echo ""
-echo "--- Log file cleanup ---"
+echo "--- Log File Cleanup ---"
 /bin/rm -rf /var/log/*-2021*
 /bin/rm -rf /var/log/*.?.log
 /bin/rm -rf /var/log/*.?
@@ -27,9 +37,8 @@ echo "Done"
 echo ""
 echo "--- Journal Disk Usage ---"
 journalctl --disk-usage
-echo "------------------------- "
 echo ""
-echo "Results:"
+echo "--- Journal Clean Up ---"
 journalctl --rotate
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
@@ -40,12 +49,6 @@ echo ""
 echo "--- Disk Space ---"
 df -hTP | awk {'print $7 " " $6'} | column -t
 echo ""
-echo -e  "--- World Writeable Files --- \n`ls -lrta $(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002)`"
-## or
-## printf  "World Writeable Files: \n`ls -lrta $(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002)`\n"
-echo ""
-echo "--- Done ---"
-echo ""
+echo > ~/.bash_history
 history -c
-history -w
 exit 0
