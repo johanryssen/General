@@ -1,0 +1,44 @@
+echo "### VLC ###" ; 
+dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm -y ; 
+dnf install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y ; 
+dnf install vlc python-vlc -y ; 
+echo ""
+
+
+echo "### KEEPASS2 ### ; 
+dnf install keepass -y ; 
+echo ""
+
+
+echo "### SKYPE ### ; 
+curl -o /etc/yum.repos.d/skype-stable.repo https://repo.skype.com/rpm/stable/skype-stable.repo ; 
+dnf install skypeforlinux -y ; 
+echo ""
+
+
+echo "### DROPBOX ### ; 
+cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf - ; 
+~/.dropbox-dist/dropboxd ; 
+echo ""
+
+
+echo "### TEAMS ### ; 
+curl -o TEAMS_VER https://packages.microsoft.com/yumrepos/ms-teams/ ; clear ; echo "" ;  tail -3 TEAMS_VER | head -1 | awk {'print $2'} ; echo "" ; 
+dnf localinstall https://packages.microsoft.com/yumrepos/<VERSION>.rpm -y ; 
+echo ""
+
+
+echo "### VSCODE ### ; 
+rpm --import https://packages.microsoft.com/keys/microsoft.asc ; 
+sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo' ; 
+
+dnf check-update -y ; dnf install code -y ; 
+echo ""
+
+
+echo "### OTHER ### ; 
+dnf install -y bash-completion bc binutils bzip2-devel chrony curl lsof make mlocate motif mtr nc net-tools nmap screen tcpdump tmux traceroute unzip util-linux vim wget which yum-utils vim  ; 
+echo ""
+
+
+dnf clean all ; dnf update -y ; updatedb ; mandb ; 
