@@ -1,0 +1,2 @@
+hammer --no-headers host list
+sed '1d;$d' FileWithHeaders > noHeadersHere.txt
