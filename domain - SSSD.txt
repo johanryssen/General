@@ -20,27 +20,28 @@
 [user1@server32 ~]$ sudo realm permit --realm domain.example.com --all
 
 - To allow only certain users to log in, replace --all with list of users:
-[user1@server32 ~]$ sudo realm permit --realm domain.example.com DOMAIN\\Itchy DOMAIN\\Scratchy
+[user1@server32 ~]$ sudo realm permit --realm domain.example.com DOMAIN\\Some DOMAIN\\ABC
 
 ---
 By default, domain users must use a fully qualified name to log in
 
 To disable fully qualified names, do one of the following in correct domain block in /etc/sssd/sssd.conf:
-# Change use_fully_qualified_names to False
-# Remove use_fully_qualified_names setting entirely and restart sssd
+# Change use_fully_qualified_names = false
+# Comment use_fully_qualified_names & restart sssd
 
 
 
 --- ADCLI ---
 
-# Domain login
+yum -y install sssd sssd-ad adcli krb5-workstation oddjob oddjob-mkhomedir samba-common-tools chrony
 
+# Domain login
 adcli join -D <DOMAIN> -U "<userid>@<DOMAIN>" -v --show-details --host-keytab=/etc/krb5.keytab.`hostname`
 
-su - user@<Fully Qualified Domain Name>
+su - user@<FQDN>
 -or-
 ssh -l user@example.com@192.168.0.123
-ssh -l user@ad.supinfo.com 52.XXX.XXX.XXX
+ssh -l user@ad.example.com 52.XXX.XXX.XXX
 ssh -l user@ad.example.com linux-client.ad.example.com
 
 SSSD allows user names in the format:

@@ -24,7 +24,7 @@ SSL_connect error "certificate verify failed (self signed certificate in chain)"
 but the GUI method does not performs the test connection in that way.
 It directly hits the URL via the proxy, without any other options and hence the SSL error is returned.
 
-----------
+--------------------
 
 # Restart satellite services 
 satellite-maintain service restart
@@ -41,3 +41,27 @@ satellite-maintain service status
 unset http_proxy
 unset https_proxy
 curl -vvv --proxy-user proxyUser:S0mePasswd --proxy proxy.example.com:8080 https://dl.fedoraproject.org/pub/epel/7/x86_64/
+
+--------------------
+
+## Check the connectivity with cdn.redhat.com
+ls -l /etc/pki/entitlement/*
+
+# curl -vvv --proxy-user user:password --proxy _PROXY_IP_:8080 --cacert /etc/rhsm/ca/redhat-uep.pem --cert /etc/pki/entitlement/6576496576320934530.pem --key /etc/pki/entitlement/6576496576320934530-key.pem https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os/
+
+NOTE:
+The entitlement cert\key to be used comes from a consumed subscription and you need to keep one thing in mind that, the CDN URL you are trying to access should be of a REPO\PRODUCT that is being provided by the ENTITLEMENTS.
+
+See "Diagnostic Steps" here:
+How to troubleshoot subscription-manager and yum issues - Red Hat Customer Portal
+https://access.redhat.com/solutions/189533
+
+
+Tis curl command (to check connectivity to cdn/redhat repo sites) DOES NOT REQUIRE password authent at the proxy (still needs the proxy deets, ie. IP:port , just not user), so this works :
+
+# curl -vvv --proxy _PROXY_IP_:8080  --cacert /etc/rhsm/ca/redhat-uep.pem --cert /etc/pki/entitlement/6576496576320934530.pem --key /etc/pki/entitlement/6576496576320934530-key.pem  https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os/
+
+-or- 
+# curl -vvv --proxy-user _USER:_PASSWORD --proxy _PROXY_IP_:8080 https://subscription.rhn.redhat.com --cacert /etc/rhsm/ca/redhat-uep.pem
+
+--------------------
