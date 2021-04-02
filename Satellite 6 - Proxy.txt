@@ -1,3 +1,64 @@
+## Set Procy ## 
+
+1. Verify that the http_proxy, https_proxy, and no_proxy variables are not set.
+# unset http_proxy
+# unset https_proxy
+# unset no_proxy
+
+2. Add an HTTP proxy entry to Satellite:
+# hammer http-proxy create --name=myproxy \
+--url http://myproxy.example.com:8080  \
+--username=proxy_username \
+--password=proxy_password
+
+3. Configure Satellite to use this HTTP proxy by default:
+# hammer settings set --name=content_default_http_proxy --value=myproxy
+
+---------------------
+
+Configuring SELinux to Ensure Access to Satellite on Custom Ports
+
+# On Satellite, to verify the ports that are permitted by SELinux for the HTTP cache, enter a command as follows:
+
+semanage port -l | grep http_cache
+http_cache_port_t       tcp    8080, 8118, 8123, 10001-10010
+...
+
+# To configure SELinux to permit a port for the HTTP cache, for example 8088, enter a command as follows:
+semanage port -a -t http_cache_port_t -p tcp 8088
+
+
+---------------------
+
+# Using an HTTP Proxy for ALL Satellite HTTP Requests
+hammer settings set --name=http_proxy --value=Proxy_URL
+
+---------------------
+
+# Excluding Hosts from Receiving Proxied Requests
+hammer settings set --name=http_proxy_except_list --value=[hostname1.hostname2...]
+
+---------------------
+
+# Resetting the HTTP Proxy
+# Set the content_default_http_proxy setting to an empty string:
+hammer settings set --name=content_default_http_proxy --value=""
+
+---------------------
+
+## Update the proxy in Satellite 6 if the proxy server details have changed.
+satellite-installer --scenario satellite --reset-katello-proxy-url --reset-katello-proxy-port --reset-katello-proxy-username --reset-katello-proxy-password
+
+# Verify settings once the katello-upgrade / satellite-upgrade is complete:
+/etc/pulp/server/plugins.conf.d/yum_importer.json
+/etc/pulp/server/plugins.conf.d/puppet_importer.json
+/etc/pulp/server/plugins.conf.d/iso_importer.json
+/etc/foreman/plugins/katello.yaml
+
+---------------------
+
+
+
 # You should not need the proxy configuration in --> Administer --> Settings --> HTTP(s) Proxy
 Take a screenshot of that page and then nullify that value.
 
@@ -6,7 +67,7 @@ Take a screenshot of that page and then nullify that value.
 1. Manually update /etc/rhsm/rhsm.conf
 
 2. Update proxy_password for satellite server, using satellite-installer:
-satellite-installer -S satellite --katello-proxy-password='proxy_password'
+satellite-installer -S satellite --katello-proxy-password='proxy_password' ## Sat 6.2 and below.
 
 3. Verify these files contain correct and identical proxy information:
 /etc/pulp/server/plugins.conf.d/*.json
