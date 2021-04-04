@@ -1,0 +1,41 @@
+----- Checking certificate validity -----
+
+Checking the basic validity of a certificate chain sent by a server
+
+The example below shows a successfully verified certificate chain sent by a server (redhat.com) after a connection on port 443. 
+"Verification" is output as "OK."
+
+
+'openssl s_client' will read from standard input for data to send to the remote server.
+Appending an echo sends a newline and immediately terminates the connection.
+Without this, you would need to press Ctrl+C to quit the connection.
+
+
+echo | openssl s_client -connect redhat.com:443 -brief
+...
+Verification: OK
+...
+
+-vs-
+
+echo | openssl s_client -connect self-signed.badssl.com:443 -brief
+...
+Verification error: self signed certificate
+...
+
+
+----- Determining when a certificate expires -----
+
+Piping the output into x509, you can obtain the certificate’s validity period by using the -dates flag.
+
+# A valid certificate that hasn’t expired yet
+$ echo | openssl s_client -connect redhat.com:443 2>/dev/null | openssl x509 -noout -dates
+notBefore=Jul  9 00:00:00 2019 GMT
+notAfter=Aug  2 12:00:00 2021 GMT
+
+-vs-
+
+# A certificate that expired in 2015
+$ echo | openssl s_client -connect expired.badssl.com:443 2>/dev/null | openssl x509 -noout -dates
+notBefore=Apr  9 00:00:00 2015 GMT
+notAfter=Apr 12 23:59:59 2015 GMT

@@ -1,0 +1,50 @@
+## List PRODUCTs
+hammer product list --organization="myOrg01" --search myProduct
+---|-----------|-------------|---------------|--------------|------------------
+ID | NAME      | DESCRIPTION | ORGANIZATION  | REPOSITORIES | SYNC STATE
+---|-----------|-------------|---------------|--------------|------------------
+76 | myProduct |             | myOrg01       |   2          | Syncing Complete.
+
+
+## List REPOs
+SAT 6:
+hammer  repository list| grep -i myProduct
+ID   | NAME			| PRODUCT	| CONTENT TYPE	| URL
+745  | myRepo-el6	| myProduct	| yum			| http://10.10.10.123/myrepo-el6
+746  | myRepo-el7	| myProduct	| yum			| http://10.10.10.123/myrepo-el7
+
+
+## Find SUBSCRIPTION ID
+SAT 6: 
+hammer subscription list --search myProduct
+ID  | UUID                             | NAME      |
+123 | 12345123451234512345123451234512 | myProduct |
+
+
+## Attach subscription to host
+SAT 6:
+### Single host:
+hammer host subscription attach --host=server4.test.lab --subscription-id=123
+
+### List of hosts in a file: batch3_hosts.txt
+for host in $(cat batch3_hosts.txt) ; do $(hammer host subscription attach --host=$host --subscription-id=123) ; done
+
+-or:
+hammer --no-headers
+for host in $(cat batch3_hosts.txt) ; do $(hammer --no-headers host subscription attach --host=$host --subscription-id=123) ; done
+
+
+## Refresh Subscriptions on each host:
+subscription-manager refresh
+
+
+----- Product Details -----
+Repo ID:   myOrg01_myProduct_myRepo-el6
+Repo Name: myRepo-el6
+Repo URL:  https://satellite6.test.lab/pulp/repos/myorg01/Library/cv_6Server/custom/myProduct/myRepo-el6
+
+
+Repo ID:   myOrg01_myProduct_myRepo-el7
+Repo Name: myRepo-el7
+Repo URL:  https://satellite6.test.lab/pulp/repos/myorg01/Library/cv_7Server/custom/myProduct/myRepo-el7
+
