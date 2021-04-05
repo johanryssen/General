@@ -1,0 +1,44 @@
+# Setup
+yum install -y vdo kmod-kvdo
+systemctl enable --now vdo
+fdisk -l
+modprobe kvdo
+
+# Create VDO
+vdo create --name=VDO1 --device=/dev/sdb --vdoLogicalSize=50G
+vdo status --name=VDO1 | grep -E '(Deduplication|Compression)'
+lsmod | grep -E '(uds|kvdo)'
+
+UDS = Universal Deduplication Service
+
+# Create FS
+mkfs.xfs -K /dev/mapper/VDO1
+mkdir /data
+echo "/dev/mapper/VDO1 /data xfs x-systemd.requires=vdo.service 0 0" >> /etc/fstab
+-or-
+echo "`blkid | grep VDO | awk {'print $2'}` /data1 xfs x-systemd.requires=vdo.service 0 0" >> /etc/fstab
+
+# Mount
+mount -av
+restorecon /data
+mount -t xfs
+
+# View
+df -h /data
+vdostats --human-readable
+
+----------
+
+## Disable / Enable: Deduplication
+vdo disableDeduplication --name=VDO1
+vdo enableDeduplication --name=VDO1
+
+## Disable / Enable: Compression
+vdo disableCompression --name=VDO1
+vdo enableCompression --name=VDO1
+
+
+## Increasing LogicalSize
+vdo growLogical --name=VDO1 --vdoLogicalSize=200G
+xfs_growfs /data
+

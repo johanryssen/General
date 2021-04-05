@@ -1,0 +1,40 @@
+## Create Physical Vol:
+pvcreate /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
+
+## Create Vol Group:
+vgcreate vg_VDO /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
+
+## Create Logical Vol:
+
+# Syntax:
+lvcreate --type vdo --name vdo-name --size physical-size --virtualsize logical-size vg-name
+
+# Check "VFree" from "vgs" cmd to get "--free" max size for "lvcreate" cmd:
+
+vgs
+  VG     #PV #LV #SN Attr   VSize   VFree
+  vg_VDO   3   0   0 wz--n- <17.99g <17.99g
+
+
+--- Wrong, because: "--size 18GiB" > "vFree":
+lvcreate --type vdo --name LVM_VDO --size 18GiB --virtualsize 1TiB vg_VDO
+  Volume group "vg_VDO" has insufficient free space (4605 extents): 4608 required.
+
+
+--- Right:
+lvcreate --type vdo --name LVM_VDO --size 17.9GiB --virtualsize 1TiB vg_VDO
+  Rounding up size to full physical extent 17.90 GiB
+    The VDO volume can address 14 GB in 7 data slabs, each 2 GB.
+    It can grow to address at most 16 TB of physical storage in 8192 slabs.
+    If a larger maximum size might be needed, use bigger slabs.
+  Logical volume "LVM_VDO" created.
+
+
+## Create FS:
+mkfs.xfs -K /dev/vg_VDO/LVM_VDO
+-or-
+mkfs.xfs -K /dev/mapper/vg_VDO-lv_VDO
+
+
+## /etc/fstab entry:
+/dev/vg/vdo-name	/VDO	xfs	defaults,x-systemd.device-timeout=0,x-systemd.requires=vdo.service	0 0

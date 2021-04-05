@@ -1,5 +1,13 @@
 #!/bin/bash
 echo ""
+echo "Synchronize cached writes to persistent storage"
+/bin/sync
+echo ""
+echo "JournalD Setup"
+mkdir -p /var/log/journal ;
+systemd-tmpfiles --create --prefix /var/log/journal ;
+killall -USR1 systemd-journald ;
+echo ""
 echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
 echo "Done"
