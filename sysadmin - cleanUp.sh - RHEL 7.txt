@@ -1,0 +1,63 @@
+#!/bin/bash
+echo ""
+echo "Synchronize cached writes to persistent storage"
+/bin/sync
+echo ""
+echo "JournalD Setup"
+mkdir -p /var/log/journal ;
+systemd-tmpfiles --create --prefix /var/log/journal ;
+killall -USR1 systemd-journald ;
+echo ""
+echo "--- Refreshing Subscription Data ---"
+subscription-manager refresh
+echo "Done"
+echo ""
+echo "--- YUM Clean All ---"
+/bin/yum clean all --verbose | tail -1
+echo ""
+echo "--- yum AutoRemove ---"
+/bin/yum autoremove -y
+echo ""
+echo "--- DNF MakeCache ---"
+/bin/yum makecache timer
+echo ""
+echo "--- Log Rotate ---"
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo "Done"
+echo ""
+echo "--- Temp File Cleanup ---"
+/bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
+/bin/rm -rf /var/tmp/*
+echo "Done"
+echo ""
+echo "--- Log File Cleanup ---"
+/bin/rm -rf /var/log/*-2021*
+/bin/rm -rf /var/log/*.?.log
+/bin/rm -rf /var/log/*.?
+/bin/rm -rf /var/log/*.0
+/bin/rm -rf /var/log/*.gz
+/bin/rm -rf /var/log/*log.old
+/bin/rm -rf /var/log/*log.?
+/bin/rm -rf /var/log/*/*-2021*
+/bin/rm -rf /var/log/*/*gz
+/bin/rm -rf /var/log/*/*xz
+/bin/rm -rf /var/log/audit/audit.log.?
+echo "Done"
+echo ""
+echo "--- Journal Disk Usage ---"
+journalctl --disk-usage
+echo ""
+echo "--- Journal Clean Up ---"
+echo "No 'journalctl --rotate' in RHEL 7"
+journalctl -m --vacuum-time=1s
+systemctl restart systemd-journald
+echo ""
+/bin/updatedb
+/bin/mandb -q
+echo ""
+echo "--- Disk Space ---"
+df -hTP | awk {'print $7 " " $6'} | column -t
+echo ""
+echo > ~/.bash_history
+history -c
+exit 0
