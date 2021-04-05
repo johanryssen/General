@@ -1,0 +1,38 @@
+## Create POOL:
+stratis pool create pool01 /dev/nvme0n2 /dev/nvme0n3
+
+## Add device to pool:
+stratis pool add-data pool01 /dev/nvme0n4
+
+## View block devices per pool:
+stratis blockdev
+
+## View Pool(s):
+stratis pool list
+
+## Create FS on POOL:
+stratis filesystem create pool01 fs01
+
+## View FILESYSTEM(S):
+stratis fs list
+
+# Get blkid:
+blkid /stratis/pool01/fs01
+
+# MOUNT fs01:
+mount UUID="a3a7ff29-c919-4a03-8194-e0034bd05461" /data/live
+
+# Copy some content:
+find /usr/share/doc/ -name "*.html" -exec cp {}/data/live/ \;
+
+## Create Snapshot:
+stratis filesystem snapshot pool01 fs01 snap01
+
+## List SNAPSHOT:
+stratis fs list
+
+# Get SNAPSHOT blkid:
+blkid /stratis/pool01/snap01
+
+# Mount Snapshot:
+mount UUID="612471f7-5f55-4775-b970-12b49a9d3a60" /data/backup
