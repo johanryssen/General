@@ -15,8 +15,11 @@ git config user.name
 
 # Add the email address to your account on GitHub, so that your commits are attributed to you and appear in your contributions graph.
 
-------------------------
+### Auto Correct
 
+git config --global help.autocorrect 1
+
+------------------------
 
 ### Add a remote repository
 

@@ -39,6 +39,7 @@ python3-pip
 python3-virtualenv
 rhel-system-roles
 screen
+sshpass
 strace
 sysstat
 tcp_wrappers

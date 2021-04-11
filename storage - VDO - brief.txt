@@ -16,7 +16,10 @@ mkfs.xfs -K /dev/mapper/VDO1
 mkdir /data
 echo "/dev/mapper/VDO1 /data xfs x-systemd.requires=vdo.service 0 0" >> /etc/fstab
 -or-
-echo "`blkid | grep VDO | awk {'print $2'}` /data1 xfs x-systemd.requires=vdo.service 0 0" >> /etc/fstab
+echo "$(blkid | grep VDO | awk {'print $2'}) /data1 xfs x-systemd.requires=vdo.service 0 0" >> /etc/fstab
+
+# Watches the udev event queue, and exits if all current events are handled.
+udevadm settle
 
 # Mount
 mount -av

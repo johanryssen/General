@@ -38,6 +38,9 @@ yum -y install sssd sssd-ad adcli krb5-workstation oddjob oddjob-mkhomedir samba
 # Domain login
 adcli join -D <DOMAIN> -U "<userid>@<DOMAIN>" -v --show-details --host-keytab=/etc/krb5.keytab.`hostname`
 
+cp /etc/krb5.keytab.`hostname` /etc/krb5.keytab
+
+
 su - user@<FQDN>
 -or-
 ssh -l user@example.com@192.168.0.123

@@ -15,13 +15,12 @@ vgs
   VG     #PV #LV #SN Attr   VSize   VFree
   vg_VDO   3   0   0 wz--n- <17.99g <17.99g
 
-
---- Wrong, because: "--size 18GiB" > "vFree":
+--> Wrong, because: "--size 18GiB" > "vFree":
 lvcreate --type vdo --name LVM_VDO --size 18GiB --virtualsize 1TiB vg_VDO
   Volume group "vg_VDO" has insufficient free space (4605 extents): 4608 required.
 
 
---- Right:
+--> Right:
 lvcreate --type vdo --name LVM_VDO --size 17.9GiB --virtualsize 1TiB vg_VDO
   Rounding up size to full physical extent 17.90 GiB
     The VDO volume can address 14 GB in 7 data slabs, each 2 GB.

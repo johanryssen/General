@@ -36,3 +36,25 @@ blkid /stratis/pool01/snap01
 
 # Mount Snapshot:
 mount UUID="612471f7-5f55-4775-b970-12b49a9d3a60" /data/backup
+
+-------------------
+
+stratis pool create POOL1 /dev/nvme0n2
+stratis pool add-data POOL1 /dev/nvme0n3
+
+stratis fs create POOL1 FS1
+stratis fs create POOL1 FS2
+stratis fs create POOL1 FS3
+stratis fs create POOL1 FS4
+stratis fs create POOL1 FS5
+
+mkdir -p /data/FS{1,2,3,4,5}
+
+for i in {1..5} ; do mount -o discard $(blkid /stratis/POOL1/FS${i} | awk {'print $2'}) /data/FS$i ; done
+
+[root@el8 ~]# df -h | grep stratis
+/dev/mapper/stratis-1-2abd70f961a74e07802d6efb4b538966-thin-fs-f72a0eb8c8744f3392e5db2bbfe93de2  1.0T  7.2G 1017G   1% /data/FS1
+/dev/mapper/stratis-1-2abd70f961a74e07802d6efb4b538966-thin-fs-3981bad6630b4d1784d36040bfda25d9  1.0T  7.2G 1017G   1% /data/FS2
+/dev/mapper/stratis-1-2abd70f961a74e07802d6efb4b538966-thin-fs-902a01de4b0b4baf832afe0dcf7f1d2f  1.0T  7.2G 1017G   1% /data/FS3
+/dev/mapper/stratis-1-2abd70f961a74e07802d6efb4b538966-thin-fs-a3d446c8d26d4a2b9c68f6ccc1f3ffb3  1.0T  7.2G 1017G   1% /data/FS4
+/dev/mapper/stratis-1-2abd70f961a74e07802d6efb4b538966-thin-fs-6dbdf202348144f0937c742cb3cfefa6  1.0T  7.2G 1017G   1% /data/FS5

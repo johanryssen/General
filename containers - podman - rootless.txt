@@ -58,8 +58,10 @@ $ sudo grub-mkconfig -o /boot/grub/grub.cfg
 $ reboot
 
 -----
+lsns - list namespaces
+-----
 
-## 2.0 Enable Uid’ss and Gid’s for User
+## 2.0 Enable Uids and Gids for User
 
 # The following below commands enables the podman user and group to run containers.
 # It allocates the UIDs and GIDs from 100000to 165535 to the podman user and group respectively.
@@ -69,14 +71,13 @@ $ sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 {USER}
 $ grep {USER} /etc/subuid /etc/subgid
 /etc/subuid:{USER}:100000:65536
 /etc/subgid:{USER}:100000:65536
+
 ====================================================================
 
 
-
-
 --- Image & Containers Location ---
-Podman ( root ): /var/lib/containers
-Podman ( normal_user ): ~/.local/share/containers
+Podman ( root ): /var/lib/containers/storage/
+Podman ( normal_user ): ~/.local/share/containers/storage
 Docker: /var/lib/docker
 -----------------------------------
 
