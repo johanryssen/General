@@ -15,9 +15,16 @@ git config user.name
 
 # Add the email address to your account on GitHub, so that your commits are attributed to you and appear in your contributions graph.
 
-### Auto Correct
+---------- CMDS ----------
 
+# Auto Correct
 git config --global help.autocorrect 1
+
+# Count Commits
+git rev-list –count master
+
+# Search
+git rev-list --all | xargs git grep -F 'SEARCH_STRING'
 
 ------------------------
 
@@ -32,7 +39,6 @@ This way, your local folder is identified by Git as the local content for that s
 (3) On your computer, open the terminal in the directory you’ve initialized, paste the command you copied, and press enter:
 $ git remote add origin git@gitlab.com:username/projectpath.git
 
-
 ------------------------
 
 ### SINGLE REPOSITORY setup - add/change user
@@ -45,7 +51,6 @@ remote.origin.url=https://github.com/GIT_USER/REPO
 # Also view with:
 $ git remote -v
 
-
 # Add different GIT username:
 $ git remote set-url origin "https://GIT_USER@github.com/GIT_USER/REPO.git"
 
@@ -53,9 +58,7 @@ $ git remote set-url origin "https://GIT_USER@github.com/GIT_USER/REPO.git"
 $ git config -l | grep url
 remote.origin.url=https://GIT_USER@github.com/GIT_USER/REPO
 
-
 ------------------------
-
 
 ### Switching remote URLs from HTTPS to SSH
 
@@ -74,9 +77,7 @@ $ git remote -v
 > origin  git@github.com:USERNAME/REPOSITORY.git (fetch)
 > origin  git@github.com:USERNAME/REPOSITORY.git (push)
 
-
 ------------------------
-
 
 ## View GIT Config
 # Global
@@ -84,7 +85,6 @@ git config --global --list
 
 # Local
 git config --list
-
 
 ------------------------
 
@@ -122,6 +122,4 @@ git config --global user.name "Your Name"
 	changed = yellow bold
 	untracked = red bold
 
-
 ------------------------
-
