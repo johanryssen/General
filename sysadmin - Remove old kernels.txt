@@ -15,8 +15,8 @@ Remove old kernels
 However, it will leave the old kernels in place. You can manually remove them if you choose, although it is recommended to keep at least two kernels installed: the most current one and at least one older version that is known to work for your system.
 
 (5) -Optional- MAke changes to the grub loader:
-vim /etc/default/grub
-#e.g. set GRUB_TIMEOUT=2
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
+vim /etc/default/grub # e.g. set GRUB_TIMEOUT=2
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
 (6) Reboot

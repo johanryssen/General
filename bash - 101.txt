@@ -70,7 +70,7 @@ In its most basic appearance, the expansion of a parameter is achieved by prefix
 In certain situations, additional curly braces around the parameter's name are required:
 
 $ echo "'$USER', '$USERs', '${USER}s'"
-'lhunath', '', 'lhunaths'
+'user1', '', 'user1s'
 
 This example illustrates what basic parameter expansions (PE) look like.
 The second PE results in an empty string.
@@ -107,14 +107,14 @@ $ echo "My shell is $0, and has these options set: $-"
 My shell is -bash, and has these options set: himB
 $ # Some parameters that ARE variables:
 $ echo "I am $LOGNAME, and I live at $HOME."
-I am lhunath, and I live at /home/lhunath.
+I am user1, and I live at /home/user1.
 
 Please note: Unlike PHP/Perl/...
 parameters do NOT start with a $-sign.
 The $-sign you see in the examples merely causes the parameter that follows it to be expanded.
 Expansion basically means that the shell replaces the parameter by its content.
 As such, LOGNAME is the parameter (variable) that contains your username.
-$LOGNAME is an expression that will be replaced with the content of that variable, which in my case is lhunath.
+$LOGNAME is an expression that will be replaced with the content of that variable, which in my case is user1.
 
 I think you've got the drift now.
 Here's a summary of most of the Special Parameters:
@@ -161,7 +161,7 @@ TMPDIR: Contains the directory that is used to store temporary files (by the she
 
 $ country=Canada
 $ echo "I am $LOGNAME and I currently live in $country."
-I am lhunath and I currently live in Canada.
+I am user1 and I currently live in Canada.
 
 Notice what we did to assign the value Canada to the variable country. Remember that you are NOT allowed to have any spaces before or after that equals sign!
 
@@ -377,7 +377,7 @@ Here's how they work:
 $ echo th{e,a}n
 then than
 $ echo {/home/*,/root}/.*profile
-/home/axxo/.bash_profile /home/lhunath/.profile /root/.bash_profile /root/.profile
+/home/axxo/.bash_profile /home/user1/.profile /root/.bash_profile /root/.profile
 $ echo {1..9}
 1 2 3 4 5 6 7 8 9
 $ echo {0,1}{0..9}
@@ -490,10 +490,10 @@ If mkdir d failed, and returned a non-0 exit code, Bash will skip the next comma
 
 Another example:
 
-
 $ rm /etc/some_file.conf || echo "I couldn't remove the file"
 rm: cannot remove `/etc/some_file.conf': No such file or directory
 I couldn't remove the file
+
 || is much like &&, but it does the exact opposite.
 It only executes the next command if the first failed.
 As such, the message is only echoed if the rm command was unsuccessful.
@@ -698,11 +698,11 @@ $ [[ "I am $me" = "I am $you" ]]
 Also; there is a subtle difference between quoting and not quoting the right-hand side of the comparison in [[.
 The = operator does pattern matching by default, whenever the right-hand side is not quoted:
 
-$ foo=[a-z]* name=lhunath
+$ foo=[a-z]* name=user1
 $ [[ $name = $foo   ]] && echo "Name $name matches pattern $foo"
-Name lhunath matches pattern [a-z]*
+Name user1 matches pattern [a-z]*
 $ [[ $name = "$foo" ]] || echo "Name $name is not equal to the string $foo"
-Name lhunath is not equal to the string [a-z]*
+Name user1 is not equal to the string [a-z]*
 
 The first test checks whether $name matches the pattern in $foo.
 The second test checks whether $name is equal to the string in $foo.
@@ -714,7 +714,7 @@ In such cases, bash cannot tell that you did something wrong; it just does what 
 
 You could also combine several if statements into one using elif instead of else, where each test indicates another possibility:
 
-$ name=lhunath
+$ name=user1
 $ if [[ $name = "George" ]]
 > then echo "Bonjour, $name"
 > elif [[ $name = "Hans" ]]

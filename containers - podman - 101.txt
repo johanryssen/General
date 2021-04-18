@@ -45,6 +45,8 @@ podman build -t NAME .
 # Detach from Container:
 CTRL + P , CTRL + Q
 
+# How to tell if you are in a container:
+/run/.containerenv
 
 
 --- TESTING THE HTTPD CONTAINER ---

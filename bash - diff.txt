@@ -1,0 +1,7 @@
+# Directory:
+diff <(cd /opt; tree -fpiug) <(cd /backups/opt; tree -fpiug)
+diff -y  <(cd /opt; tree -fpiug) <(cd /backups/opt; tree -fpiug)
+
+# File:
+diff /etc/sysctl.conf /backups/etc/sysctl.conf
+diff -y /etc/sysctl.conf /backups/etc/sysctl.conf

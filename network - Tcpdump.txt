@@ -1,16 +1,20 @@
 ## Show list of available interfaces: -D
 tcpdump -D
 
+# Capture X number of packets and then stops.
+tcpdump -c 5 -i any
+
+
 ## Give maximally human-readable timestamp output: -tttt
 tcpdump -i eth0 -tttt
 
 ## Don’t resolve hostnames or port names: -nn
 tcpdump -i eth0 -nn
 
-## Capture:
+## Capture to file:
 tcpdump -i eth0 -w /tmp/output.cap tcp and port 443
 
-## Read:
+## Read from file:
 tcpdump -r /tmp/output.cap
 
 ## Capture traffic to/from 10.10.10.10
@@ -23,6 +27,11 @@ tcpdump dst 10.10.10.50
 ## Finding Packets by Network
 # Can combine this with the src and dst options as well.
 tcpdump net 1.2.3.0/24
+
+## Restrict traffic capture to a MAC address.
+# Use the -e to print the link-level header on each dump line.
+# The below captures the Layer 2 broadcast traffic:
+tcpdump ether host ff:ff:ff:ff:ff:ff -i wlp0s20f3 -e -c4
 
 ## Show Traffic Related to a Specific Port
 tcpdump port 22
@@ -48,3 +57,13 @@ tcpdump -nnvvS src 10.10.10.15 and dst port 22
 ## Capturing TCP packet communication between two Hosts
 # Capture TCP packets between two hosts 10.10.10.25 & 10.10.10.204
 tcpdump -w two-host-tcp-comm.pcap -i enp0s3 tcp and \(host 10.10.10.25 or host 10.10.10.204\)
+
+## TCP flags-based filters
+# Filter TCP traffic based on various tcp flags.
+# E.g. filtering based on tcp-ack flag.
+tcpdump -i any  "tcp[tcpflags] & tcp-ack !=0" -c3
+
+## Formatting
+# Adjust output formats by using -X for hex or -A for ASCII.
+tcpdump -i any -c4 -X
+

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+read -p "Is it Day or Night? " response
+
+if [[ "$response"  = "Day" ]] ; then
+  echo "Daytime"
+elif [[ "$response" = "Night" ]] ; then
+  echo "Sleep"
+else
+ echo "Type Day | Night"
+fi

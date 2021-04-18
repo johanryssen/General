@@ -1,0 +1,115 @@
+#!/bin/bash
+echo ""
+echo "----- RHEL 8 initial setup -----"
+echo ""
+echo "-- Set GRUB timeout=2 --"
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
+grub2-mkconfig -o /boot/grub2/grub.cfg
+echo ""
+echo "Disable console bell"
+sed -i ' s/#set bell-style none/set bell-style none/g ' /etc/inputrc
+bind -f /etc/inputrc
+echo ""
+echo "Prompt"
+echo ""
+echo "# Prompt" >> ~/.bashrc
+echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # '" >> ~/.bashrc
+source ~/.bashrc
+echo "PS1: `env | grep PS1`"
+echo ""
+echo "subscription-manager register"
+echo ""
+# /sbin/subscription-manager register
+echo ""
+echo "-- Setup .vimrc --"
+echo "colo desert" >> ~/.vimrc
+echo "set paste" >> ~/.vimrc
+echo ""
+echo "-- EPEL 8 install --"
+curl https://getfedora.org/static/fedora.gpg | gpg --import ;
+/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 ;
+/bin/dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;
+echo ""
+echo "-- DNF Update --"
+/bin/dnf -y update
+echo ""
+echo "-- Install additional packages --"
+echo ""
+/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc python3 python3-pip python3-virtualenv rhel-system-roles strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers
+echo ""
+echo "-- Synchronize cached writes to persistent storage --"
+/bin/sync
+echo ""
+echo "-- JournalD Setup --"
+mkdir -p /var/log/journal ;
+/bin/sed -i ' s/#Storage=auto/Storage=persistent/g ' /etc/systemd/journald.conf
+systemd-tmpfiles --create --prefix /var/log/journal ;
+systemctl restart systemd-journald ;
+echo ""
+echo "-- Refreshing Subscription Data --"
+subscription-manager refresh
+echo "Done"
+echo ""
+echo "-- DNF Clean All --"
+/bin/dnf clean all --verbose | tail -1
+echo ""
+echo "-- DNF AutoRemove --"
+/bin/dnf autoremove -y
+echo ""
+echo "-- DNF MakeCache --"
+/bin/dnf makecache timer
+echo "Done"
+echo ""
+echo "-- Log Rotate --"
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo "Done"
+echo ""
+echo "-- Temp File Cleanup --"
+/bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
+/bin/rm -rf /var/tmp/*
+echo "Done"
+echo ""
+echo "-- Log File Cleanup --"
+/bin/rm -rf /var/log/*-2021*
+/bin/rm -rf /var/log/*.?.log
+/bin/rm -rf /var/log/*.?
+/bin/rm -rf /var/log/*.0
+/bin/rm -rf /var/log/*.gz
+/bin/rm -rf /var/log/*log.old
+/bin/rm -rf /var/log/*log.?
+/bin/rm -rf /var/log/*/*-2021*
+/bin/rm -rf /var/log/*/*gz
+/bin/rm -rf /var/log/*/*xz
+/bin/rm -rf /var/log/audit/audit.log.?
+echo "Done"
+echo ""
+echo "-- Journal Disk Usage --"
+journalctl --disk-usage
+echo ""
+echo "-- Journal Clean Up --"
+journalctl --rotate
+journalctl -m --vacuum-time=1s
+systemctl restart systemd-journald
+echo ""
+/bin/updatedb
+/bin/mandb -q
+echo ""
+echo "-- Disk Space --"
+df -hTP | awk {'print $7 " " $6'} | column -t
+echo ""
+echo "-- Restart needed? --"
+echo ""
+/bin/needs-restarting -r
+echo ""
+echo "-- Unused kernel(s) --"
+echo ""
+rpm -q kernel | grep -v `uname -r`
+echo ""
+echo > ~/.bash_history
+history -c
+history -w
+history -c
+echo ""
+echo "----- Done -----"
+echo ""
+exit 0

@@ -16,10 +16,8 @@ set paste
 # pwd only
 export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # "
 
-
 # Path to pwd
 export PS1="\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\w\[\e[m\] # "
-
 
 ===== Packages to install =====
 

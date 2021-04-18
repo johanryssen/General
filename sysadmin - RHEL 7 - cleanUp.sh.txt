@@ -4,6 +4,7 @@ echo "Synchronize cached writes to persistent storage"
 /bin/sync
 echo ""
 echo "JournalD Setup"
+/bin/sed -i ' s/#Storage=auto/Storage=persistent/g ' /etc/systemd/journald.conf
 mkdir -p /var/log/journal ;
 systemd-tmpfiles --create --prefix /var/log/journal ;
 killall -USR1 systemd-journald ;
@@ -12,14 +13,14 @@ echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
 echo "Done"
 echo ""
-echo "--- DNF Clean All ---"
-/bin/dnf clean all --verbose | tail -1
+echo "--- YUM Clean All ---"
+/bin/yum clean all --verbose | tail -1
 echo ""
-echo "--- DNF AutoRemove ---"
-/bin/dnf autoremove -y
+echo "--- yum AutoRemove ---"
+/bin/yum autoremove -y
 echo ""
 echo "--- DNF MakeCache ---"
-/bin/dnf makecache timer
+/bin/yum makecache timer
 echo ""
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
@@ -48,7 +49,7 @@ echo "--- Journal Disk Usage ---"
 journalctl --disk-usage
 echo ""
 echo "--- Journal Clean Up ---"
-journalctl --rotate
+echo "No 'journalctl --rotate' in RHEL 7"
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
 echo ""
