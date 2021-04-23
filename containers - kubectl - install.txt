@@ -1,0 +1,110 @@
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+--- INSTALL KUBECTL ---
+
+Option 1 ### curl ###
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+
+kubectl version --client
+
+
+-or-
+
+Option 2: ### Debian pkg manager ###
+
+# Install dependencies:
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+# Download the Google Cloud public signing key:
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+# Add the Kubernetes apt repo:
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# Install kubectl:
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+
+-or-
+
+Option 2: ### RHEL pkg manager ###
+
+# Add repo:
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+# Install kubectl:
+yum install -y kubectl
+
+
+
+----- KUBECTL AUTOCOMPLETION -----
+
+yum install bash-completion -y
+apt install bash-completion -y
+
+Creates:
+/usr/share/bash-completion/bash_completion
+
+
+You may have to manually source this file in ~/.bashrc
+
+# Verify:
+Reload your shell and run:
+type _init_completion
+If the command succeeds, you're already set, 
+
+# Otherwise add the following to ~/.bashrc
+
+source /usr/share/bash-completion/bash_completion
+
+# Verify again:
+type _init_completion
+
+
+# Enable kubectl autocompletion
+
+Two options:
+
+1. Source the completion script in your ~/.bashrc file:
+echo 'source <(kubectl completion bash)' >>~/.bashrc
+
+2. Add the completion script to the /etc/bash_completion.d directory:
+kubectl completion bash >/etc/bash_completion.d/kubectl
+
+If you have an alias for kubectl, you can extend shell completion to work with that alias:
+echo 'alias k=kubectl' >>~/.bashrc
+echo 'complete -F __start_kubectl k' >>~/.bashrc
+
+Note: bash-completion sources all completion scripts in /etc/bash_completion.d
+
+--------
+
+type [-aftpP] name [name ...]
+
+With no options, indicate how each name would be interpreted if used as a command name.
+If the -t option is used, type prints a string which is one of alias, keyword,
+function, builtin, or file if name is an alias, shell reserved word, function, builtin, or disk file, respectively.
+If the name is not found, then nothing is printed, and an exit status of false is returned.
+If the -p option is used, type either returns the name of the disk file that would be executed if name were specified as a command name, or nothing if ``type -t name'' would not return file.
+The -P option forces a PATH search for each name, even if ``type -t name'' would not return file.
+If a command is hashed, -p and -P print the hashed value, which is not necessarily the file that appears first in PATH.
+If the -a option is used, type prints all of the places that contain an executable named name.
+This includes aliases and functions, if and only if the -p option is not also used.
+The table of hashed commands is not consulted when using -a.
+The -f option suppresses shell function lookup, as with the command builtin.
+type returns true if all of the arguments are found, false if any are not found.

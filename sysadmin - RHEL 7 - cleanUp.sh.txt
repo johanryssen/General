@@ -19,7 +19,7 @@ echo ""
 echo "--- yum AutoRemove ---"
 /bin/yum autoremove -y
 echo ""
-echo "--- DNF MakeCache ---"
+echo "--- YUM MakeCache ---"
 /bin/yum makecache timer
 echo ""
 echo "--- Log Rotate ---"

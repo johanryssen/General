@@ -1,4 +1,4 @@
-3 executables of the vctl command-line utility:
+3 x Executables of the vctl command-line utility:
 
 (1) containerd.exe
 This is a runtime daemon that runs in the background.
