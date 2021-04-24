@@ -11,10 +11,6 @@ mkdir -p /var/log/journal ;
 systemd-tmpfiles --create --prefix /var/log/journal ;
 killall -USR1 systemd-journald ;
 echo ""
-echo "--- Refreshing Subscription Data ---"
-subscription-manager refresh
-echo "Done"
-echo ""
 echo "--- YUM Clean All ---"
 /bin/yum clean all --verbose | tail -1
 echo ""
