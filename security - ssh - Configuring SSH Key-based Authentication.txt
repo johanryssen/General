@@ -1,0 +1,93 @@
+Configuring SSH Key-based Authentication
+
+Use the ssh-keygen command to generate SSH keys.
+Do not enter a passphrase.
+
+    [sam@host3 ~]$ ssh-keygen
+    Generating public/private rsa key pair.
+...
+
+Use the ssh-copy-id command to send the public key of the SSH key pair to sam on host7.
+
+    [sam@host3 ~]$ ssh-copy-id sam@host7
+    /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/sam/.ssh/id_rsa.pub"
+...
+    Number of key(s) added: 1
+
+Execute hostname command on host7 remotely using SSH without accessing the remote interactive shell.
+
+    [sam@host3 ~]$ ssh sam@host7 hostname
+    host7.test.lab
+
+Notice that the preceding ssh command did not prompt you for a password because it used the passphrase-less private key against the exported public key to authenticate as sam on host7.
+This approach is not secure, because anyone who has access to the private key file can log in to host7 as sam.
+The secure alternative is to protect the private key with a passphrase, which is the next step.
+
+Use the ssh-keygen command to generate another set of SSH keys with passphrase-protection.
+Save the key as /home/sam/.ssh/pwKey.
+
+# Warning
+If you do not specify the file where the key gets saved, the default file (/home/user/.ssh/id_rsa) is used.
+Apecify a non-default file, otherwise the existing SSH keys will be overwritten.
+
+    [sam@host3 ~]$ ssh-keygen -f .ssh/pwKey
+    Generating public/private rsa key pair.
+...
+
+Use ssh-copy-id to send the public key of the passphrase-protected key pair to sam on host7.
+
+    [sam@host3 ~]$ ssh-copy-id -i .ssh/pwKey.pub sam@host7
+    /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: ".ssh/pwKey.pub"
+...
+
+The preceding ssh-copy-id command did not prompt you for a password because it used the public key of the passphrase-less private key that you exported to host7 in the preceding step.
+
+Run 'hostname' on host7 remotely with SSH without accessing the remote interactive shell.
+Use /home/sam/.ssh/pwKey as the identity file.
+
+    [sam@host3 ~]$ ssh -i .ssh/pwKey sam@host7 hostname
+    Enter passphrase for key '.ssh/pwKey':
+    host7.test.lab
+
+Notice that the preceding ssh command prompted you for the passphrase you used to protect the private key of the SSH key pair.
+This passphrase protects the private key.
+Should an attacker gain access to the private key, the attacker cannot use it to access other systems because the private key itself is protected with a passphrase.
+The ssh command uses a different passphrase than the one for sam on host7, requiring users to know both.
+
+You can use ssh-agent, as in the following step, to avoid interactively typing in the passphrase while logging in with SSH. Using ssh-agent is both more convenient and more secure in situations where the administrators log in to remote systems regularly.
+
+Run ssh-agent in your Bash shell and add the passphrase-protected private key (/home/sam/.ssh/pwKey) of the SSH key pair to the shell session.
+
+    [sam@host3 ~]$ eval $(ssh-agent)
+    Agent pid 21032
+    [sam@host3 ~]$ ssh-add .ssh/pwKey
+    Enter passphrase for .ssh/pwKey:
+    Identity added: .ssh/pwKey (sam@host3.test.lab)
+
+The preceding eval command started ssh-agent and configured this shell session to use it.
+You then used ssh-add to provide the unlocked private key to ssh-agent.
+
+Run 'hostname' on host7 remotely without accessing a remote interactive shell.
+Use /home/sam/.ssh/pwKey as the identity file.
+
+    [sam@host3 ~]$ ssh -i .ssh/pwKey sam@host7 hostname
+    host7.test.lab
+
+Notice that the preceding ssh command did not prompt you to enter the passphrase interactively.
+
+SSH to host3 as jay.
+
+    [jay@host1 ~]$ ssh jay@host3
+
+On host3, use the su command to switch to sam and invoke an SSH connection to host7.
+Use /home/sam/.ssh/pwKey as the identity file to authenticate using the SSH keys.
+
+Switch to sam.
+
+        [jay@host3 ~]$ su - sam
+        
+SSH to host7 as sam.
+
+        [sam@host3 ~]$ ssh -i .ssh/pwKey sam@host7
+        
+Notice that the preceding ssh command prompted you to enter the passphrase interactively because you did not invoke the SSH connection from the shell that you used to start ssh-agent. 
