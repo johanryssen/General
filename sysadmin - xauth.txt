@@ -1,0 +1,61 @@
+----- Packages -----
+yum -y install nc lsof unzip strace traceroute motif util-linux xterm xorg-x11-utils xorg-x11-xauth xorg-x11-apps
+
+----- /etc/ssh/sshd_config -----
+X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost yes
+AllowAgentForwarding yes	# If you are using ssh-agent
+
+----- Creating new .Xauthority file -----
+
+# Rename the existing .Xauthority file by running the following command
+mv .Xauthority old.Xauthority
+
+# Create empty ~/.Xauthority file
+touch ~/.Xauthority
+
+# Generate key (needed for X11 over SSH )
+xauth generate :0 . trusted
+
+# Add key (xauth requires 128 bit hex encoding)
+xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
+
+# View listing of .Xauthority
+xauth list
+
+-or-
+
+ssh -X user2@localhost
+
+
+----- Enable X export for ROOT user -----
+
+-- Normal user ---
+$ xauth list
+server1.lab.local/unix:10  MIT-MAGIC-COOKIE-1  8556ebd12ca2d79fe0afe49f21d5d4aa
+$ echo $DISPLAY
+localhost:10.0
+$ sudo -i
+
+-- Root user --
+# unset DISPLAY
+# export DISPLAY=localhost:10.0
+# xauth add server1.lab.local/unix:10  MIT-MAGIC-COOKIE-1  8556ebd12ca2d79fe0afe49f21d5d4aa
+# xclock
+
+
+----- Troubleshooting -----
+
+Msg: Warning: Missing charsets in String to FontSet conversion
+Fix: export LC_ALL=C
+
+# Add to: ~/.bash_profile
+LC_ALL=C
+export LC_ALL
+
+-----
+
+mv ~/.ssh
+
+-----

@@ -1,6 +1,6 @@
 #!/bin/bash
 echo ""
-echo "----- RHEL 8 initial setup -----"
+echo "----- RHEL 7 initial setup -----"
 echo ""
 echo "DNS"
 NIC0=$(nmcli con sh | head -2 | tail -1| awk {'print $1'})
@@ -32,17 +32,17 @@ echo "-- Setup .vimrc --"
 echo "colo desert" >> ~/.vimrc
 echo "set paste" >> ~/.vimrc
 echo ""
-echo "-- EPEL 8 install --"
+echo "-- EPEL 7 install --"
 curl https://getfedora.org/static/fedora.gpg | gpg --import ;
-/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 ;
-/bin/dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;
+/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 ;
+/bin/yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;
 echo ""
-echo "-- DNF Update --"
-/bin/dnf -y update
+echo "-- YUM Update --"
+/bin/yum -y update
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install deltarpm dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers
+/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync
@@ -57,14 +57,14 @@ echo "-- Refreshing Subscription Data --"
 subscription-manager refresh
 echo "Done"
 echo ""
-echo "-- DNF Clean All --"
-/bin/dnf clean all --verbose | tail -1
+echo "-- YUM Clean All --"
+/bin/yum clean all
 echo ""
-echo "-- DNF AutoRemove --"
-/bin/dnf autoremove -y
+echo "-- YUM AutoRemove --"
+/bin/yum autoremove -y
 echo ""
-echo "-- DNF MakeCache --"
-/bin/dnf makecache timer
+echo "-- YUM MakeCache --"
+## /bin/yum makecache timer
 echo "Done"
 echo ""
 echo "-- Log Rotate --"
@@ -94,7 +94,6 @@ echo "-- Journal Disk Usage --"
 journalctl --disk-usage
 echo ""
 echo "-- Journal Clean Up --"
-journalctl --rotate
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
 echo ""

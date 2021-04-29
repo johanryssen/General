@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ""
 # Provides 'killall':
-/bin/yum install psmisc -y -q
+/bin/yum install psmisc -y
 echo "Synchronize cached writes to persistent storage"
 /bin/sync
 echo ""

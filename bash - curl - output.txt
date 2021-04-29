@@ -1,0 +1,115 @@
+--- Output ---
+
+A line starting with:
+'*' means additional info provided by curl
+'>' means "header data" sent by curl
+'<' means "header data" received  by curl
+
+--- Verbosity ---
+-v
+or
+--trace <FILENAME>
+or
+--trace-ascii <FILENAME>
+
+e.g. 
+curl -vvv --trace trace.txt  https://test.example.com
+
+
+--- Redirects ---
+# Follow HTTP Location Headers / Redirects (3xx status):
+curl -L http://www.google.com
+
+
+--- HTTP Status Code ---
+# Print out just the HTTP status code:
+$ curl -s -o /dev/null -w "%{http_code}" http://www.google.com
+200
+
+# Fetch response overhead only:
+curl -s -o /dev/null -I -w "%{http_code}" http://www.example.org/
+
+# Print the status code, in addition to all the headers:
+curl -i http://example.org
+
+
+--- HTTP headers only ---
+-i, --include
+
+
+--- Resume download ---
+## Start download:
+curl -O http://www.gnu.org/software/gettext/manual/gettext.html
+## Ctrl C to stop
+
+## Resume download:
+curl -C - -O http://www.gnu.org/software/gettext/manual/gettext.html
+
+
+--- HTTP Authentication ---
+$ curl -u username:password URL
+Note: 
+By default curl uses Basic HTTP Authentication.
+Specify other authentication method using -ntlm | -digest
+
+
+--- FTP Download / List ---
+# Download File from FTP server
+$ curl -u ftpuser:ftppass -O ftp://ftp_server/public_html/xss.php
+
+# List all the files and directories under the given URL
+$ curl -u ftpuser:ftppass -O ftp://ftp_server/public_html/
+
+
+--- FTP Upload ---
+# Upload files to FTP with -T
+$ curl -u ftpuser:ftppass -T myfile.txt ftp://ftp.myserver.com
+
+# Upload multiple files
+$ curl -u ftpuser:ftppass -T "{file1,file2}" ftp://ftp.myserver.com
+
+# Get input from user from STDIN and save the contents on ftp server under the name ‘SomeFile.txt’.
+$ curl -u ftpuser:ftppass -T - ftp://ftp.myserver.com/SomeFile.txt
+
+You can provide one ‘-T’ for each URL and the pair specifies what to upload where.
+
+
+--- Proxy ---
+Use Proxy to Download a File
+$ curl -x proxy3.example.com:3128 http://google.com
+
+
+--- Mail ---
+# Send Mail using SMTP Protocol
+## Specify:
+from-address
+to-address
+mailserver ip-address
+
+$ curl --mail-from user3@example.com --mail-rcpt someone@example.com smtp://mailserver.com
+
+# Type the Body / Message,
+# Followed by a dot '.' to send the mail
+
+Subject: Test email
+Testing mail with curl
+.
+
+
+--- Get Definition of a Word ---
+# Using DICT Protocol
+$ curl dict://dict.org/d:bash
+
+# List of Dictionaries:
+$ curl dict://dict.org/show:db
+
+# Find Computing Dict:
+$ curl dict://dict.org/show:db | grep -i computing
+...
+foldoc "The Free On-line Dictionary of Computing (30 December 2018)"
+
+# Use Computing Dict:
+curl dict://dict.org/d:bash:foldoc
+
+
+-----------------
