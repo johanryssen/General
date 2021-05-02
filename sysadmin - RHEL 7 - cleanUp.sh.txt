@@ -10,6 +10,7 @@ echo "JournalD Setup"
 mkdir -p /var/log/journal ;
 systemd-tmpfiles --create --prefix /var/log/journal ;
 killall -USR1 systemd-journald ;
+systemctl restart systemd-journald ;
 echo ""
 echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
@@ -58,8 +59,10 @@ echo ""
 /bin/updatedb
 /bin/mandb -q
 echo ""
-echo "--- Disk Space ---"
-df -hTP | awk {'print $7 " " $6'} | column -t
+echo "----- Disk Space -----"
+df -hTP | awk {'print $7 " " $6'} | column -t | head -1
+echo "----------------------"
+df -hTP | awk {'print $7 " " $6'} | column -t | grep -v Mounted
 echo ""
 echo > ~/.bash_history
 history -c
