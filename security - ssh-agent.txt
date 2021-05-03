@@ -1,0 +1,98 @@
+ssh-agent is a key manager for SSH
+
+# Key verification during the SSH handshake
+- The client presents a public key to the server.
+- The server generates and sends a brief, random message, asking the client to sign it using the private key.
+- The client asks the SSH agent to sign the message and forwards the result back to the server.
+- The server checks the signature using the client’s public key.
+- The server now has proof that the client is in possession of their private key.
+
+Later in the handshake process, a set of new, ephemeral and symmetric keys are generated and used to encrypt the SSH session traffic.
+These keys may not even last the entire session; a “rekey” event happens at regular intervals.
+
+-----------------
+ssh -A
+Enables forwarding of the authentication agent connection.
+-----------------
+
+SSH agent forwarding feature allows your local SSH agent to reach through an existing SSH connection and transparently authenticate on a more distant server.
+-----------------
+
+# ssh-agent primary operations:
+- Add a regular key pair (public and decrypted private keys)
+- Add a constrained key pair (public and decrypted private keys)
+- Add a key (regular or constrained) from a smart card (public key only)
+- Remove a key
+- List keys stored in the agent
+- Sign a message with a key stored in the agent
+- Lock or unlock the entire agent with a passphrase
+
+(constrained key: Usually a key that either has a limited lifetime or one that demands explicit user confirmation when it is used).
+
+-----------------
+The ssh-add command is your gateway to the SSH agent.
+It performs all of these operations except for signing.
+When you run ssh-add without any parameters, it will scan your home directory for some standard keys and add them to your agent.
+
+# By default, it looks for:
+~/.ssh/id_rsa
+~/.ssh/id_ed25519
+~/.ssh/id_dsa
+~/.ssh/id_ecdsa
+-----------------
+
+# List private keys currently accessible to the agent:
+ssh-add -l
+
+-----------------
+
+# Debug
+ssh-agent -d
+
+# Kill currently running agent
+ssh-agent -k
+
+# Forces generation of Bourne shell (/bin/sh) commands on stdout.
+ssh-agent -s
+
+-----------------
+# Adding your SSH key to the ssh-agent
+Start the ssh-agent in the background.
+$ eval "$(ssh-agent -s)"
+> Agent pid 12345
+
+# Add your SSH private key to the ssh-agent.
+If you created your key with a different name, or if you are adding an existing key that has a different name, replace id_rsa in the command with the name of your private key file.
+
+$ ssh-add ~/.ssh/id_rsa
+-----------------
+
+# If you don't have ssh-keygen installed, you can also use openssl directly:
+key="/path/to/your.key"
+algo="-des3" # or -aes256
+openssl rsa $algo -in "$key" -out "$key.new"
+
+# Then replace old key with new one:
+mv "$key.new" "$key"
+
+-----------------
+
+# Change passphrase on default key:
+$ ssh-keygen -p
+
+# If you need to specify a key, pass the -f option:
+$ ssh-keygen -p -f ~/.ssh/id_dsa
+
+-----------------
+
+# Set new passphrase interactively for a specified key with empty passphrase.
+$ ssh-keygen -p -f ~/.ssh/knowledge_base_key -P ""
+
+-----------------
+# Agent forwarding
+
+# ~/.ssh/config
+Host *.test.lab
+  ForwardAgent yes
+-----------------
+

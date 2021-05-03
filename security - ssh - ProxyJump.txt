@@ -1,0 +1,16 @@
+# ProxyJump
+-J [user@]host[:port]
+
+Forwards the standard input and output of local SSH client through the JUMPHOST and on to the remote host.
+
+# Connect to "remote.system.lab" via your "jumphost.system.lab" jumphost host. 
+ssh -J jumphost.system.lab remote.system.lab
+
+"remote.system.lab" is a hostname that can be looked up using DNS lookup on "jumphost.system.lab".
+
+-----
+
+# Equivalent operation using ProxyCommand and netcat.
+ssh -o ProxyCommand="ssh jump.system.lab nc %h %p" remote.system.lab
+
+nc %h %p	-	opens up a raw socket connection to remote.system.lab

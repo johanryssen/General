@@ -1,0 +1,52 @@
+-- ls --
+
+-t
+sort by MODIFICATION time
+
+-c
+with -lt:	sort by, and show, CTIME (time of last MODIFICATION OF FILE STATUS information)
+with -l:	show ctime and sort by name
+otherwise:	sort by ctime
+
+-u
+with -lt:	sort by, and show, ACCESS time
+with -l:	show access time and sort by name
+otherwise:	sort by access time
+
+--full-time
+like -l --time-style=full-iso
+
+
+--time=WORD
+with -l, show time as WORD instead of modification time:
+atime -u, access -u, use -u, ctime -c, or status -c;
+use specified time as sort key if
+--sort=time
+
+-----
+
+-F, --classify
+append indicator (one of */=>@|) to entries
+
+
+--group-directories-first
+group directories before files.
+augment with a --sort option,
+
+--sort=WORD
+
+-S
+sort by file size
+
+--si
+use powers of 1000 not 1024
+
+-I, --ignore=PATTERN
+do not list implied entries matching shell PATTERN
+
+--hide=PATTERN
+do not list implied entries matching shell PATTERN
+(overridden by -a or -A)
+
+-1
+list one file per line
