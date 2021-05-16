@@ -3,8 +3,8 @@ echo ""
 echo "----- RHEL 7 initial setup -----"
 echo ""
 echo "DNS"
-NIC0=$(nmcli con sh | head -2 | tail -1| awk {'print $1'})
-echo "DNS1=8.8.8.8" >> /etc/sysconfig/network-scripts/ifcfg-$NIC0
+# NIC0=$(nmcli con sh | head -2 | tail -1| awk {'print $1'})
+# echo "DNS1=8.8.8.8" >> /etc/sysconfig/network-scripts/ifcfg-$NIC0
 systemctl restart NetworkManager
 echo ""
 echo "-- Set GRUB timeout=2 --"
@@ -20,7 +20,7 @@ echo ""
 echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] $ '" >> /etc/skel/.bashrc
 echo ""
 echo "# Prompt" >> ~/.bashrc
-echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # '" >> ~/.bashrc
+echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # '" >> /root/.bashrc
 source ~/.bashrc
 echo "PS1: `env | grep PS1`"
 echo ""
@@ -42,7 +42,7 @@ echo "-- YUM Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers
+/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

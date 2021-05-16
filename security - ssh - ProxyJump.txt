@@ -1,16 +1,66 @@
-# ProxyJump
--J [user@]host[:port]
+--------------- ProxyJump ---------------
 
-Forwards the standard input and output of local SSH client through the JUMPHOST and on to the remote host.
+ssh -J [user@]host[:port]
 
-# Connect to "remote.system.lab" via your "jumphost.system.lab" jumphost host. 
+Connect to the target host by first making an SSH connection to the jump host and then establishing a TCP forwarding to the ultimate destination from there.
+Multiple jump hops may be specified separated by commas.
+This is a shortcut to specify a ProxyJump configuration directive.
+
+
+# Connect to "remote.system.lab" via "jumphost.system.lab":
+
 ssh -J jumphost.system.lab remote.system.lab
 
-"remote.system.lab" is a hostname that can be looked up using DNS lookup on "jumphost.system.lab".
+"remote.system.lab" is a hostname that can be looked up using DNS on "jumphost.system.lab".
 
------
+---------------
 
-# Equivalent operation using ProxyCommand and netcat.
+To avoid typing -J jumphost.system.lab:
+
+# vim ~/.ssh/config
+
+Host 10.10.10.*
+    ProxyJump jumphost.system.lab
+
+---------------
+
+# Edit:
+jumphost.system.lab:/etc/ssh/sshd_config
+
+# Limit SSH clients to be forwarded to destination only:
+PermitTTY no
+X11Forwarding no
+PermitTunnel no
+GatewayPorts no
+ForceCommand /sbin/nologin
+
+---------------
+
+ALT: Create dedicated account on the jump server (e.g. jumpacc)
+
+Edit:
+jumphost.system.lab:/etc/ssh/sshd_config
+
+Match User jumpacc
+  PermitTTY no
+  X11Forwarding no
+  PermitTunnel no
+  GatewayPorts no
+  ForceCommand /usr/sbin/nologin
+
+# Update on each client:
+
+vim ~/.ssh/config
+
+Host 10.10.10.*
+    ProxyJump jumpacc@jumphost.system.lab
+
+---------------
+
+# Equivalent operation using ProxyCommand and netcat:
+
 ssh -o ProxyCommand="ssh jump.system.lab nc %h %p" remote.system.lab
 
 nc %h %p	-	opens up a raw socket connection to remote.system.lab
+
+---------------

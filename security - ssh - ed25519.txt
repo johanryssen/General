@@ -1,0 +1,69 @@
+----- Generate -----
+ssh-keygen -t ed25519 -a 200 -f ~/.ssh/id_ed25519 -P "" -q
+
+********************
+-t: Specifies the type of key to create (Ed25519).
+
+-a: The number of KDF (Key Derivation Function) rounds.
+Higher numbers result in slower passphrase verification, increasing the resistance to brute-force password cracking.
+
+-f: Filename of generated key file.
+To be automatically discovered by SSH agent, it must be stored in the default '~/.ssh/' directory.
+
+-P: Password
+
+-q: Quiet
+********************
+
+
+----- Check -----
+for key in ~/.ssh/id_*; do ssh-keygen -l -f "${key}"; done | uniq
+
+
+----- SSH Agent -----
+# Configm ssh-agent is running:
+eval "$(ssh-agent -s)"
+
+# Add Ed25519 key to SSH agent:
+ssh-add ~/.ssh/id_ed25519
+
+Specifying Specific Key to SSH into a Remote Server
+
+The SSH protocol already allows the client to offer multiple keys on which the server will pick the one it needs for authentication. However, we can also specify a specific private-key to use like so:
+
+ssh -i ~/.ssh/id_ed25519 john@198.222.111.33
+
+
+----- Specifying Specific Key -----
+ssh -i ~/.ssh/id_ed25519 user3@10.10.10.123
+
+
+----- ~/.ssh/config -----
+Host server123
+  HostName 10.10.10.123
+  User user3
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+# Usage:
+$ ssh server123
+
+
+
+********************
+SSH required 3 kinds of cryptographic algorithms:
+
+(1) A SIGNATURE ALGORITHM
+Used by the client to verify that it is connecting to the right server, and which may be used by the client to authenticate to a server.
+
+(2) A KEY EXCHANGE ALGORITHM
+Used to negotiate a symmetric key for encrypting data between client and server during an SSH session.
+Two available schemes:
+(a) Diffie-Hellman-Merkle
+(b) ECDH - An elliptic-curve-based variant of Diffie-Hellmann-Merkle.
+
+(3) A SYMMETRIC CIPHER
+Used to encrypt the data between client and server once the key exchange and authentication is complete.
+********************
+
+

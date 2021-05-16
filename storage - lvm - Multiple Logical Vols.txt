@@ -1,0 +1,72 @@
+(1) Extend 1st Disk on Hypervisor
+(2) Extend existing Volume Group
+(3) Create new Logical Volumes on same VG
+
+yum install -y cloud-utils-growpart
+
+## PHYSICAL ##
+
+# Original size:
+[root@rhel79 ~]# pvs
+  PV         VG   Fmt  Attr PSize   PFree
+  /dev/sda2  rhel lvm2 a--  <29.00g    0
+
+fdisk -l
+echo 1 > /sys/block/sda/device/rescan
+pvscan
+growpart /dev/sda 2
+pvresize /dev/sda2
+
+# New/Larger Size:
+[root@rhel79 ~]# pvs
+  PV         VG   Fmt  Attr PSize   PFree
+  /dev/sda2  rhel lvm2 a--  <49.00g 20.00g
+
+--------------------------------
+
+## VOLUME GROUP ##
+
+--- Existing VG ---
+
+/dev/mapper/rhel-root
+Current Size:	30 G
+New Size:		35 G
+
+<NEW TOTAL SIZE>
+
+# lvextend --size 35G -r /dev/mapper/rhel-root
+  Size of logical volume rhel/root changed from <31.00 GiB (7935 extents) to 35.00 GiB (8960 extents).
+
+
+--------------------------------
+
+## LOGICAL VOL ##
+
+# Create New LV:
+
+/dev/mapper/rhel-lv_data01 = 3 G
+/dev/mapper/rhel-lv_data02 = 7 G
+
+lvcreate --size 3G rhel -n lv_data01
+lvcreate --size 7G rhel -n lv_data02
+
+lvdisplay
+
+--------------------------------
+
+## FILESYSTEM SETUP ##
+
+mkfs.xfs /dev/mapper/rhel-lv_data01
+mkfs.xfs /dev/mapper/rhel-lv_data02
+
+mkdir /data0{1,2}
+blkid
+
+
+/etc/fstab
+
+mount -av
+
+restorecon /data01/
+restorecon /data02
+

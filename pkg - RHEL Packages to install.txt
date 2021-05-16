@@ -1,12 +1,11 @@
 # yum -y install $(awk '{print $1}' pkg.txt)
-dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-## epel-release
-## openscap
-## openscap-scanner
-EL8: dnf-plugins-core
-EL8: dnf-automatic
-insights-client
-tlog
+# EL8: dnf-automatic
+# EL8: dnf-plugins-core
+# screen
+# sshpass
+# tcp_wrappers
+## dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+## yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 ansible
 bash-completion
 bc
@@ -42,8 +41,10 @@ python3-pip
 python3-virtualenv
 rhel-system-roles
 strace
+sysfsutils
 sysstat
 tcpdump
+tlog
 tmux
 traceroute
 unzip
@@ -52,6 +53,3 @@ vim
 wget
 which
 yum-utils
-# screen
-# sshpass
-# tcp_wrappers
