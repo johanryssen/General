@@ -1,0 +1,20 @@
+# Syntax:
+split -b <Size of part> <Big_File_Name> <Prefix>
+
+# Command:
+$ split -b 100M big.iso part-big.iso-
+
+# View:
+$ ls -lsa
+235520 -rw-r--r--.  1 user1 user1 241172480 Apr 28 13:15 big.iso
+102400 -rw-rw-r--.  1 user1 user1 104857600 May 21 13:51 part-big.iso-aa
+102400 -rw-rw-r--.  1 user1 user1 104857600 May 21 13:51 part-big.iso-ab
+ 30720 -rw-rw-r--.  1 user1 user1  31457280 May 21 13:51 part-big.iso-ac
+
+# Recombine:
+$ cat part-big.iso-a* > big2.iso
+
+# Confirm they are the same:
+$ md5sum big*
+95a141d4b592b81c803cdf7e9b11d8ea  big2.iso
+95a141d4b592b81c803cdf7e9b11d8ea  big.iso
