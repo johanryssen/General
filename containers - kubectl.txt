@@ -1,4 +1,124 @@
 
+----- INSTALL -----
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+--- INSTALL KUBECTL ---
+
+Option 1 ### curl ###
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+
+kubectl version --client
+
+
+-or-
+
+Option 2: ### Debian pkg manager ###
+
+# Install dependencies:
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+# Download the Google Cloud public signing key:
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+# Add the Kubernetes apt repo:
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# Install kubectl:
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+
+-or-
+
+Option 2: ### RHEL pkg manager ###
+
+# Add repo:
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+# Install kubectl:
+yum install -y kubectl
+
+
+
+----- KUBECTL AUTOCOMPLETION -----
+
+yum install bash-completion -y
+apt install bash-completion -y
+
+Creates:
+/usr/share/bash-completion/bash_completion
+
+
+You may have to manually source this file in ~/.bashrc
+
+# Verify:
+Reload your shell and run:
+type _init_completion
+If the command succeeds, you're already set, 
+
+# Otherwise add the following to ~/.bashrc
+
+source /usr/share/bash-completion/bash_completion
+
+# Verify again:
+type _init_completion
+
+
+# Enable kubectl autocompletion
+
+Two options:
+
+1. Source the completion script in your ~/.bashrc file:
+echo 'source <(kubectl completion bash)' >>~/.bashrc
+
+2. Add the completion script to the /etc/bash_completion.d directory:
+kubectl completion bash >/etc/bash_completion.d/kubectl
+
+If you have an alias for kubectl, you can extend shell completion to work with that alias:
+echo 'alias k=kubectl' >>~/.bashrc
+echo 'complete -F __start_kubectl k' >>~/.bashrc
+
+Note: bash-completion sources all completion scripts in /etc/bash_completion.d
+
+--------
+
+type [-aftpP] name [name ...]
+
+With no options, indicate how each name would be interpreted if used as a command name.
+If the -t option is used, type prints a string which is one of alias, keyword,
+function, builtin, or file if name is an alias, shell reserved word, function, builtin, or disk file, respectively.
+If the name is not found, then nothing is printed, and an exit status of false is returned.
+If the -p option is used, type either returns the name of the disk file that would be executed if name were specified as a command name, or nothing if ``type -t name'' would not return file.
+The -P option forces a PATH search for each name, even if ``type -t name'' would not return file.
+If a command is hashed, -p and -P print the hashed value, which is not necessarily the file that appears first in PATH.
+If the -a option is used, type prints all of the places that contain an executable named name.
+This includes aliases and functions, if and only if the -p option is not also used.
+The table of hashed commands is not consulted when using -a.
+The -f option suppresses shell function lookup, as with the command builtin.
+type returns true if all of the arguments are found, false if any are not found.
+
+
+==================================
+==================================
+
+
+----- KUBECTL -----
+
 https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands
 
 --- create --- 
@@ -437,3 +557,176 @@ Verbosity	Description
 --v=7	Display HTTP request headers.
 --v=8	Display HTTP request contents.
 --v=9	Display HTTP request contents without truncation of contents.
+
+
+
+==================================
+==================================
+
+
+----- CHEATSHEET KUBECTL -----
+
+--- Creating Objects 
+
+$ kubectl create -f ./file.yml                   # create resource(s) in a json or yaml file
+$ kubectl create -f ./file1.yml -f ./file2.yaml  # create resource(s) in a json or yaml file
+$ kubectl create -f ./dir                        # create resources in all .json, .yml, and .yaml files in dir
+
+# Create from a URL
+$ kubectl create -f http://<URL>
+
+# Create multiple YAML objects from stdin
+$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-sleep
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    args:
+    - sleep
+    - "1000000"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-sleep-less
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    args:
+    - sleep
+    - "1000"
+EOF
+
+
+# Create a secret with several keys
+$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  password: $(echo "mys3cret" | base64)
+  username: $(echo "pasw0rd" | base64)
+EOF
+
+
+--- Viewing, Finding Resources ---
+
+# Columnar output
+$ kubectl get services                          # List all services in the namespace
+$ kubectl get pods --all-namespaces             # List all pods in all namespaces
+$ kubectl get pods -o wide                      # List all pods in the namespace, with more details
+$ kubectl get rc <rc-name>                      # List a particular replication controller
+$ kubectl get replicationcontroller <rc-name>   # List a particular RC
+
+# Verbose output
+$ kubectl describe nodes <node-name>
+$ kubectl describe pods <pod-name>
+$ kubectl describe pods/<pod-name>              # Equivalent to previous
+$ kubectl describe pods <rc-name>               # Lists pods created by <rc-name> using common prefix
+
+# List Services Sorted by Name
+$ kubectl get services --sort-by=.metadata.name
+
+# List pods Sorted by Restart Count
+$ kubectl get pods --sort-by=.status.containerStatuses[0].restartCount
+
+# Get the version label of all pods with label app=cassandra
+$ kubectl get pods --selector=app=cassandra rc -o 'jsonpath={.items[*].metadata.labels.version}'
+
+# Get ExternalIPs of all nodes
+$ kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=ExternalIP)].address}'
+
+# List Names of Pods that belong to Particular RC
+# "jq" command useful for transformations that are too complex for jsonpath
+$ sel=$(./kubectl get rc <rc-name> --output=json | jq -j '.spec.selector | to_entries | .[] | "\(.key)=\(.value),"')
+$ sel=${sel%?} # Remove trailing comma
+$ pods=$(kubectl get pods --selector=$sel --output=jsonpath={.items..metadata.name})`
+
+# Check which nodes are ready
+$ kubectl get nodes -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'| tr ';' "\n"  | grep "Ready=True" 
+
+--- Modifying and Deleting Resources ---
+
+$ kubectl label pods <pod-name> new-label=awesome                  # Add a Label
+$ kubectl annotate pods <pod-name> icon-url=http://goo.gl/XXBTWq   # Add an annotation
+
+# TODO: examples of kubectl edit, patch, delete, replace, scale, and rolling-update commands.
+
+
+--- Interacting with running Pods ---
+
+$ kubectl logs <pod-name>         # dump pod logs (stdout)
+$ kubectl logs -f <pod-name>      # stream pod logs (stdout) until canceled (ctrl-c) or timeout
+
+$ kubectl run -i --tty busybox --image=busybox -- sh      # Run pod as interactive shell
+$ kubectl attach <podname> -i                             # Attach to Running Container
+$ kubectl port-forward <podname> <local-and-remote-port>  # Forward port of Pod to your local machine
+$ kubectl port-forward <servicename> <port>               # Forward port to service
+$ kubectl exec <pod-name> -- ls /                         # Run command in existing pod (1 container case) 
+$ kubectl exec <pod-name> -c <container-name> -- ls /     # Run command in existing pod (multi-container case) 
+
+======================
+
+
+--- kubectl stop ---
+
+# Shut down foo.
+$ kubectl stop replicationcontroller foo
+
+# Stop pods and services with label name=myLabel.
+$ kubectl stop pods,services -l name=myLabel
+
+# Shut down the service defined in service.json
+$ kubectl stop -f service.json
+
+# Shut down all resources in the path/to/resources directory
+$ kubectl stop -f path/to/resources
+
+
+
+--- kubectl logs  ---
+
+# Return snapshot logs from pod nginx with only one container
+kubectl logs nginx
+
+# Return snapshot of previous terminated ruby container logs from pod web-1
+kubectl logs -p -c ruby web-1
+
+# Begin streaming the logs of the ruby container in pod web-1
+kubectl logs -f -c ruby web-1
+
+# Display only the most recent 20 lines of output in pod nginx
+kubectl logs --tail=20 nginx
+
+# Show all logs from pod nginx written in the last hour
+kubectl logs --since=1h nginx
+
+
+--- kubectl describe ---
+
+# Describe a node
+kubectl describe nodes kubernetes-minion-emt8.c.myproject.internal
+
+# Describe a pod
+kubectl describe pods/nginx
+
+# Describe a pod identified by type and name in "pod.json"
+kubectl describe -f pod.json
+
+# Describe all pods
+kubectl describe pods
+
+# Describe pods by label name=myLabel
+kubectl describe po -l name=myLabel
+
+# Describe all pods managed by the 'frontend' replication controller (rc-created pods
+# get the name of the rc as a prefix in the pod the name).
+kubectl describe pods frontend
+

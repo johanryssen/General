@@ -1,9 +1,0 @@
-# Docker - Command-line completion
-https://docs.docker.com/compose/completion/
-
-(1) yum install bash-completion
-(2) cd /etc/bash_completion.d/
-sudo curl \
-    -L https://raw.githubusercontent.com/docker/compose/1.28.6/contrib/completion/bash/docker-compose \
-    -o /etc/bash_completion.d/docker-compose
-

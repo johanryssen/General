@@ -1,0 +1,1103 @@
+----- PODMAN 101 -----
+
+--- LOGIN ---
+# Login to Registry
+podman login -u USER_NAME REGISTRY_URL
+
+# Login with token or password
+# eg: in OpenShift, retrieve token:
+# $ TOKEN=$(oc whoami -t)
+podman login -u USER_NAME -p ${TOKEN} REGISTRY_URL
+
+# Remove login credentials for registry.redhat.io
+podman logout quay.io
+
+# Remove login credentials for all registries
+podman logout --all
+
+
+--- SEARCH / PULL / LIST IMAGES ---
+# search for an image in registry
+podman search REGISTRY_URL/IMAGE_NAME
+
+# Search with filters:
+podman search httpd --filter=is-official
+
+# Downloading / pull image:
+podman pull registry.fedoraproject.org/f30/httpd
+
+# List images:
+podman images
+
+
+--- RUNNING A CONTAINER ---
+# Create a container
+podman run --name test -u 1234 -p 8080:8080 -d s2i-sample-app
+podman run -d --name TEST quay.io/USER_NAME/IMAGE_NAME:VERSION
+
+# Run basic HTTPD server:
+podman run -dt -p 8080:8080/tcp registry.fedoraproject.org/f30/httpd
+
+# List running containers
+podman ps
+
+# Build container image from Dockerfile and spec
+podman build -t NAME .
+
+# Detach from Container:
+CTRL + P , CTRL + Q
+
+# How to tell if you are in a container:
+/run/.containerenv
+
+
+--- TESTING THE HTTPD CONTAINER ---
+# Container is reachable via it's published port on your local machine.
+curl http://localhost:8080
+
+# From another machine, you need to use the IP Address of the host, running the container.
+$ curl http://<IP_Address>:8080
+
+
+--- INSPECTING A RUNNING CONTAINER ---
+# View metadata: environment variables, network settings, allocated resources.
+# Since, the container is running in rootless mode, no IP Address is assigned to the container.
+podman inspect -l | grep IPAddress
+...
+
+Note: The -l is a convenience argument for latest container.
+You can also use the container's ID or name instead of -l or the long argument --latest.
+
+# View container logs:
+podman logs -l
+podman logs CONTAINER_NAME
+
+# View container pids:
+podman top -l
+podman top CONTAINER_NAME
+
+
+--- STOP ---
+# Stop the container:
+podman stop -l
+podman stop CONTAINER_NAME
+
+# Check status:
+podman ps -a
+
+# Remove container:
+podman rm -l
+podman rm CONTAINER_NAME
+
+
+
+----- NETWORKING -----
+Differences in networking between ROOTLESS and ROOTFULL containers.
+
+--- Podman pods ---
+By definition, all containers in the same Podman pod share the same network namespace.
+Therefore, the containers will share the IP Address, MAC Addresses and port mappings.
+You can always communicate between containers in the same pod, using localhost.
+
+##### ROOTLESS NETWORKING #####
+When using Podman as a rootless user, the network is setup automatically.
+The container itself does NOT have an IP Address, because without root privileges, network association is not allowed.
+You will also see some other limitations.
+
+---------------
+By default, ROOTFULL containers use the CNI bridge plugin for its default configuration.
+In this case, NO NETWORK NAME must be passed to Podman.
+
+However, you can create additional bridged networks with the podman create command.
+In that case, you will have to set the network name.
+
+The following example shows how to set up a web server and expose it to the network outside the host as rootless.
+It will also show how an outside client can connect to the container.
+
+(rootfull) $ sudo podman run -dt --name webserver -p 8080:80 quay.io/libpod/banner
+00f3440c7576aae2d5b193c40513c29c7964e96bf797cf0cc352c2b68ccbe66a
+
+# For ROOTLESS containers using CNI, a network must first be created.
+$ podman network create
+/home/user1/.config/cni/net.d/cni-podman1.conflist
+
+# Now run the container.
+$ podman run -dt --name webserver --net cni-podman1 -p 8081:80 quay.io/libpod/banner
+269fd0d6b2c8ed60f2ca41d7beceec2471d72fb9a33aa8ca45b81dc9a0abbb12
+
+Note in the above run command, the container's port 80 (where the Nginx server is running) was mapped to the host's port 8080.
+Port 8080 was chosen to demonstrate how the host and container ports can be mapped for external access.
+The port could very well have been 80 as well (except for rootless users).
+
+To connect from an outside client to the webserver, simply point an HTTP client to the host's IP address at port 8080 for rootfull and port 8081 for rootless.
+---------------
+
+
+## Publishing Ports
+Port publishing as rootless containers can be done for "HIGH PORTS" only.
+All ports below 1024 are privileged and cannot be used for publishing.
+
+#Instead of:
+$ podman run -dt -p 80:8080/tcp registry.fedoraproject.org/f29/httpd
+
+#Use:
+$ podman run -dt -p 8080:8080/tcp registry.fedoraproject.org/f29/httpd
+
+Note: You can also use podman -P to automatically publish and map ports.
+
+## Container <-> Host Communication
+
+If you want to reach a rootless container from your localhost, you can use port publishing (as in the example above).
+
+# Check the ports published and occupied:
+$ podman port -l
+8080/tcp -> 0.0.0.0:8080
+
+Note: The -l is a convenience argument for latest container.
+You can also use the container's ID or name instead of -l or the long argument --latest.
+
+
+## Container <-> Container Communication
+
+Communicating between two rootless containers can be achieved in multiple ways.
+The easiest and most convenient way is to communicate via PUBLISHED PORTS and the UNDERLYING HOST.
+
+# Check if a "listening” container is running:
+$ podman ps
+
+# View the published ports:
+$ podman port <container_id>
+
+# View the address of your host:
+$ ip addr
+
+# Start a new container to contact your host + the published port:
+$ podman run -it --rm fedora curl <Host_IP_Address>:<Published_Port>
+
+
+
+##### ROOTFULL NETWORKING #####
+This section describes how networking can be used in rootfull containers.
+
+-----
+ROOTFULL containers use the CNI bridge plugin for its default configuration.
+In this case, no network name must be passed to Podman.
+However, you can create additional bridged networks with the podman create command.
+In that case, you will have to set the network name.
+
+The following example shows how to set up a web server and expose it to the network outside the host as both rootfull and rootless.
+It will also show how an outside client can connect to the container.
+
+(rootfull) $ sudo podman run -dt --name webserver -p 8080:80 quay.io/libpod/banner
+-----
+
+
+## Publishing Ports
+Port publishing works the same way as rootless containers, but you will be able to use PRIVILEGED PORTS, as long as they are free.
+
+$ sudo podman run -dt -p 80:8080/tcp registry.fedoraproject.org/f29/httpd
+
+Note: You can also use podman -P to automatically publish and map ports.
+
+
+## Container <-> Host Communication
+Rootfull containers are reachable via their published ports.
+
+# Check which ports are published:
+$ sudo podman port -l
+8080/tcp -> 0.0.0.0:80
+
+# Test from local machine:
+$ curl localhost
+
+
+## Container <-> Container Communication
+Rootfull containers can communicate via their IP Address in the same network.
+
+$ sudo podman inspect <container_id> | grep IPAddress
+            "IPAddress": "10.88.0.83",
+
+$ sudo podman run -it --rm fedora curl <Container_IP_Address>:<Container_Port>
+
+
+## Configuring Networking
+The installation of Podman provides a default network configuration commonly installed in /etc/cni/net.d/ as 87-podman-bridge.conflist.
+The default network name is defined in /usr/share/containers/libpod.conf.
+If you want to change the default network, you should copy the libpod.conf to /etc/containers/libpod.conf and change the new file.
+
+To create a new network, you can use the podman network create command, which will create a new file in /etc/cni/net.d/.
+
+## Using DNS in Container Networks
+Podman provides a convenient way to allocate local DNS records to containers via the dnsname plugin.
+This can become handy, if you want to communicate between 2 or more containers.
+
+The feature will be automatically enabled for newly created networks via podman network create.
+If you want to add this feature to the default network, you can either:
+(1) Create a new network and make it default or 
+(2) Add the needed lines to cat /etc/cni/net.d/87-podman-bridge.conflist - a reboot may be required.
+
+
+{
+  ...
+
+  "plugins": [
+
+    ...
+
+    {
+      "type": "dnsname",
+      "domainName": "example.com"
+    }
+  ]
+}
+
+
+--------------------------------
+
+
+## Step 1 ##
+
+# View the container images available.
+
+[root@podman ~]# podman images
+REPOSITORY                         TAG     IMAGE ID      CREATED      SIZE
+registry.redhat.io/rhel8/httpd-24  latest  b49449b8ae18  10 days ago  436 MB
+
+There is one container available in the local (localhost) repository: rhel8/httpd-24
+If there were multiple updated iterations of the conatiner available, you would use the IMAGE ID to work with those that are not tagged as latest.
+Also, from this list you are able to see the size, on disk, of the container image.
+
+------------------------
+
+## Step 2 ##
+
+The rhel8-httpd container includes a bash shell.
+Deploy the container in an interactive fashion, which will allow you to run commands within the deployed container.
+[root@podman ~]# podman run -it registry.redhat.io/rhel8/httpd-24 /bin/bash
+bash-4.4$
+
+# Notice that all of the filesystem contents are either memory-based (tmpfs, shm) or the overlay file associated with this runtime of the container image (overlay).
+
+bash-4.4$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          17G  2.9G   15G  17% /
+tmpfs            64M     0   64M   0% /dev
+tmpfs           897M  9.0M  888M   1% /etc/hosts
+shm              63M     0   63M   0% /dev/shm
+tmpfs           897M     0  897M   0% /sys/fs/cgroup
+
+
+# In another terminal:
+
+root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND    CREATED             STATUS                 PORTS   NAMES
+2a2000c8cb29  registry.redhat.io/rhel8/httpd-24  /bin/bash  About a minute ago  Up About a minute ago          ecstatic_cartwright
+
+
+------------------------
+
+## Step 3 ##
+
+Exit the container's shell
+exit
+
+When the process on an interactive container is closed, the container stops running.
+
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND    CREATED             STATUS                    PORTS   NAMES
+2a2000c8cb29  registry.redhat.io/rhel8/httpd-24  /bin/bash  About a minute ago  Exited (0) 3 seconds ago          ecstatic_cartwright
+
+STATUS field = Exited
+A container in this state can be resumed.
+
+Remove container:
+
+podman rm $(podman ps -a | grep Exited | cut -d" " -f1)
+-or-
+podman rm $(podman ps -a | grep Exited | awk {'print $1'})
+
+------------------------
+
+## Step 4 ##
+
+Create a new instance of this container in a detached mode.
+Configure port forwarding for the Apache web server so that connections to the host's port 8084 will redirect to the running container's port 80 (Apache service).
+
+[root@podman ~]# podman run -dt -p 8080:80/tcp registry.redhat.io/rhel8/httpd-24
+f5478a83ffd0a3a098306aa8ca7956b14be0e2ebb49b31fc517594ded5e92992
+
+
+# Verify:
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND               CREATED         STATUS             PORTS                 NAMES
+f5478a83ffd0  registry.redhat.io/rhel8/httpd-24  /usr/bin/run-http...  17 seconds ago  Up 17 seconds ago  0.0.0.0:8080->80/tcp  nostalgic_jang
+ 
+Observe that STATUS = Up and there is a new section in the output: PORTS that indicates the port forwarding defined for the container.
+
+
+------------------------
+
+## Step 5 ##
+
+Unlike interactive containers, detached containers are stopped using podman stop .
+
+podman stop $(podman ps -a | grep Up | cut -d" " -f1)
+-or-
+podman stop $(podman ps -a | grep Up | awk {'print $1'})
+
+# Verify:
+[root@podman ~]# podman ps -a
+CONTAINER ID  IMAGE                              COMMAND               CREATED        STATUS                     PORTS                 NAMES
+498d6b63862c  registry.redhat.io/rhel8/httpd-24  /usr/bin/run-http...  4 minutes ago  Exited (0) 14 seconds ago  0.0.0.0:8090->80/tcp  modest_goodall
+
+------------------------
+
+[devops@podman 01]$ cat Dockerfile
+FROM centos:latest
+RUN yum -y install httpd
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUDN"]
+EXPOSE 80
+
+[devops@podman 01]$ podman build .
+STEP 1: FROM centos:latest
+Completed short name "centos" with unqualified-search registries (origin: /etc/containers/registries.conf)
+...
+STEP 2: RUN yum -y install httpd
+CentOS Linux 8 - AppStream                      4.1 MB/s | 6.3 MB     00:01
+...
+
+STEP 3: CMD ["/usr/sbin/httpd", "-D", "FOREGROUDN"]
+--> 966e9979589
+STEP 4: EXPOSE 80
+STEP 5: COMMIT
+--> 5eb2dcff57d
+5eb2dcff57daf0694ae9379123611cf064dbf2b1d14cd98b5f1031b6fea3a195
+[devops@podman 01]$
+
+
+/etc/containers/registries.conf
+
+[devops@podman 01]$ podman login registry.access.redhat.com
+Username: USERNAME
+Password: PASSWORD
+Login Succeeded!
+
+# Rootless Error:
+[devops@podman 01]$ podman run -p 80:80 -dit centos
+Error: rootlessport cannot expose privileged port 80, you can add 'net.ipv4.ip_unprivileged_port_start=80' to /etc/sysctl.conf (currently 1024), or choose a larger port number (>= 1024): listen tcp 0.0.0.0:80: bind: permission denied
+
+# SUDO:
+[devops@podman 01]$ sudo podman run -p 80:80 -dit centos
+bbc0c6e9baf5c1b25ca5dcd1a4b5b3aa90c3dcf6d747d45cd978fec5cea878e8
+[devops@podman 01]$
+
+=======================
+
+[devops@podman PODS]$ podman pod create
+0b5a83cc03ba33fdf45ebda384a7e7b041099a042d24e2084491802482078dce
+
+# option for 'podman pod create':
+
+--cgroup-parent value - Set the parent cgroup for the pod
+--infra - Create an infra container associated with the pod that will share namespaces
+--infra-command value - A command that will be run on the infra container when the pod is started (such as "/pause")
+--infra-image value - The infra container image to be associated with the pod
+--label value - Set metadata for a pod
+--label-file value - Set the metadata for a pod from a line-delimited file of labels
+--name value - Assign a name to the new pod
+--pod-id-file value - Write the pod ID to a file
+--publish value - Publish a container's port (or a range of ports) to the host
+--share value - A comma-delimited list of kernel namespaces to be shared with 
+
+
+[devops@podman PODS]$ podman pod list
+POD ID        NAME         STATUS   CREATED         INFRA ID      # OF CONTAINERS
+0b5a83cc03ba  gracious_wu  Created  41 seconds ago  9f02540db310  1
+
+
+[devops@podman PODS]$ podman pod inspect -l
+{
+     "Id": "0b5a83cc03ba33fdf45ebda384a7e7b041099a042d24e2084491802482078dce",
+     "Name": "gracious_wu",
+     "Created": "2021-03-08T15:57:53.483362632+10:00",
+...
+
+-------------
+
+PODMAN GENERATE
+
+Podman lets you generate Kubernetes DEFINITIONS from the existing runtime.
+E.g. if you have a running container, you can use 'podman generate' to create a YAML file to define that container.
+You can also do that with a pod.
+So, I manually defined one of my WordPress sites in Podman.
+
+Here are a few notes on that process.
+
+## Mapping ports
+
+In the Docker world, ports are mapped to containers.
+That's true in Podman as well—except when you're running inside a pod.
+See, the pod is like a container of containers.
+Networking within the pod is more similar to networking within a host OS.
+Pods reach each other over the local host, and external networking reaches the pod, not the containers directly.
+When you run containers in a pod, you need to map ports on the pod like you would on the container in Docker or 'docker-compose'.
+I also found that, although one of the benefits to Podman is the ability to run as a standard user,
+I had to do all of this as root because of some security problems I ran into when I created the pods.
+The problems were mainly centered around SELinux.
+
+## Create a pod:
+# Create a pod with port 8080 mapped to inside port 80.
+# If you then spin up a container listening on port 80, you'd have connectivity.
+[devops@podman PODS]$ sudo podman pod create --name my-pod -p 8080:80
+
+## Create a container in the pod
+
+To create a container in the pod, use podman run, but DON'T MAP A PORT.
+This makes more sense when you have more than one container to work with, so I'm going to create a database container and then a WordPress container.
+
+$ sudo podman run \
+-d --restart=always --pod=my-pod \
+-e MYSQL_ROOT_PASSWORD="myrootpass" \
+-e MYSQL_DATABASE="wp" \
+-e MYSQL_USER="wordpress" \
+-e MYSQL_PASSWORD="w0rdpr3ss" \
+--name=wptest-db mariadb
+
+
+$ sudo podman run \
+-d --restart=always --pod=my-pod \
+-e WORDPRESS_DB_NAME="wp" \
+-e WORDPRESS_DB_USER="wordpress" \
+-e WORDPRESS_DB_PASSWORD="w0rdpr3ss" \
+-e WORDPRESS_DB_HOST="127.0.0.1" \
+--name wptest-web wordpress
+
+
+Notice that I pointed the WORDPRESS_DB_HOST in the env: to LOCALHOST.
+That's because the WordPress container is going to find the database container on the local host.
+Our pod has three containers.
+We ran two, but the third is the container that does the pod magic.
+
+
+[devops@podman PODS]$ sudo podman ps
+CONTAINER ID  IMAGE                               COMMAND               CREATED             STATUS                 PORTS                 NAMES
+823887a27b9c  docker.io/library/wordpress:latest  apache2-foregroun...  About a minute ago  Up About a minute ago  0.0.0.0:8080->80/tcp  wptest-web
+f62b57cb465d  docker.io/library/mariadb:latest    mysqld                2 minutes ago       Up 2 minutes ago       0.0.0.0:8080->80/tcp  wptest-db
+76f059991485  k8s.gcr.io/pause:3.2                                      11 minutes ago      Up 2 minutes ago       0.0.0.0:8080->80/tcp  6923bf96cfa2-infra
+
+
+======================
+======================
+
+
+----- Build an appl into a container image using RHEL Container Tools -----
+
+(1) Downloading the Universal Base Image
+
+# buildah from registry.access.redhat.com/ubi8/ubi
+
+https://developers.redhat.com/articles/ubi-faq
+
+# 3 UBI Images:
+ubi-minimal
+ubi
+ubi-init
+
+
+https://catalog.redhat.com/software/containers/search
+
+
+(2) Positioning yum Repository
+
+In the command below, buildah is going to run a command on the ubi-working-container image.
+The -- indicates that the command should be executed from within the container, which means the results will be applied into the container image.
+Lastly, you are providing the yum command to install a package that defines all of the repositories from EPEL: "epel-release-latest-8".
+
+# buildah run ubi-working-container -- yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+
+You could verify this was not completed on the localhost by looking for the RPM on the host system:
+# rpm -q epel-release
+package epel-release is not installed
+
+If your repository configurations are not distributed as an RPM, but instead as individual .repo files, you could use the buildah copy command to copy files from the host operating system into the container image.
+
+
+(3) Installing the target software
+Now that the yum repositories are defined within the container, you can use another yum install, executed within the container, to install the target software:
+moon-buggy
+
+# buildah run ubi-working-container -- yum -y install moon-buggy
+
+
+(4) Committing the new container image
+At this point, the container is configured.
+It is time to transition from a working container into a committed image.
+In the command below, you will use the buildah command to commit the working container to an image called: moon-buggy.
+
+# buildah commit ubi-working-container moon-buggy
+
+Verify that the commit was successful
+# podman image list
+
+Notice in the output above that moon-buggy is the first container image listed in the podman image list output.
+
+(5) Running the new containerized software
+Now the software has been installed and a new container image created. It is time to spawn a runtime of the container image and validate the software.
+The software we are using is a commandline command.
+When you run the container, it will be in interactive (-it) mode, based on the moon-buggy container image, and the command run interactively will be /usr/bin/moon-buggy.
+
+# podman run -it moon-buggy /usr/bin/moon-buggy
+
+Kill the running container from Terminal 2.
+
+# podman kill $(podman ps | grep -v CONTAINER | cut -f1 -d" " )
+
+
+======================
+======================
+
+
+--- FINDING IMAGES ---
+podman images	-	List all local images
+podman history image:tag	-	Display information about how an image was built
+podman login registryURL -u username [-p password]	-	Log in to a remote registry
+podman pull registry/username/image:tag		-	Pull an image from a remote registry
+podman search searchString	-	Search local cache and remote registries for images
+Note: The list of registries is defned in: /etc/containers/registries.conf
+podman logout	-	Log out of the current remote registry
+
+
+--- BUILDING IMAGES ---
+podman build -t image:tag .				-	Build and tag an image using the instructions in Dockerfile in the current directory (don’t forget the dot!)
+podman build -t image:tag -f Dockerﬁle2	-	Same as above, but with a di erent Dockerfile
+podman tag image:tag image:tag2			-	Add an additional name to a local image
+podman tag image:tag registry/username/image:tag	-	Same as above, but the additional name includes a remote registry
+podman push registry/username/image:tag				-	Push an image to a remote registry
+
+
+--- RUNNING CONTAINERS ON IMAGES ---
+podman run --rm -it [--name name] image:tag command		-	Run a container based on a given image.
+
+--rm			-	Remove the container after it exits
+-it 			-	Connect the container to the terminal
+--name name 	-	Give the container a name
+image:tag		-	The image used to create the container
+command			-	A command to run (/bin/bash for example)
+
+# Other options
+-d					-	Run the container in the background
+-p 8080:32000		-	Expose container port 8080 as localhost:32000
+-v /var/lib/mydb:/var/lib/db		-	Map the /var/lib/mydb directory on localhost to a volume named /var/lib/db inside the container
+
+
+podman commit container newImage:tag	-	Create a new image based on the current state of a running container
+podman create [--name name] image:tag	-	Create (but don’t start) a container from an image
+podman start container		-	Start an existing container from an image
+podman restart container	-	Restart an existing container
+podman wait container1 [container2… ]	-	Wait on one or more containers to stop
+podman stop container	-	Stop a running container gracefully
+podman kill container	-	Send a signal to a running container
+podman rm [-f] container	-	Remove a container (use -f if the container is running)
+podman stats container		-	Display a live stream of a container’s resource usage
+podman inspect container	-	Return metadata (in JSON) about a running container
+
+
+--- WORKING WITH CONTAINER PROCESSES AND RESOURCES ---
+podman ps [--all]		-	List the running containers on the system (use --all to include nonrunning containers)
+podman attach container	-	Attach to a running container and view its output or control it CTRL+P CTRL+Q  detaches from the container but leaves it running.
+podman exec container command	-	Execute a command in a running container
+podman top container			-	Display the running processes of a container
+podman logs [-tail] container	-	Display the logs of a container
+podman pause container | podman unpause container	-	Pause/unpause all the processes in a container
+podman port container			-	List the port mappings from a container to localhost
+
+
+--- WORKING WITH A CONTAINER’S FILESYSTEM ---
+podman diff container		-	Display all the changes to a container’s lesystem
+podman cp source target		-	Copy les and folders between a container and localhost
+podman mount container | podman umount container	-	Mount or unmount a container’s root lesystem
+podman import tarball	-	Import a tarball and save it as a lesystem image
+podman export [-o outputFile] container		-	Export the container’s lesystem to a tar le
+podman save [-o archiveFile] [--format docker-archive | oci-archive | oci-dir | docker-dir] image:tag	-	Save an image in docker-archive (default) or another format
+podman load -i archiveFile		-	Load a saved image from docker-archive or another format
+
+
+--- REMOVING IMAGES ---
+podman rmi [-f] image:tag	-	Remove a local image from local cache (use -f to force removal)
+podman rmi [-f] registry/username/image:tag	-	Remove a remote image from local cache (use -f to force removal)
+Note: This does not remove the image from the remote registry.
+
+
+--- MISCELLANEOUS ---
+podman version	-	Display podman version information
+podman info		-	Display information about the podman environment
+
+
+======================
+======================
+
+
+----- Control the startup of Podman containers with systemd -----
+
+# Pull image and start container:
+podman pull docker.io/redis
+sudo podman run -d --name redis -p 6379:6379 redis
+
+
+# Open Selinux permission.
+# If SELinux is enabled on your system, you must turn on the container_manage_cgroup boolean to run containers with systemd
+sudo setsebool -P container_manage_cgroup on
+
+
+# Confirm container is running:
+[root@el8 ~]# podman ps
+CONTAINER ID  IMAGE                                   COMMAND       CREATED         STATUS                     PORTS                   NAMES
+37f6e41421c7  docker.io/library/redis:latest          redis-server  2 minutes ago   Up Less than a second ago  0.0.0.0:6379->6379/tcp  redis
+
+# Create Systemd service:
+
+vim /etc/systemd/system/redis.service:
+
+[Unit]
+Description=Redis Podman container
+Wants=syslog.service
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman start -a redis
+ExecStop=/usr/bin/podman stop -t 10 redis
+[Install]
+WantedBy=multi-user.target
+
+# Enable and start the systemd service:
+sudo systemctl enable --now redis.service
+
+# Stop the container:
+[root@el8 ~]# podman stop redis
+37f6e41421c7dc831a27d1c2a7244be3d30471e896e1e5c0f91e48213120e772
+
+# Confirm that it was started again:
+[root@el8 ~]# podman ps
+CONTAINER ID  IMAGE                                   COMMAND       CREATED         STATUS                     PORTS                   NAMES
+37f6e41421c7  docker.io/library/redis:latest          redis-server  5 minutes ago   Up Less than a second ago  0.0.0.0:6379->6379/tcp  redis
+
+
+======================
+======================
+
+
+----- Generating Podman Service Wrappers for Containers -----
+
+To generate a Systemd service wrapper for an individual container and store it in the $HOME/.config/systemd/user directory:
+$ podman generate systemd --name containername > $HOME/.config/systemd/user/container-containername.service
+
+-------------------
+
+[root@el8 ~]# podman run -dit ubi8 /bin/bash
+bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980
+
+
+[root@el8 ~]# podman ps
+CONTAINER ID  IMAGE                                   COMMAND       CREATED         STATUS            PORTS                   NAMES
+bdcb67e7bc97  registry.access.redhat.com/ubi8:latest  /bin/bash     3 seconds ago   Up 2 seconds ago                          agitated_carver
+
+[root@el8 ~]# podman generate systemd agitated_carver
+
+# container-bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980.service
+# autogenerated by Podman 3.0.2-dev
+# Wed May 26 21:01:40 AEST 2021
+
+[Unit]
+Description=Podman container-bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980.service
+Documentation=man:podman-generate-systemd(1)
+Wants=network.target
+After=network-online.target
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+ExecStart=/usr/bin/podman start bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980
+ExecStop=/usr/bin/podman stop -t 10 bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980
+ExecStopPost=/usr/bin/podman stop -t 10 bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980
+PIDFile=/var/run/containers/storage/overlay-containers/bdcb67e7bc972e45658776c636d1e830dec60d16a855bfd26b950f3c5201d980/userdata/conmon.pid
+Type=forking
+
+[Install]
+WantedBy=multi-user.target default.target
+
+
+# Add output from "podman generate systemd agitated_carver" to .service file:
+vim /etc/systemd/system/agitated_carver.service
+
+
+# Start & Enable service:
+[root@el8 system]# systemctl enable --now agitated_carver.service
+Created symlink /etc/systemd/system/multi-user.target.wants/agitated_carver.service → /etc/systemd/system/agitated_carver.service.
+Created symlink /etc/systemd/system/default.target.wants/agitated_carver.service → /etc/systemd/system/agitated_carver.service.
+
+
+======================
+======================
+
+
+--- TUTORIAL ---
+podman login quay.io
+podman run -d -ti podman.io/library/alpine
+podman ps -l
+podman attach d1870c5e88e9
+	/ # touch A B C
+	Ctrl P + Ctrl Q
+podman stop d1870c5e88e9
+podman commit d1870c5e88e9 quay.io/user01/alpinedemo
+podman login -u="user01"  quay.io
+podman push quay.io/user01/alpinedemo
+podman rm d1870c5e88e9
+podman pull quay.io/user01/alpinedemo
+podman pod ps
+podman rmi quay.io/user01/alpine001
+podman run -dti quay.io/user01/alpine001
+podman run -dti quay.io/user01/alpine001
+podman ps -l
+podman attach d2286df694ea
+	/ # ls -l
+	total 8
+	-rw-r--r--    1 root     root             0 Mar 19 02:28 A
+	-rw-r--r--    1 root     root             0 Mar 19 02:28 B
+	-rw-r--r--    1 root     root             0 Mar 19 02:28 C
+
+-----------------
+
+
+--- CREATING A REPOSITORY ---
+Two ways to create a repo in Quay.io
+- Quay.io webUI
+- podman push
+
+# Web UI:
+1. Click the + icon in the top right of the header on any Quay.io page and choose ‘New Repository’.
+2. Select 'Container Image Repository’ on the next page, choose a namespace (only applies to organizations)
+3. Enter a repository name and then click the ‘Create Repository’ button.
+
+The repository will start out empty unless a podmanfile is uploaded as well.
+
+# Podman
+1. Tag the repository:
+$ podman tag 123456abcdef quay.io/namespace/repo_name
+
+2. Push to Quay.io:
+$ podman push quay.io/namespace/repo_name
+
+
+--- PUSHING AND PULLING REPOSITORIES ---
+# Pushing a repository to Quay.io
+Note: pushing to a repository requires Repository WRITE Access.
+Note: you should have a name for the image before you push it
+$ sudo podman push quay.io/namespace/repository:tag
+
+# Pulling a repository from Quay.io
+Note: pulling from a repository requires REPOSITORY READ ACCESS for private repositories.
+$ sudo podman pull quay.io/namespace/repository
+
+
+======================
+======================
+
+
+----- Create a ROOTLESS CONTAINER that -----
+- starts automatically with 
+- systemd with 
+- mapped ports and 
+- persistent storage
+
+
+To run podman as rootless:
+
+# Prerequisites
+
+(1) Enable cgroups v2
+(2) To allow rootless operation of Podman containers:
+- Determine which user(s) and group(s) you want to use for the containers
+- Add their corresponding entries to /etc/subuid and /etc/subgid respectively.
+
+----------
+
+(1) Enable cgroups v2
+
+# Enable This Kernel Paramater
+
+$ echo 'kernel.unprivileged_userns_clone=1' > /etc/sysctl.d/userns.conf
+
+# Edit grub
+
+# Use one of them:
+- systemd.unified_cgroup_hierarchy=1	# Systemd will mount /sys/fs/cgroup as cgroup v2
+- cgroup_no_v1="all"					# The kernel will disable all v1 cgroup controllers
+
+---
+$ sudo vim /etc/default/grub
+GRUB_CMDLINE_LINUX_DEFAULT=".... systemd.unified_cgroup_hierarchy=1 --or-- cgroup_no_v1="all""
+---
+
+# Manual Method
+$ mount -t cgroup2 none /sys/fs/cgroup
+
+# To Check
+# For V2
+$ ls /sys/fs/cgroup
+
+cgroup.controllers      cgroup.subtree_control  init.scope/      system.slice/
+cgroup.max.depth        cgroup.threads          io.cost.model    user.slice/
+cgroup.max.descendants  cpu.pressure            io.cost.qos
+cgroup.procs            cpuset.cpus.effective   io.pressure
+cgroup.stat             cpuset.mems.effective   memory.pressure
+
+# V1 ( if you see these file then your cgroup is on v1 )
+$ ls /sys/fs/cgroup
+
+blkio/    cpu,cpuacct/  freezer/  net_cls@           perf_event/  systemd/
+cpu@      cpuset/       hugetlb/  net_cls,net_prio/  pids/        unified/
+cpuacct@  devices/      memory/   net_prio@          rdma/
+
+# Update
+$ sudo grub-mkconfig -o /boot/grub/grub.cfg
+$ reboot
+
+-----
+lsns - list namespaces
+-----
+
+## 2.0 Enable UIDs and GIDs for User
+
+# The following below commands enables the podman user and group to run containers.
+# It allocates the UIDs and GIDs from 100000to 165535 to the podman user and group respectively.
+
+$ sudo touch /etc/{subgid,subuid}
+$ sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 {USER}
+$ grep {USER} /etc/subuid /etc/subgid
+/etc/subuid:{USER}:100000:65536
+/etc/subgid:{USER}:100000:65536
+
+====================================
+
+
+--- Image & Containers Location ---
+Podman ( root ): /var/lib/containers/storage/
+Podman ( normal_user ): ~/.local/share/containers/storage
+Docker: /var/lib/docker
+-----------------------------------
+
+
+$ mkdir ~/mongodir
+$ podman run -d -p 27017:27017 -v ~/mongodir:/data/db:Z --name myContainer01 docker.io/library/mongo:latest
+$ podman run -d -p 27017:27017 -v ~/mongodir:/data/db:Z --name con_$(date +%s) docker.io/library/mongo:latest
+
+The Z option tells Podman to label the content with a PRIVATE UNSHARED LABEL.
+
+
+# podman-run - Run a command in a new container
+podman run -d -p 8000:80 -v ~/alpine:/var/www/html:Z --name alpine01 docker.io/library/alpine:latest
+podman run -t -i -v /etc/:/testdir --rm fedora sh -c 'ls -l /testdir 2> /dev/null | head -n 10'
+
+------------------------
+
+When podman runs in rootless mode, a user namespace is automatically created for the user, defined in /etc/subuid and /etc/subgid.
+
+Containers created by a non-root user are not visible to other users and are not seen or managed by Podman running as root.
+
+It is required to have multiple uids/gids set for an user.
+Be sure the user is present in the files /etc/subuid and /etc/subgid.
+
+If you have a recent version of usermod, you can execute the following commands to add the ranges to the files
+
+$ sudo usermod --add-subuids 10000-75535 USERNAME
+$ sudo usermod --add-subgids 10000-75535 USERNAME
+
+Or just add the content manually.
+
+$ echo USERNAME:10000:65536 >> /etc/subuid
+$ echo USERNAME:10000:65536 >> /etc/subgid
+
+See the subuid(5) and subgid(5) man pages for more information.
+
+Images are pulled under XDG_DATA_HOME when specified, otherwise in the home directory of the user under .local/share/containers/storage.
+
+Currently the slirp4netns package is required to be installed to create a network device, otherwise rootless containers need to run in the network namespace of the host.
+
+
+======================
+======================
+
+
+----- GENERATING SELINUX POLICIES FOR CONTAINERS WITH UDICA -----
+
+--- Step 1 Software installation and configuration ---
+
+Install the udica and setools-console packages on the container host
+# yum install -y udica setools-console
+
+Get the latest RHEL8 UBI image
+# podman pull registry.access.redhat.com/ubi8/ubi:latest
+
+Use podman to list the available container images
+# podman images
+
+Terminal_2: Create a container runtime using podman which:
+- Passes in-container accesses to /home through to the host's /home read-only
+- Passes in-container accesses to /var/spool through to the host's /var/spool read-write
+- Binds the host's port 80 to pass traffic to the container's port 80.
+# CONTAINER=$(podman run -v /home:/home:ro -v /var/spool:/var/spool:rw -d -p 80:80 -it registry.access.redhat.com/ubi8/ubi)
+
+NOTE:
+/home mounted READ-ONLY
+/var/spool/ mounted READ-WRITE
+
+Terminal_1: Check the status of the application container using podman and get the running container id
+# podman ps; CONTAINERID=$(podman ps | grep registry.access.redhat.com | cut -b 1-12)
+	CONTAINER ID  IMAGE                         COMMAND               CREATED        STATUS           PORTS               NAMES
+	123123123  registry.access.redhat.com/ubi8/ubi:latest  /bin/bash  3 seconds ago  Up 2 seconds ago0.0.0.0:80->80/tcp  some_thing
+
+When using SELinux, container processes get assigned a container type called 'container_t'.
+Verify the SELinux type assigned to the running container
+# ps -eZ | grep container_t
+	system_u:system_r:container_t:s0:c182,c1016 43210 pts/0 00:00:00 bash
+
+On RHEL, SELinux is enabled by default and in enforcing mode.
+To confirm:
+# sestatus
+
+
+--- Step 2 Inspecting container access and SELinux policies ---
+
+Terminal_2: Use podman exec to create an interactive shell inside the running container.
+# podman exec -t -i $CONTAINER /bin/bash
+
+Check container's access to /home directory
+# cd /home; ls
+	ls: cannot open directory '.': Permission denied
+
+Terminal_1: Query the SELinux policy to search for ALLOW ENFORCEMENT RULES applied to access /home directory
+# sesearch -A -s container_t -t home_root_t -c dir -p read
+The search returns NO results.
+
+Since, there is no allow rule for container_t type to get read access to the /home directory, access is blocked by SELinux.
+
+Terminal_1: Check container's access to /var/spool/ directory
+# cd /var/spool/; ls
+	ls: cannot open directory '.': Permission denied
+
+SELinux is restricting access to the /var/spool directory.
+Terminal_2: Check the container's write access to the /var/spool/ directory
+# touch test
+	touch: cannot touch 'test': Permission denied
+
+Terminal_1: Query the SELinux policy to search for ALLOW ENFORCEMENT RULES applied to access /var/spool directory
+# sesearch -A -s container_t -t var_spool_t -c dir -p read
+The search returns NO results.
+
+Since, there is no allow rule for container_t type to get read access to the /var/spool/ directory, access is blocked by SELinux.
+
+Query the SELinux policy for network access for container_t types
+# sesearch -A -s container_t -t port_type -c tcp_socket
+	allow container_net_domain port_type:tcp_socket { name_bind name_connect recv_msg send_msg };
+	allow corenet_unconfined_type port_type:tcp_socket { name_bind name_connect recv_msg send_msg };
+	allow sandbox_net_domain port_type:tcp_socket { name_bind name_connect recv_msg send_msg };
+
+'sandbox' is the default process type (domain) in SELinux.
+'container' is the domain used in the context of containers.
+'corenet' type is typically used in the context of the Linux kernel.
+The output means that for each of these domains, binding, connecting, sending and receiving messages are allowed without TCP port restrictions.
+
+
+--- Step 3 Generating SELinux container policies with Udica ---
+
+To create the custom SELinux security policy, Udica scans the container JSON file to discover which Linux capabilities are required by the container.
+The network ports are a similar situation where Udica uses the SELinux userspace libraries to get the correct SELinux label of a port that is used by the inspected container.
+
+Terminal_1: Inspect the running container using podman to generate a container inspection file in JSON format
+# podman inspect $CONTAINERID > container.json
+
+Tell Udica to generate the custom SELinux security policy by using the container JSON file.
+In this case the name of the custom SELinux security policy is called 'new_container'
+# udica -j container.json new_container
+	Policy new_container created!
+	Please load these modules using:
+	\# semodule -i new_container.cil /usr/share/udica/templates/{base_container.cil,net_container.cil,home_container.cil}
+	Restart the container with: "--security-opt label=type:new_container.process" parameter
+
+You just created a custom SELinux security policy for the container.
+
+Now you can load this policy into the kernel and make it active.
+# semodule -i new_container.cil /usr/share/udica/templates/{base_container.cil,net_container.cil,home_container.cil}
+
+For the policies to take effect, stop and re-launch the container
+# podman stop $CONTAINERID
+
+Terminal_2: Create a new container runtime from the image which uses the new, custom container policy
+# CONTAINER=$(podman run --security-opt label=type:new_container.process -v /home:/home:ro -v/var/spool:/var/spool:rw -d -p 80:80 -it registry.access.redhat.com/ubi8/ubi)
+
+
+--- Step 4 Verifying the SELinux container policies with Udica ---
+
+Verify the policies generated using Udica for the container and enforced by SELinux.
+Query the SELinux policy on the container host to search for ALLOW ENFORCEMENT RULES applied to access /home directory:
+# sesearch -A -s new_container.process -t home_root_t -c dir -p read
+	allow new_container.process home_root_t:dir { getattr ioctl lock open read search };
+
+There is an allow rule in place that allows read access to the /home directory.
+
+Query the SELinux policy on the container host to search for ALLOW ENFORCEMENT RULES applied to access /var/spool/ directory.
+# sesearch -A -s new_container.process -t var_spool_t -c dir -p read
+	allow new_container.process var_spool_t:dir { add_name getattr ioctl lock open read remove_name searchwrite };
+
+There is an allow rule in place that allows read access to the var/spool directory.
+
+Query the SELinux policy on the container host to check network access
+# sesearch -A -s new_container.process -t port_type -c tcp_socket
+	allow new_container.process http_port_t:tcp_socket { name_bind name_connect recv_msg send_msg };
+
+Retrieve the SELinux type associated with TCP port 80. TCP port 80 is the port that Apache will bind on.
+# semanage port -l | grep -w "80"
+
+
+
+--- Step 5 Re-inspect the running container ---
+
+Terminal_2: exec into the running container and start a bash shell
+# podman exec -t -i $CONTAINER /bin/bash
+
+# Check whether container has access to the /home directory
+cd /home/; ls
+	packer  rhel
+
+This is now successful since there is an allow rule in place that tells SELinux to allow this action.
+
+Check whether container has read access to the /var/spool/ directory
+# cd /var/spool/; ls
+	anacron  cron  lpd  mail  plymouth  rhsm
+
+Also successful because there is an allow rule in place that tells SELinux to allow this action.
+
+Check whether container has write access to the /var/spool/ directory
+# touch test; ls
+	anacron  cron  lpd  mail  plymouth  rhsm  test
+
+Install the netcat (nc) package inside the container to test for port bindings
+# yum install -y nc
+
+Tell nc to listen on port 80 inside the container, and timeout after 5 seconds.
+# timeout 5s nc -lvvp 80
+	Ncat: Listening on :::80
+	Ncat: Listening on 0.0.0.0:80
+
+Netcat was able to connect and listen on port 80.
+This is successful because there is a allow rule in place that tells SELinux to allow this network action on port 80.
+
+Tell nc to listen on port 8080 inside the container, and timeout after 5 seconds.
+# timeout 5s nc -lvvp 8080
+	Ncat: bind to :::8080: Permission denied. QUITTING.
+
+Netcat was NOT able to connect and listen on port 8080.
+There is no allow rule in place that tells SELinux to allow this operation, and hence it was blocked by SELinux.
+
+-----
