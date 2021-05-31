@@ -3,18 +3,15 @@ echo ""
 echo "Synchronize cached writes to persistent storage"
 /bin/sync
 echo ""
-echo "JournalD Setup"
-/bin/sed -i ' s/#Storage=auto/Storage=persistent/g ' /etc/systemd/journald.conf
-mkdir -p /var/log/journal ;
-systemd-tmpfiles --create --prefix /var/log/journal ;
-killall -USR1 systemd-journald ;
-echo ""
 echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
 echo "Done"
 echo ""
 echo "--- DNF Clean All ---"
 /bin/dnf clean all --verbose | tail -1
+echo ""
+echo "--- Remove X-related packages ---"
+/bin/dnf remove xorg* motif xkeyboard-config -y ;
 echo ""
 echo "--- DNF AutoRemove ---"
 /bin/dnf autoremove -y
@@ -61,10 +58,16 @@ df -hTP | awk {'print $7 " " $6'} | column -t | head -1
 echo "----------------------"
 df -hTP | awk {'print $7 " " $6'} | column -t | grep -v Mounted
 echo ""
+echo "-- Unused kernel(s) --"
+echo ""
+rpm -q kernel | grep -v `uname -r`
+echo ""
+echo "Run: 'yum remove --oldinstallonly' to remove them"
+echo ""
 echo > ~/.bash_history
+echo > ~/.viminfo
 history -c
 history -w
-history -c
 echo ""
 echo "--- Done ---"
 echo ""

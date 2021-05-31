@@ -2,20 +2,20 @@
 echo ""
 echo "----- RHEL 8 initial setup -----"
 echo ""
-echo "DNS"
+echo "--- DNS ---"
 # NIC0=$(nmcli con sh | head -2 | tail -1| awk {'print $1'})
 # echo "DNS1=8.8.8.8" >> /etc/sysconfig/network-scripts/ifcfg-$NIC0
-systemctl restart NetworkManager
+# systemctl restart NetworkManager
 echo ""
-echo "-- Set GRUB timeout=2 --"
+echo "-- Set GRUB timeout = 2 --"
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
 echo ""
-echo "Disable console bell"
+echo "--- Disable console bell ---"
 sed -i ' s/#set bell-style none/set bell-style none/g ' /etc/inputrc
 bind -f /etc/inputrc
 echo ""
-echo "Prompt"
+echo "--- Setting PS1 ---"
 echo ""
 echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] $ '" >> /etc/skel/.bashrc
 echo ""
@@ -42,7 +42,7 @@ echo "-- DNF Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install deltarpm dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate motif mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils
+/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync
@@ -107,15 +107,6 @@ echo ""
 echo "-- Restart needed? --"
 echo ""
 /bin/needs-restarting -r
-echo ""
-echo "-- Unused kernel(s) --"
-echo ""
-rpm -q kernel | grep -v `uname -r`
-echo ""
-echo > ~/.bash_history
-history -c
-history -w
-history -c
 echo ""
 echo "----- Done -----"
 echo ""

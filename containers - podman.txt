@@ -436,7 +436,7 @@ Here are a few notes on that process.
 ## Mapping ports
 
 In the Docker world, ports are mapped to containers.
-That's true in Podman as well—except when you're running inside a pod.
+That's true in Podman as well - except when you're running inside a pod.
 See, the pod is like a container of containers.
 Networking within the pod is more similar to networking within a host OS.
 Pods reach each other over the local host, and external networking reaches the pod, not the containers directly.
@@ -657,7 +657,8 @@ CONTAINER ID  IMAGE                                   COMMAND       CREATED     
 
 # Create Systemd service:
 
-vim /etc/systemd/system/redis.service:
+podman generate systemd redis
+
 
 [Unit]
 Description=Redis Podman container
@@ -689,6 +690,7 @@ CONTAINER ID  IMAGE                                   COMMAND       CREATED     
 ----- Generating Podman Service Wrappers for Containers -----
 
 To generate a Systemd service wrapper for an individual container and store it in the $HOME/.config/systemd/user directory:
+
 $ podman generate systemd --name containername > $HOME/.config/systemd/user/container-containername.service
 
 -------------------
