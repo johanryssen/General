@@ -1,0 +1,22 @@
+# Mint 19 #
+
+# Add repo
+cat << EOF | sudo tee /etc/apt/sources.list.d/tor.list
+deb https://deb.torproject.org/torproject.org bionic main
+deb-src https://deb.torproject.org/torproject.org bionic main
+EOF
+
+curl https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | sudo gpg --import
+gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | sudo apt-key add -
+
+# Install Tor
+apt-get update -y ; apt-get install tor deb.torproject.org-keyring -y
+apt-get install tor deb.torproject.org-keyring -y
+
+Instant messaging / IRC / Jabber - Tor uses SOCKS directly:
+Point your applications to:
+Tor = localhost:9050
+Tor Browser = localhost:9150
+
+# Install Tor Browser
+apt-get install torbrowser-launcher -y

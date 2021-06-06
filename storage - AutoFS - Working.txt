@@ -1,0 +1,63 @@
+### NFSServer ###
+
+chown -R nobody: /shares/*
+chmod -R 777 /shares/*
+
+[root@NFSServer ]# ls -ls /shares/
+0 drwxrwxrwx 2 nobody root 106 May 31 09:36 db
+0 drwxrwxrwx 2 nobody root 108 May 31 09:36 web
+
+[root@NFSServer ]# cat /etc/exports
+/shares/web     web.test.lab(rw,sync,no_all_squash,root_squash)
+/shares/db      db.test.lab(rw,sync,no_all_squash,root_squash)
+
+---------------
+
+### Client 1 - DB ###
+[root@db ~]# ls -ls /nfs_share/
+total 0
+
+## MASTER MAP
+/etc/auto.master
+# Syntax:
+<AUTOFS-MOUNT-POINT> <MAP-NAME> <OPTIONS>
+/nfs_share /etc/auto.nfs --timeout=15
+
+## AUTOMOUNT MAP
+/etc/auto.nfs
+# Syntax:
+<LOCAL-MOUNT-POINT> <OPTIONS> <REMOTE_HOSTNAME:/EXPORTED DIRECTORY>
+mydb nfs_server:/shares/db
+
+[root@db ~]# showmount --exports nfs_server
+Export list for nfs_server:
+/shares/db  db.test.lab
+/shares/web web.test.lab
+
+# Mounted as:
+nfs_server:/shares/db on /nfs_share/mydb
+
+(REMOTE_SERVER:/SHARED_FOLDER on AUTOFS-MOUNT-POINT/LOCAL-MOUNT-POINT)
+
+---------------
+
+### Client 2 - WEB ###
+[root@web ~]# ls -ls /nfs_share/
+total 0
+
+## MASTER MAP
+/etc/auto.master
+# Syntax:
+<AUTOFS-MOUNT-POINT> <MAP-NAME> <OPTIONS>
+/nfs_share /etc/auto.nfs --timeout=15
+
+## AUTOMOUNT MAP
+/etc/auto.nfs
+# Syntax:
+<LOCAL-MOUNT-POINT> <OPTIONS> <REMOTE_HOSTNAME:/EXPORTED DIRECTORY>
+web_folder nfs_server:/shares/web
+
+# Mounted as:
+nfs_server:/shares/web on /nfs_share/web_folder
+
+(REMOTE_SERVER:/SHARED_FOLDER on AUTOFS-MOUNT-POINT/LOCAL-MOUNT-POINT)

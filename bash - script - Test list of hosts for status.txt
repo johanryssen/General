@@ -1,0 +1,45 @@
+## Create a CSV File = hosts.csv
+ServerName,IP
+10.10.10.123,server123.test.lab
+10.10.10.56,server56.test.lab
+10.10.10.223,serve223.test.lab
+
+
+## Script to test
+#!/bin/bash
+
+input_file=hosts.csv
+output_file=hosts_tested.csv
+
+echo "ServerName,IP,PING,DNS,SSH" > "$output_file"
+
+tail -n +2 "$input_file" | while IFS=, read -r host ip _
+do
+if ping -c 3 "$ip" > /dev/null; then
+ping_status="OK"
+else
+ping_status="FAIL"
+fi
+
+if nslookup "$host" > /dev/null; then
+dns_status="OK"
+else
+dns_status="FAIL"
+fi
+
+if nc -z -w3 "$ip" 22 > /dev/null; then
+ssh_status="OK"
+else
+ssh_status="FAIL"
+fi
+
+echo "Host = $host IP = $ip" PING_STATUS = $ping_status DNS_STATUS = $dns_status SSH_STATUS = $ssh_status
+echo "$host,$ip,$ping_status,$dns_status,$ssh_status" >> $output_file
+done
+
+
+## Output file = hosts_tested.csv
+ServerName,IP,PING,DNS,SSH
+server123.test.lab,10.10.10.123,OK,OK,OK
+server56.test.lab,10.10.10.56,OK,FAIL,OK
+serve223.test.lab,10.10.10.223,OK,OK,OK

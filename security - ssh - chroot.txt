@@ -1,0 +1,47 @@
+## Create new user:
+groupadd sftpusers
+useradd -g sftpusers -s /sbin/nologin -p user01 user01
+passwd user01
+
+## View user details:
+id -a user01
+uid=1002(user01) gid=1001(sftpusers) groups=1001(sftpusers)
+
+## Edit /etc/ssh/sshd_config
+### Comment out existing "Subsystem" entry
+
+### Add:
+Subsystem sftp internal-sftp
+
+Match Group sftpusers
+ForceCommand internal-sftp
+ChrootDirectory /home
+X11Forwarding no
+AllowTcpForwarding no
+
+
+- `ForceCommand` makes `ssh` choose its built-in facility to provide SFTP - service (which you can control independently).
+- `ChrootDirectory` tells `sshd` where to restrict the user to.
+- `ChrootDirectory /` Directs the chrooted user to their own home directory.
+- `Subsystem sftp internal-sftp` tells `sshd` to load the internal `sftp` service and make it available.
+
+## Restart SSHD
+systemctl restart sshd
+
+## Test
+touch testfile
+
+sftp user01@localhost
+user01@localhost's password:
+Connected to user01@localhost.
+
+sftp> ls -l
+
+sftp> put testfile
+Uploading testfile to /home/user01/testfile
+testfile                                                                                                                                   100%    0     0.0KB/s   00:00
+sftp> ls -l
+-rw-r--r--    1 user01   sftpusers        0 Jun  6 10:31 testfile
+
+sftp> pwd
+Remote working directory: /home/user01

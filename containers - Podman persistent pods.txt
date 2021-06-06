@@ -1,0 +1,160 @@
+# Enable persistence of non-root systemd containers
+loginctl enable-linger jo
+
+# Show user's config
+loginctl show-user jo
+
+# Scan for new unit-files
+systemctl --user daemon-reload
+
+# Configure user systemd containers
+systemctl --user start|stop|enable
+
+# Unit files:
+~/.config/systemd/user
+
+
+---------------------
+# systemctl list-unit-files | grep podman
+podman-auto-update.service                 disabled
+podman.service                             static
+podman.socket                              enabled
+podman-auto-update.timer                   disabled
+---------------------
+
+
+sudo usermod --add-subuids 10000-75535 jo
+sudo usermod --add-subgids 10000-75535 jo
+
+echo USERNAME:10000:65536 >> /etc/subuid
+echo USERNAME:10000:65536 >> /etc/subgid
+
+
+(1) Create pod
+$ podman pod create --name wp-pod -p 8080:80
+
+
+(2) Create DB-Container inside pod (wp-pod)
+$ podman run -d --restart=always --pod=wp-pod \
+-e MYSQL_ROOT_PASSWORD="dbpass" \
+-e MYSQL_DATABASE="wp" \
+-e MYSQL_USER="wordpress" \
+-e MYSQL_PASSWORD="wppass" \
+--name=wp-db mariadb
+
+
+(3) Create WordPress-Container inside pod (wp-pod)
+$ podman run -d --restart=always --pod=wp-pod \
+-e WORDPRESS_DB_NAME="wp" \
+-e WORDPRESS_DB_USER="wordpress" \
+-e WORDPRESS_DB_PASSWORD="wppass" \
+-e WORDPRESS_DB_HOST="127.0.0.1" \
+--name=wp-web wordpress
+
+
+(4) Check the containers:
+podman ps -a --pod
+
+*** Expected Output ***
+* 3 x containers:
+DB-Container
+WordPress-Container
+Infra-Container (Pod)
+
+
+(5) Check Pod:
+$ podman pod ps
+
+
+(6) Check WP
+curl -s http://127.0.0.1:8080
+echo $?
+
+(7) Check 
+http://127.0.0.1:8080
+
+
+----- Confgure systemd -----
+
+(8) Dir:
+mkdir -p ~/.config/systemd/user
+
+(9) Generate systemd unit-files:
+$ cd ~/.config/systemd/user
+$ podman generate systemd --files --new --name wp-pod
+# --new --> Create new pod --> Will overwrite existing pods/containers with the same names.
+
+(Will generate 3 .service files: 1 pod & 2 containers)
+
+(10) Shutdown / clean up
+podman pod stop -a
+podman pod rm -a
+
+
+(11) Scan / Enable / start POD-service.
+
+systemctl --user daemon-reload
+systemctl --user enable --now pod-wp-pod
+
+
+(12) Check status
+systemctl --user status pod-wp-pod
+
+
+(13) Test
+podman ps -a --pod
+
+podman pod ps
+
+curl -s https://localhost:8080
+echo $?
+
+----- Make POD persistent -----
+-- Configure pod to start when host-system boots --
+
+(14) Checking linger setting for non-root user
+$ loginctl show-user jo | grep -i linger
+linger=no
+
+(15) Enable linger
+$ loginctl enable-linger
+
+
+(16) Checking again
+$ loginctl show-user jo | grep -i linger
+linger=yes
+
+
+(17) Reboot host-system
+
+(18) Check pods/containers:
+$ podman ps -a --pod
+$ podman pod ps
+curl -s http://localhost:8080
+echo $?
+
+
+
+----- Example 2 -----
+# Container only, no POD #
+
+podman run -d --restart=always -p 3306:3306 \
+-e MYSQL_ROOT_PASSWORD="root" \
+-e MYSQL_DATABASE="db01" \
+-e MYSQL_USER="dbuser" \
+-e MYSQL_PASSWORD="dbuser" \
+--name=maria_db mariadb
+
+$ podman generate systemd --files --new --name maria_db
+# /home/jo/.config/systemd/user/container-maria_db.service
+
+podman stop maria_db
+podman rm maria_db
+podman ps --all
+systemctl --user daemon-reload
+systemctl --user enable --now container-maria_db.service
+podman ps --all
+
+
+-------------------------
+
