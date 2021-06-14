@@ -17,10 +17,11 @@ bind -f /etc/inputrc
 echo ""
 echo "--- Setting PS1 ---"
 echo ""
-echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] $ '" >> /etc/skel/.bashrc
+# BASH Generator: https://scriptim.github.io/bash-prompt-generator/
+echo "export PS1='\[\e[0;38;5;155m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;87m\]\W \[\e[0m\]$ \[\e[0m\] '" >> /etc/skel/.bashrc
 echo ""
 echo "# Prompt" >> ~/.bashrc
-echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # '" >> /root/.bashrc
+echo "export PS1='\[\e[0;38;5;199m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;47m\]\W \[\e[0m\]#\[\e[0m\] '" >> /root/.bashrc
 source ~/.bashrc
 echo "PS1: `env | grep PS1`"
 echo ""

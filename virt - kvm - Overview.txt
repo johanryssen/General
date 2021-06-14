@@ -102,7 +102,7 @@ virbr0          8000.525400fec51e       yes             virbr0-nic
 --disk path=/var/lib/libvirt/images/ol79.qcow2,size=40,bus=virtio,format=qcow2
 
 
-View options for "--os-variant":
+# Options for "--os-variant":
 # osinfo-query os
 
 

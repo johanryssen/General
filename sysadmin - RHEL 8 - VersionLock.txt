@@ -1,0 +1,42 @@
+RHEL 8 VersionLock
+
+--------------------
+
+# Install:
+dnf install python3-dnf-plugin-versionlock
+
+# Lock:
+dnf versionlock dbus
+dnf versionlock kernel
+dnf versionlock glibc
+dnf versionlock gcc
+dnf versionlock selinux-policy*
+
+# View:
+/etc/dnf/plugins/versionlock.list
+
+--------------------
+
+cat /etc/yum.conf
+[main]
+distroverpkg=8.2
+
+--------------------
+
+subscription-manager release=8.2
+
+--------------------
+
+yum --releasever=8.2 update
+
+--------------------
+
+cat /etc/redhat-release
+Red Hat Enterprise Linux release 8.2 (Ootpa)
+
+/etc/dnf/vars/releasever
+8.2
+-or-
+(Ootpa)
+
+--------------------

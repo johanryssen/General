@@ -1,12 +1,22 @@
-sudo virt-install \
---name centos7 \
---description "CentOS 7" \
+# As root:
+virt-install \
+--name OracleLinux79 \
+--description "OracleLinux79" \
 --ram=1024 \
---vcpus=2 \
+--vcpus=1 \
 --os-type=Linux \
 --os-variant=rhel7 \
---disk path=/var/lib/libvirt/images/centos7.qcow2,bus=virtio,size=10 \
+--disk path=/var/lib/libvirt/images/ol79.qcow2,bus=virtio,size=15 \
 --graphics none \
---cdrom $HOME/iso/CentOS7.iso \
+--location /opt/ISO/OracleLinux-R7u9.iso \
 --network bridge:virbr0  \
---console pty,target_type=serial
+--console pty,target_type=serial \
+--extra-args console=ttyS0
+
+# Options for "--os-variant":
+osinfo-query os
+
+# To use --location CDROM media:
+* Run virt-install as root and do --location ISO
+* Mount the ISO at a local directory, and do --location DIRECTORY
+* Mount the ISO at a local directory, export that directory over local http, and do --location http://localhost/DIRECTORY

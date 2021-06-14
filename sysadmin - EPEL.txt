@@ -14,3 +14,5 @@ curl https://getfedora.org/static/fedora.gpg | gpg --import ;
 dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;
 
 https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/
+
+

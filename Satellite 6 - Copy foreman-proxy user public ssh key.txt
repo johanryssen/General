@@ -1,0 +1,48 @@
+--- Copy foreman-proxy user public ssh key to many client systems for Remote Execution ---
+
+## Issue
+Setting up Satellite's Remote Execution feature requires copying the foreman-proxy user's public ssh key to the service accounts of all client systems.
+This can be copied to systems individually using:
+
+[Satellite #] ssh-copy-id -i ~foreman-proxy/.ssh/id_rsa_foreman_proxy.pub service_account@target.system
+
+where service_account is the remote_execution_ssh_user as defined on the Satellite.
+
+However this is not feasible to implement when there are many (dozens, hundreds, thousands) of hosts that need to have the ssh keys copied -- how can this operation be performed on larger environments?
+
+## Resolution
+Clients can retrieve the key by executing the curl command: 
+
+[Client_System #] curl https://satellite.example.com:9090/ssh/pubkey >> ~service_account/.ssh/authorized_keys
+
+where satellite.example.com is the Satellite FQDN and service_account (e.g. rexuser) is the service account on the target machine.
+
+What is needed to form a complete solution is a method to execute the above curl command on all target machines, and this needs to be done in batches to avoid DDoSing the Satellite server.
+
+Ansible's shell module is the perfect tool for this job.
+
+1. Install Ansible to a Linux system that has network/ssh access to all target machines.
+For RHEL7, Ansible is contained in rhel-7-server-extras-rpms repo and can be installed with:
+yum install ansible.
+
+2. cd into the Ansible installation directory (by default this is /etc/ansible) and create a hosts file, which should look like:
+service_account@target_system_1
+service_account@target_system_2
+service_account@target_system_3
+
+3. Execute the command using Ansible's shell module, against all hosts in the hosts file, using the options:
+--ask-pass (we are using password authentication since we have not yet copied ssh keys) and 
+-f 1 (execute on each host one at a time, to avoid DDoSing Satellite).
+
+# ansible -m shell -a 'curl https://satellite.example.com:9090/ssh/pubkey >> ~/.ssh/authorized_keys' all --ask-pass -f 1
+
+You will be prompted for a password to log in to the service_account on the target systems.
+Then you will see output indicating whether the operation was successful or failed for each target system.
+
+4. If the operation failed on any system, investigate why, resolve any issues, and re-run the command for those systems.
+Eg. if a target system does not have the service_account, if the service_account password is different on some target system, if some target system is not listening on port 22 or cannot be reached by the machine running Ansible.
+
+
+## Root Cause
+There is no way to script a mass # ssh-copy-id operation from the Satellite since # ssh-copy-id is not able to receive passwords from stdin
+(this is by design, since it would be a security risk to have plaintext passwords floating around in any machine's bash history).

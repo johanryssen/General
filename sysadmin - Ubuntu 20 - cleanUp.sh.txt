@@ -1,23 +1,13 @@
 #!/bin/bash
 echo ""
 echo "Synchronize cached writes to persistent storage"
-/bin/sync
+/usr/bin/sync
 echo ""
-echo "--- Refreshing Subscription Data ---"
-subscription-manager refresh
-echo "Done"
+echo "--- APT Clean All ---"
+/usr/bin/apt clean all
 echo ""
-echo "--- DNF Clean All ---"
-/bin/dnf clean all --verbose | tail -1
-echo ""
-echo "--- Remove X-related packages ---"
-/bin/dnf remove xorg* motif xkeyboard-config -y ;
-echo ""
-echo "--- DNF AutoRemove ---"
-/bin/dnf autoremove -y
-echo ""
-echo "--- DNF MakeCache ---"
-/bin/dnf makecache timer
+echo "--- APT AutoRemove ---"
+/usr/bin/apt autoremove -y
 echo ""
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
@@ -39,38 +29,19 @@ echo "--- Log File Cleanup ---"
 /bin/rm -rf /var/log/*/*-2021*
 /bin/rm -rf /var/log/*/*gz
 /bin/rm -rf /var/log/*/*xz
-/bin/rm -rf /var/log/audit/audit.log.?
 echo "Done"
 echo ""
 echo "--- Journal Disk Usage ---"
 journalctl --disk-usage
 echo ""
 echo "--- Journal Clean Up ---"
-journalctl --rotate
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
 echo ""
 /bin/updatedb
 /bin/mandb -q
 echo ""
-echo "----- Disk Space -----"
-df -hTP | awk {'print $7 " " $6'} | column -t | head -1
-echo "----------------------"
-df -hTP | awk {'print $7 " " $6'} | column -t | grep -v Mounted
-echo ""
-echo "-- Unused kernel(s) --"
-echo ""
-rpm -q kernel | grep -v `uname -r`
-echo ""
-echo "To remove the old kernels, run:" ;
-echo "dnf remove --oldinstallonly"
-echo ""
-echo > ~/.bash_history
-echo > ~/.viminfo
 history -c
 history -w
 history -c
-echo ""
-echo "--- Done ---"
-echo ""
 exit 0

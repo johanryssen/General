@@ -1,0 +1,90 @@
+# RNDC - Remote Name Daemon Control - Name server control utility in bind.
+
+Allows command line administration of the named service both locally and remotely.
+Controls the operation of a name server.
+RNDC config file specifies which server controls and what algorithm the server should use.
+
+To prevent unauthorized users to the named daemon, BIND uses a shared secret key authentication method to grant privileges to particular hosts.
+It means that an identical key must be present in the configuration file of bind, /etc/named.conf and configuration file, /etc/rndc.conf.
+
+RNDC uses a TCP connection to communicate with the name server.
+
+---------------
+
+(1) To configure and link new keys: Remove the auto-generated /etc/rndc.key file.
+rm /etc/rndc.key
+
+(2) Create a new RNDC key and link it to the named configuration using rndc-confgen.
+(2.1) Generate an rndc key and configuration file. 
+
+[root@server1 etc]# rndc-confgen -r /dev/urandom > /etc/rndc.conf
+
+[root@server1 etc]# cat rndc.conf
+# Start of rndc.conf
+key "rndc-key" {
+        algorithm hmac-md5;
+        secret "PjmSrk6WELfckJSQ2cLj9A==";
+};
+
+options {
+        default-key "rndc-key";
+        default-server 127.0.0.1;
+        default-port 953;
+};
+# End of rndc.conf
+
+# Use with the following in named.conf, adjusting the allow list as needed:
+# key "rndc-key" {
+#       algorithm hmac-md5;
+#       secret "PjmSrk6WELfckJSQ2cLj9A==";
+# };
+#
+# controls {
+#       inet 127.0.0.1 port 953
+#               allow { 127.0.0.1; } keys { "rndc-key"; };
+# };
+# End of named.conf
+
+
+(2.2) Copy the last section to named.conf
+Paste the copied section into '/etc/named.conf' just before the 'include' statements and delete the # signs at the beginning of the lines.
+
+# vim /etc/named.conf
+key "rndc-key" {
+      algorithm hmac-md5;
+      secret "PjmSrk6WELfckJSQ2cLj9A==";
+};
+
+controls {
+      inet 127.0.0.1 port 953
+              allow { 127.0.0.1; } keys { "rndc-key"; };
+};
+
+include "/etc/named.rfc1912.zones";
+include "/etc/named.root.key";
+
+
+(3) Check permissions 
+ls -alZ /etc/rndc.key
+chmod 0640 /etc/rndc.key
+chgrp named /etc/rndc.key
+
+(4) Reload RNDC:
+rndc reload
+
+(5) Check & (re)start named
+# named-checkconf /etc/named.conf
+# named-checkconf -t /var/named/chroot /etc/named.conf
+# systemctl start named
+
+(6) Use the nslookup utility to verify that DNS records are being cached on localhost.
+
+# nslookup www.google.com 127.0.0.1
+Server:         127.0.0.1
+Address:        127.0.0.1#53
+
+Non-authoritative answer:
+Name:   www.google.com
+Address: 172.253.115.104
+Name:   www.google.com
+Address: 172.253.115.106
