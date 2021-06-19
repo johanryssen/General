@@ -1,0 +1,5 @@
+#Add to: /etc/rsyslog.conf
+auth,authpriv.*	/var/log/secure
+
+# Restart rsyslog
+systemctl restart rsyslog

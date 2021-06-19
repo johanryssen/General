@@ -1,0 +1,21 @@
+Change SSHD port
+
+# SSHD Config
+# /etc/ssh/sshd_config
+Port 22
+Port 443
+
+# Add Port = ERROR:
+# semanage port -a -t ssh_port_t -p tcp 443
+ValueError: Port tcp/443 already defined
+-a : add
+
+## Modify port = OK:
+# semanage port -m -t ssh_port_t -p tcp 443
+-m : modify
+
+# Update firewall
+firewall-cmd --add-port=443/tcp
+firewall-cmd --runtime-to-permanent
+firewall-cmd --reload
+firewall-cmd --list-all
