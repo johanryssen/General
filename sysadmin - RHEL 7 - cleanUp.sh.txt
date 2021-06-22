@@ -3,13 +3,6 @@ echo ""
 echo "Synchronize cached writes to persistent storage"
 /bin/sync
 echo ""
-echo "JournalD Setup"
-/bin/sed -i ' s/#Storage=auto/Storage=persistent/g ' /etc/systemd/journald.conf
-mkdir -p /var/log/journal ;
-systemd-tmpfiles --create --prefix /var/log/journal ;
-killall -USR1 systemd-journald ;
-systemctl restart systemd-journald ;
-echo ""
 echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
 echo "Done"
