@@ -1,4 +1,20 @@
 --------------- ProxyJump ---------------
+# Proxy Jump
+
+# shell
+ssh -J <jump-user>@<jump-host> <protected-user>@<protected-host>
+
+
+# ~/.ssh/config that looks like this:
+Host jump
+    User <jump-user>
+    HostName <jump-host>
+Host protected
+    User <protected-user>
+    HostName <protected-host>
+    ProxyJump jump
+	
+---------------------------------------------
 
 ssh -J [user@]host[:port]
 

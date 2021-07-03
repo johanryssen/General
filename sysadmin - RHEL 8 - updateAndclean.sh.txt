@@ -5,7 +5,6 @@ echo "Synchronize cached writes to persistent storage"
 echo ""
 echo "--- Refreshing Subscription Data ---"
 subscription-manager refresh
-echo "Done"
 echo ""
 echo "--- DNF Clean All ---"
 /bin/dnf clean all --verbose | tail -1
@@ -13,12 +12,16 @@ echo ""
 echo "--- Remove X-related packages ---"
 /bin/dnf remove xorg* motif xkeyboard-config -y ;
 echo ""
-echo "--- DNF AutoRemove ---"
-/bin/dnf autoremove -y
-echo ""
 echo "--- DNF MakeCache ---"
 /bin/dnf makecache timer
 echo ""
+echo "--- Log Rotate ---"
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo ""
+echo "--- DNF Update / Upgrade / AutoRemove ---"
+dnf update -y ;
+dnf upgrade -y ;
+dnf autoremove -y ;
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
 echo "Done"
@@ -65,11 +68,12 @@ echo ""
 echo "To remove the old kernels, run:" ;
 echo "dnf remove --oldinstallonly"
 echo ""
-echo > ~/.bash_history
-echo > ~/.viminfo
-history -c
-history -w
-history -c
+echo > /root/.bash_history
+echo > /root/.viminfo
+for i in $(ls -1 /home);
+        do echo > /home/$i/.bash_history ;
+        echo > /home/$i/.vim_info ;
+done
 echo ""
 echo "--- Done ---"
 echo ""

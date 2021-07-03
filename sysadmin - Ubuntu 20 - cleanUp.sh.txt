@@ -4,10 +4,16 @@ echo "Synchronize cached writes to persistent storage"
 /usr/bin/sync
 echo ""
 echo "--- APT Clean All ---"
-/usr/bin/apt clean all
-echo ""
-echo "--- APT AutoRemove ---"
+/usr/bin/apt update -y
+/usr/bin/apt upgrade -y
 /usr/bin/apt autoremove -y
+/usr/bin/apt clean
+/usr/bin/apt -s clean
+/usr/bin/apt clean all
+/usr/bin/apt-get clean
+/usr/bin/apt-get -s clean
+/usr/bin/apt-get clean all
+/usr/bin/apt-get autoclean
 echo ""
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null

@@ -21,7 +21,7 @@ git config user.name
 git config --global help.autocorrect 1
 
 # Count Commits
-git rev-list –count master
+git rev-list -count master
 
 # Search
 git rev-list --all | xargs git grep -F 'SEARCH_STRING'

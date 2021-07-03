@@ -74,21 +74,34 @@ systemctl enable --now dnf-automatic.timer
 
 ===== Cleanup =====
 
-# vim cleanUP.sh
+# vim cleanUp.sh
 #!/bin/bash
-/bin/updatedb
-/bin/mandb
-/bin/yum clean all
 rm -rf /var/cache/yum/*
 rm -rf /var/cache/dnf/*
 /sbin/logrotate -f /etc/logrotate.conf
 /bin/rm -rf /tmp/*
 /bin/rm -rf /tmp/.*
 /bin/rm -rf /var/tmp/*
-/bin/rm -rf /var/log/*2021* /var/log/*.0
+/bin/rm -rf /var/log/*2021*
+/bin/rm -rf /var/log/*.0
+/bin/rm -rf /var/log/*.gz
+/bin/rm -rf /var/log/*/*.gz
 /bin/rm -rf /var/log/*/*2021*
+
+/bin/updatedb
+/bin/mandb
+/bin/yum clean all
 /bin/updatedb
 /bin/mandb
 echo > /root/.bash_history
+echo > /root/.viminfo
+for i in $(ls -1 /home);
+        do echo > /home/$i/.bash_history ;
+        echo > /home/$i/.vim_info ;
+done
+echo ""
+echo "--- Done ---"
+echo ""
+exit 0
 
 =====
