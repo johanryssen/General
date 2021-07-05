@@ -25,6 +25,7 @@ echo "Uncomment the next line to use 'subscription-manager register'"
 # /sbin/subscription-manager register
 echo ""
 echo "-- Setup .vimrc --"
+echo -e "colo desert\nset paste" > /root/.vimrc ;
 for i in $(ls -1 /home);
         do echo -e "colo desert\nset paste" > /home/$i/.vimrc ;
 done
