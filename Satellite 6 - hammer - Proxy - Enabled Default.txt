@@ -1,0 +1,9 @@
+[root@spol-m-mrhsat ~]# hammer http-proxy list
+---|-----------
+ID | NAME
+---|-----------
+3  | ProxySideA
+---|-----------
+
+[root@spol-m-mrhsat ~]# hammer settings set --name=content_default_http_proxy  --value=ProxySideA
+Setting [content_default_http_proxy] updated to [ProxySideA].

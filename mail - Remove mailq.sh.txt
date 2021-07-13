@@ -1,0 +1,23 @@
+#!/bin/bash 
+
+count=0;
+
+cd /var/spool/mqueue
+
+for id in `find . -name df\* -type f -mmin +60`
+do
+ id=${id:4}
+ grep -i deferred qf$id &> /dev/null
+ if [ $? -ne 0 ]
+ then
+  continue
+ fi
+ count=$((count+1))
+ rm /var/spool/mqueue/df${id} /var/spool/mqueue/qf${id}
+done
+
+if [ "${count}" -gt "0" ]
+then
+ true
+ #echo "Removed ${count} emails"
+fi

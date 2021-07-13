@@ -1,0 +1,9 @@
+# Create File:
+/etc/profile.d/login_msg.sh
+
+#!/bin/bash
+echo -e ' ' "
+| Hostname: \"`hostname`\"
+| Account:  \"`whoami`\"
+| OS:       \"`cat /etc/redhat-release`\"
+"

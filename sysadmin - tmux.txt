@@ -1,58 +1,37 @@
-# Create new named session:
-tmux new -s "Mail"
+----- ESSENTIALS -----
+## Shell
+### Create new session:
+tmux new -s Session01
+tmux new -s Session02
 
-# Detach from session:
-Ctrl+b d
-
-# List sessions
+### List TMUX instaves:
 tmux ls
 
-# Attach to specific session:
-tmux a -t "Mail"
--or-
-tmux a -t 3
+### Attach to a session:
+tmux a -t Ses01
 
-a - Attach
-t - Target
+## Session
+s - List SESSIONS
+$ - Rename SESSION
+d - Detach from SESSION
 
-# Split Horizontally:
-Ctrl+b Shift+5	[%]
-
-# Split Vertically:
-ctrl+b Shift+'	["]
-
-# Move between panes:
-Ctrl_b Arrow key
-
-# Kill session
-tmux kill-session -t "Mail"
-
-# Kill all the tmux sessions:
-tmux ls | grep : | cut -d. -f1 | awk '{print substr($1, 0, length($1)-1)}' | xargs kill
-
-# List all shortcuts
-Ctrl+?
-
-
-### Sessions
-:new<CR>  new session
-s  list sessions
-$  name session
-
-
-### Windows (tabs)
-c  create window
-w  list windows
-n  next window
-p  previous window
-f  find window
-,  name window
+## Windows
+c - New  Window
+n - Next Window
+p - Prev Window
+w - List Windows
+, - Rename Window
 &  kill window
 
 
-### Panes (splits)
-%  vertical split
-"  horizontal split
+## Panes
+% - Create Horizontal pane
+" - Create Vertical pane
+
+========================================
+
+# Kill all the tmux sessions:
+tmux ls | grep : | cut -d. -f1 | awk '{print substr($1, 0, length($1)-1)}' | xargs kill
 
 o  swap panes
 q  show pane numbers
@@ -98,10 +77,7 @@ t  big clock
 
 ### Configurations Options:
 # Mouse support - set to on if you want to use the mouse
-* setw -g mode-mouse off
-* set -g mouse-select-pane off
-* set -g mouse-resize-pane off
-* set -g mouse-select-window off
+set -g mouse on
 
 # Set the default terminal mode to 256color mode
 set -g default-terminal "screen-256color"

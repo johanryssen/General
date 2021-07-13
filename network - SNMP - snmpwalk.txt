@@ -1,0 +1,84 @@
+yum install net-snmp net-snmp-utils net-snmp-libs net-snmp-devel -y
+
+----- v2c ----- TEST:
+
+# snmpwalk -v <SNMP_VERSION> -c <COMMUNITY> <IP> <OID>
+snmpwalk -v 2c -c public 10.10.10.123 iso.3.6.1.2.1.1.1
+
+----- v3 ----- SETUP:
+# net-snmp-config --create-snmpv3-user [-ro] [-A authpass] [-X privpass] [-a MD5|SHA] [-x DES|AES] [username]
+net-snmp-config   --create-snmpv3-user        -A 12345678   -X 12345678   -a SHA       -x DES       admin
+
+
+net-snmp-config --create-snmpv3-user -x DES -a MD5 -A "PMD5DES1" -X PMD5DES1 user01
+
+???
+[-ro]           -   Read Only
+[-a authpass]   -   SNMP v3 Password
+[-x privpass]   -   Encryption Key/Password
+[-X DES|AES]    -   Hash Algorithm | Encryption Mode
+[-A MD5|SHA]    -   
+[username]      -   SNMPv3 user
+???
+
+
+--create-snmpv3-user [-ro] [-a authpass] [-x privpass] [-X DES|AES] [-A MD5|SHA] [username]
+
+
+===============
+
+net-snmp-config --create-snmpv3-user -ro -a MD5 -A <user password> -x DES -X <privacy password for data encryption> <username>
+
+
+net-snmp-config --create-snmpv3-user -A <AUTHPASS> -X <PRIVPASS> -a SHA -x AES snmpv3admin
+net-snmp-config --create-snmpv3-user -A auTHpa55   -X pr1vpa55   -a MD5 -x DES snmpv3admin
+
+
+snmpwalk -v 3 -u snmpv3admin -l authNoPriv -a MD5 -x DES -A auTHpa55 -X pr1vpa55 localhost
+snmpwalk -v 3 -a MD5 -A auTHpa55             -l authNoPriv -u snmpv3admin localhost system
+snmpwalk -v 3 -a MD5 -A auTHpa55 -X pr1vpa55 -l authPriv   -u snmpv3admin localhost system
+
+[[ -l authPriv --needs: -X pr1vpa55 ]]
+
+snmpget -v 3 -u snmpv3admin -l authNoPriv -a MD5        -A auTHpa55 -X pr1vpa55 sysUpTime.0 localhost ?
+
+
+===============
+
+
+----- Manually adding SNMPv3 user -----
+
+# Adding the following line to /var/lib/net-snmp/snmpd.conf
+createUser admin SHA "12345678" DES 12345678
+
+# Adding the following line to /etc/snmp/snmpd.conf
+rwuser admin
+
+------------------------------
+
+----- v3 ----- TEST:
+
+snmpwalk -v3 -u admin -l authNoPriv -a SHA -x DES -A 12345678 -X 12345678 localhost
+
+# SNMP v3 allows you to choose any combination of hashed authentication (auth) or encrypted data privacy (priv):
+'auth'        - just authentication
+'priv'        - just privacy
+'authNoPriv'  - authentication without privacy
+'authPriv'    - both
+
+
+----- Delete snmp v3 user -----
+
+(1) Show complete output of snmp v3 user table on the system.
+snmptable -v 3 -u snmpv3admin   -l auth  -a MD5 -A h231498asd7fiASHF localhost usmUsertable
+
+(2) Delete user 'test'
+snmpusm -v 3 -u admin   -l auth  -a MD5 -A h231498asd7fiASHF localhost  delete  test
+
+# Syntax:
+$snmpusm -v 3 -u <snmpv3_user>  -l auth  -a MD5 -A <authpass> localhost delete <username>
+
+<snmpv3_user>   - The initial snmpv3 user created on the system.
+<username>      - The snmpv3 user you want to delete.
+------------------------
+
