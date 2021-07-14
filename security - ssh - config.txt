@@ -1,13 +1,16 @@
-Host hostname1
-SSH_OPTION value
-SSH_OPTION value
-
-Host hostname2
-SSH_OPTION value
-
 Host *
-SSH_OPTION value
-=====
+     ServerAliveInterval 30
+     ServerAliveCountMax 10
+
+Host db01
+     HostName dbserver01.test.lab
+     User dbadmin
+
+Host web03
+     HostName webportal03.test.lab
+     User webadmin
+
+########
 
 The contents of the SSH client config file is organized into stanzas (sections).
 Each stanza starts with the Host directive and contains specific SSH options used when establishing a connection with the remote SSH server.
@@ -70,7 +73,6 @@ Host *
 	User root
 	Compression yes
 
-
 ---------- Explained ----------
 
 ## When you type 'ssh yggdrasil', the ssh client reads the file and apply the options from the first match, which is Host yggdrasil.
@@ -114,7 +116,7 @@ Compression yes
 For all other connections, the ssh client will use the options specified in the Host * !baldur and Host * sections
 ----------
 
-# SSH client reads its configuration in the following precedence order:
+# SSH client reads its configuration in the following order:
 1. Options specified from the command line
 2. Options defined in the ~/.ssh/config
 3. Options defined in the /etc/ssh/ssh_config
