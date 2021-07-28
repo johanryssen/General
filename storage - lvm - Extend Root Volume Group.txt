@@ -1,7 +1,7 @@
 ----- Extend Root Volume Group -----
 
 ### Extend 1st Disk on Hypervisor:
-yum install -y cloud-utils-growpart
+yum install -y cloud-utils-growpart gdisk
 echo 1 > /sys/block/sda/device/rescan
 pvscan
 growpart /dev/sda 2

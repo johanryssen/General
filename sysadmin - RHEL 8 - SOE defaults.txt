@@ -7,9 +7,7 @@ bind -f ~/.inputrc
 
 ===== vim config =====
 
-# vim .vimrc
-colo desert
-set paste
+echo -e "colo desert\nset paste" >> ~/.vimrc
 
 ===== PS1 =====
 

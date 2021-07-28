@@ -15,9 +15,6 @@ echo ""
 echo "--- DNF MakeCache ---"
 /bin/dnf makecache timer
 echo ""
-echo "--- Log Rotate ---"
-/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
-echo ""
 echo "--- DNF Update / Upgrade / AutoRemove ---"
 dnf update -y ;
 dnf upgrade -y ;

@@ -1,3 +1,4 @@
+cat << EOF >> ~/.tmux.conf
 # Reset Prefix
 set -g prefix C-a
 
@@ -33,3 +34,4 @@ bind | split-window -h
 bind - split-window -v
 unbind '"'
 unbind '%'
+EOF

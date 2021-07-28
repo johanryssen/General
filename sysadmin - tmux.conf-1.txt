@@ -1,3 +1,4 @@
+cat << EOF >> ~/.tmux.conf
 # set first window to index 1 (not 0) to map more to the keyboard layout
 set -g base-index 1
 setw -g pane-base-index 1
@@ -94,3 +95,4 @@ set-option -g display-panes-colour blue
 # Name window:          Ctrl+a ,
 # List windows:         Ctrl+a w
 # Show pane num:        Ctrl+a q
+EOF

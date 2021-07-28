@@ -18,7 +18,7 @@ vgdisplay
 4. Extend the current Volume Group (get the name from the above vgdisplay command) and add the new volume to it:
 vgextend VolGroup /dev/sdb
 
-5. Confirm the 4. worked:
+5. Confirm 4. worked:
 vgdisplay
 
 6. Resize the Logical Volumes on /opt and /tmp to their new sizes:
