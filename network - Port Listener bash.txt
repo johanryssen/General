@@ -1,5 +1,7 @@
 ## Open port 1234 ##
 # nc -l -p 1234
+-or-
+# nc -l 1234
 
 ## Test ##
 # nc -v localhost 1234

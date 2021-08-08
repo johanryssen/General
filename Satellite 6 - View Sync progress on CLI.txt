@@ -1,3 +1,0 @@
-View Sync progress on CLI:
-tail -f /var/log/foreman/production.log
-tail -f /var/log/messages

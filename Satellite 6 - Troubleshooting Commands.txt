@@ -1,0 +1,110 @@
+### Satellite Troubleshooting Commands ###
+
+-------------------
+
+# Reset Admin Password
+foreman-rake permissions:reset
+
+############################################
+
+
+# View Sync progress on CLI:
+tail -f /var/log/foreman/production.log
+tail -f /var/log/messages
+
+############################################
+
+# Refresh Manifest
+hammer subscription refresh-manifest --organization "My Org"
+
+# Check services in hammer and status of running services:
+hammer ping
+satellite-maintain service status
+satellite-maintain service restart
+
+# Correct the repositories:
+foreman-rake katello:correct_repositories COMMIT=true
+
+
+############################################
+
+
+# Show list of tasks (that are not stopped)
+sudo su - postgres -c "psql -d foreman -c 'select label,count(label),state,result from foreman_tasks_tasks where state <> '\''stopped'\'' group by label,state,result ORDER BY label;'"
+
+
+## Sample Output:
+```
+label                         | count |   state   | result
+------------------------------------------------------+-------+-----------+---------
+Actions::Katello::Repository::MetadataGenerate       |     2 | paused    | error
+...
+```
+
+# From above 'postgres' cmd:
+## There is a stuck task [state=paused] that can hold the other tasks involving contents from completing
+### Cleanup this tasks by running:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::Repository::MetadataGenerate' STATES='paused' VERBOSE=true
+
+
+## -or- 
+## foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::ContentView::Publish' STATES='paused' VERBOSE=true
+
+# Change the following:
+## label=Actions::Katello::Repository::MetadataGenerate
+## state=paused
+
+------------
+
+# Generate a TASK-EXPORT - Containing details of TASKS over the past 1 day:
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH='' TASK_DAYS=1
+
+-- then:
+
+# Then start publishing/promoting the Content Views (SATWebUI).
+
+-- if still broken:
+
+# Restart pulp services if the publish task still stucked:
+for i in pulp_resource_manager pulp_workers pulp_celerybeat pulp_streamer; do service $i restart; done
+
+
+############################################
+
+Search in above "TASK-EXPORT"
+
+### Error ###
+Katello::Errors::PulpError
+RPM1004: Error retrieving metadata: Not Found 
+...
+
+## Fix:
+
+# Step 1: Find task with "result = error":
+sudo su - postgres -c "psql -d foreman -c 'select label,count(label),state,result from foreman_tasks_tasks where state <> '\''stopped'\'' group by label,state,result ORDER BY label;'"
+
+# Step 2: Cleanup
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::ContentView::Publish' STATES='paused' VERBOSE=true
+
+# Step 3
+Go to all the affected repos and do a FORCE FULL SYNC with CHECKSUM VALIDATION to correct corrupted metadata.
+
+How to force a sync and validate the checksums of all content of a yum repository on Red Hat Satellite 6? 
+https://access.redhat.com/solutions/3774691
+
+# Step 3.1: From WebUI
+Content →  Products →  <Product Name>  → Find the repository →  Click on the repository → Select Actions  → Advanced Sync → Choose Validate Content Sync →  Sync
+
+# Step 3.2: CLI
+# Get Product ID (First column):
+hammer repository list 
+
+# Replace the <ID> with the numeric value of repository ID from previous command 
+hammer repository synchronize --async --validate-contents true --id  <ID>      
+
+## To sync the Capsule with all the content,
+Web UI → Infrastructure → Capsules → Select the Capsule → Use the drop-down next to Synchronize → Run Complete Sync
+
+
+############################################
+

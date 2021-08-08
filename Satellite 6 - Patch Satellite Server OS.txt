@@ -3,21 +3,20 @@
 To update Satellite server OS:
 # satellite-maintain packages update
 
---- old way ---
+--- OLD WAY ---
 In order to do a full update such as yum update would do, you must unlock packages, do the update, and then lock the packages.
 You will then need to also run the satellite-installer manually:
 
 # satellite-maintain packages unlock
 # yum update
 # satellite-maintain packages lock
-# satellite-installer --upgrade
-
+# satellite-installer
 
 ==============
+
+--- NEW WAY ---
 
 ## Install/Update a package:
 # satellite-maintain packages install package_name
 -or-
 # satellite-maintain packages update package_name
-
-

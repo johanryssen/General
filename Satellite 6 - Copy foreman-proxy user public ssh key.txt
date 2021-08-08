@@ -1,14 +1,15 @@
 --- Copy foreman-proxy user public ssh key to many client systems for Remote Execution ---
 
 ## Issue
-Setting up Satellite's Remote Execution feature requires copying the foreman-proxy user's public ssh key to the service accounts of all client systems.
+Setting up Satellite's Remote Execution feature requires copying the foreman-proxy user's public ssh key to the service accounts of ALL client systems.
+
 This can be copied to systems individually using:
 
 [Satellite #] ssh-copy-id -i ~foreman-proxy/.ssh/id_rsa_foreman_proxy.pub service_account@target.system
 
 where service_account is the remote_execution_ssh_user as defined on the Satellite.
 
-However this is not feasible to implement when there are many (dozens, hundreds, thousands) of hosts that need to have the ssh keys copied -- how can this operation be performed on larger environments?
+However this is not feasible to implement when there are many (hundreds, thousands) of hosts that need to have the ssh keys copied -- how can this operation be performed on larger environments?
 
 ## Resolution
 Clients can retrieve the key by executing the curl command: 
