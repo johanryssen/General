@@ -1,0 +1,5 @@
+Compare local to remote:
+diff /tmp/afile <(ssh server123 'cat /tmp/afile')
+
+Compare remote to remote:
+diff <(ssh server123 'cat /tmp/afile') <(ssh server052 'cat /tmp/afile')

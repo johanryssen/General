@@ -1,0 +1,46 @@
+## Download and install minikube to /usr/local/bin:
+echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+
+# Verify that your system has virtualization support enabled:
+egrep -q 'vmx|svm' /proc/cpuinfo && echo yes || echo no
+
+
+## Increasing memory allocation
+minikube start
+-or
+minikube start --vm-driver=virtualbox
+
+# To make virtualbox the default driver
+minikube config set vm-driver virtualbox
+
+
+# Increasing memory allocation
+minikube config set memory 4096
+minikube status
+
+
+## Install kubectl ##
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+kubectl version --client
+
+## Kubernetes checking
+kubectl get po -A
+
+
+--or--
+# Update the apt package index and install packages needed to use the Kubernetes apt repository:
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+# Download the Google Cloud public signing key:
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+# Add the Kubernetes apt repository:
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# Update apt package index with the new repository and install kubectl:
+sudo apt-get update
+sudo apt-get install -y kubectl

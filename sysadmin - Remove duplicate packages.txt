@@ -1,0 +1,27 @@
+1. Create snapshot/backup of VM
+
+2. Clean and Refresh
+# yum clean all
+# subscription-manager refresh
+
+3. Find OBSOLETED and DUPLICATE pacakges:
+# yum check &> /tmp/yumcheck.txt
+
+4. Remove dupes
+
+4.1 Review packages to be removed:
+# cat /tmp/yumcheck.txt
+Error: Check discovered 12 problem(s)
+kernel-headers-4.18.0-305.7.1.el8_4.x86_64 is a duplicate with kernel-headers-4.18.0-305.10.2.el8_4.x86_64
+kernel-headers-4.18.0-305.7.1.el8_4.x86_64 is obsoleted by kernel-headers-4.18.0-305.10.2.el8_4.x86_64
+systemd-239-45.el8_4.1.x86_64 is a duplicate with systemd-239-45.el8_4.2.x86_64
+systemd-libs-239-45.el8_4.1.x86_64 is a duplicate with systemd-libs-239-45.el8_4.2.x86_64
+
+4.2 Use output from 'yum check' to populate below command - using the lower/older version in the cmd below:
+# SYNTAX: rpm -e <LIST OF DUPLICATE (OLD) PACKAGES TO REMOVE>  --nodeps --justdb
+
+# Example:
+rpm -e \
+kernel-headers-4.18.0-305.7.1.el8_4.x86_64 \
+systemd-239-45.el8_4.1.x86_64 systemd-libs-239-45.el8_4.1.x86_64 \
+--nodeps --justdb

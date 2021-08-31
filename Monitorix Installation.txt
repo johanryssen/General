@@ -1,0 +1,21 @@
+1.  RHEL7: Enable EPEL 7
+curl https://getfedora.org/static/fedora.gpg | gpg --import ;
+/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 ;
+/bin/yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;
+
+2. RHEL8: Enable CodeReady repo (Repacement for PowerTools)
+RHEL8: subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+
+3. Install packages
+yum install rrdtool rrdtool-perl perl-libwww-perl perl-MailTools perl-MIME-Lite perl-CGI perl-DBI perl-XML-Simple perl-Config-General perl-HTTP-Server-Simple perl-IO-Socket-SSL wget monitorix -y 
+
+4. Config File
+# vim /etc/monitorix/monitorix.conf
+title = Some Title
+hostname = FQDN
+
+5. Enable and start monitorix service
+systemctl enable --now monitorix
+
+6. Browser to URL
+http://IP_ADDRESS:8080/monitorix

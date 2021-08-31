@@ -1,4 +1,8 @@
 
+----- Top for Containers -----
+docker run --rm -it --name ctop-container --volume /var/run/docker.sock:/var/run/docker.sock:ro quay.io/vektorlab/ctop:latest
+
+
 ----- Docker - Command-line completion -----
 https://docs.docker.com/compose/completion/
 

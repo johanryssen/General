@@ -1,0 +1,28 @@
+#!/bin/bash
+echo "Disable DNS processing by NetworkManager"
+echo ""
+cat << EOF > /etc/NetworkManager/conf.d/90-dns-none.conf
+[main]
+dns=none
+EOF
+echo ""
+echo "Adding Google DNS entries to /etc/resolv.conf:"
+echo ""
+cat << EOF >> /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+EOF
+echo ""
+echo "Restarting NetworkManager"
+systemctl restart NetworkManager
+echo ""
+exit 0
+
+
+## To view NetworkManager journal:
+## journalctl -u NetworkManager
+
+# May also be added to 
+## /etc/NetworkManager/NetworkManager.conf
+## [main]
+## dns=none

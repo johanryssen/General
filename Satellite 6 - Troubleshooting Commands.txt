@@ -48,7 +48,7 @@ foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::Reposi
 
 
 ## -or- 
-## foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::ContentView::Publish' STATES='paused' VERBOSE=true
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::ContentView::Publish' STATES='paused' VERBOSE=true
 
 # Change the following:
 ## label=Actions::Katello::Repository::MetadataGenerate

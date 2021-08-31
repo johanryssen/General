@@ -1,0 +1,79 @@
+# https://github.com/ansible/awx-operator#basic-install
+
+
+## Deploy awx-operator on minikube:
+minikube start --addons=ingress --cpus=4 --cni=flannel --install-addons=true --kubernetes-version=stable --memory=8g
+
+
+## Check if the node(s) and kube-apiserver communication is working as expected.
+minikube kubectl -- get nodes
+minikube kubectl -- get pods -A
+
+
+## Create Alias
+alias kubectl="minikube kubectl --"
+
+
+## Deploy AWX Operator into your cluster:
+### SYNTAX:
+$ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml
+
+## Make a note of the latest release (e.g. 0.13.0)
+https://github.com/ansible/awx-operator/releases
+## Replace <TAG> with release.
+
+
+### COMMAND:
+$ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/0.13.0/deploy/awx-operator.yaml
+
+
+## Create YAML file.
+## The 'metadata.name' will be the name of the AWX deployment.
+# /opt/AWX/awx.yml
+
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+spec:
+  service_type: nodeport
+  ingress_type: none
+  hostname: awx.test.lab
+
+
+## Use kubectl to create the awx instance in your cluster:
+$ kubectl apply -f awx.yml
+
+
+## Tail the Operator Pod Logs to follow the installation process:
+$ kubectl logs -f deployments/awx-operator
+
+## View Pods and SVC:
+$ kubectl get pods -l "app.kubernetes.io/managed-by=awx-operator"
+$ kubectl get svc -l "app.kubernetes.io/managed-by=awx-operator"
+
+-----------------
+
+## Access the AWS instance
+
+### 1. Locate the service name:
+$ minikube service list
+...
+NAMESPACE	|	NAME		|	TARGET PORT	|		URL
+default		| awx-service	| http/80		| http://192.168.39.101:31451
+
+
+### 2. AWX instance will be accessible by the command:
+$ minikube service awx-service --url
+http://192.168.39.101:31451
+
+
+### 3. The admin user is admin and the password is available in the <resourcename>-admin-password secret.
+#### To retrieve the admin password, run:
+$ kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" | base64 --decode
+# <resourcename> = metadata.name ('awx' in thise case)
+
+$ kubectl get secret awx-admin-password -o jsonpath="{.data.password}" | base64 --decode
+zDil9K31ts16vn12YXmgy0A0we3PXmUQ
+

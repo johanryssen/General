@@ -1,0 +1,23 @@
+C:\Program Files\Oracle\VirtualBox>VBoxManage.exe list vms
+"OL79" {fdb19830-ed6d-4c02-8172-6323cde6945d}
+
+C:\Program Files\Oracle\VirtualBox>VBoxManage.exe modifyvm "OL79" --nested-hw-virt on
+
+
+
+----- ERROR -----
+Failed to open a session for the virtual machine OL79.
+
+Cannot enable nested VT-x/AMD-V without nested-paging and unresricted guest execution!
+
+ (VERR_CPUM_INVALID_HWVIRT_CONFIG).
+
+Result Code: E_FAIL (0x80004005)
+Component: ConsoleWrap
+Interface: IConsole {872da645-4a9b-1727-bee2-5585105b9eed}
+----------------
+
+# Fix:
+(1) CMD:> bcdedit /set hypervisorlaunchtype off
+(2) turn off windows feature "Virtual Machine Platform"
+

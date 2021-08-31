@@ -23,3 +23,14 @@ virt-customize -a rhel83.qcow2  --ssh-inject user01:file:./id_rsa.pub
 
 # Relabel SELinux
 virt-customize -a rhel83.qcow2 --selinux-relabel
+
+
+-- All-in-one --
+sudo virt-customize \
+-a /var/lib/libvirt/images/new_CentOS84.qcow2 \
+--hostname cent84.cloud.test \
+--root-password password:pass \
+--ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
+--uninstall cloud-init \
+--selinux-relabel
+

@@ -1,22 +1,100 @@
-# As root:
-virt-install \
---name OracleLinux79 \
---description "OracleLinux79" \
---ram=1024 \
---vcpus=1 \
---os-type=Linux \
---os-variant=rhel7 \
---disk path=/var/lib/libvirt/images/ol79.qcow2,bus=virtio,size=15 \
---graphics none \
---location /opt/ISO/OracleLinux-R7u9.iso \
---network bridge:virbr0  \
---console pty,target_type=serial \
---extra-args console=ttyS0
+1. Download qcow2 image from:
+https://docs.openstack.org/image-guide/obtain-images.html
 
-# Options for "--os-variant":
-osinfo-query os
+2. Copy the master image to /var/lib/libvirt/images/
+(Use a descriptive name, matching the hostname)
 
-# To use --location CDROM media:
-* Run virt-install as root and do --location ISO
-* Mount the ISO at a local directory, and do --location DIRECTORY
-* Mount the ISO at a local directory, export that directory over local http, and do --location http://localhost/DIRECTORY
+3. Customise the new image:
+sudo virt-customize -a /var/lib/libvirt/images/new_CentOS84.qcow2 \
+--hostname cent84.cloud.test \
+--root-password password:pass \
+--ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
+--uninstall cloud-init \
+--selinux-relabel
+
+
+**********
+virt-customize - Modifies the guest or disk image in place.
+(The guest must be shut down. You do not need to run virt-customize as root.)
+-a - Add disk image file
+--hostname - Sets the VM hostname.
+--root-password - Sets the new root password
+--ssh-inject - Inject an SSH key to some user.
+--uninstall - Uninstall software contained by default in the downloaded image.
+**********
+
+
+4. Provision new VM (Using same disk image as in 3)
+sudo virt-install \
+--name vm01 \
+--memory 1024 \
+--vcpus 1 \
+--disk /var/lib/libvirt/images/new_CentOS84.qcow2 \
+--import \
+--os-type linux --os-variant generic \
+--noautoconsole
+
+
+**********
+--import - Indicates that the VM is to be created from an EXISTING DISK, skipping the operating system installation process and building a guest around this disk image.
+
+--os-type and --os-variant - Optimize the guest configuration for a specific operating system.
+While they're not required, specifying these options is highly recommended, as it can significantly increase performance by specifying virtio, among other guest tweaks.
+
+$ osinfo-query # From libosinfo-bin / libosinfo
+**********
+
+
+===================== NETWORK =====================
+
+5. Find IP:
+virsh domifaddr --full vm01
+
+-or-
+
+## View IP range:
+virsh net-dumpxml default | grep range
+
+-or-
+
+## Find all IPs:
+nmap -Pn -p 22 -n _NETWORK.0/24 --open -oG - | awk '/22\/open/{ print $2 }'
+
+
+==========================================
+
+
+$ virsh net-list
+
+ Name                 State      Autostart     Persistent
+----------------------------------------------------------
+ default              active     yes           yes
+ mk-minikube          active     yes           yes
+ net_10_10_10         active     yes           yes
+ net_10_10_20         active     yes           yes
+
+
+$ virsh net-dumpxml net_10_10_10
+
+<network connections='5'>
+  <name>net_10_10_10</name>
+  <uuid>7a73ae63-92ec-4690-bb5f-50f372884372</uuid>
+  <forward dev='enp3s0' mode='route'>
+    <interface dev='enp3s0'/>
+  </forward>
+  <bridge name='virbr2' stp='on' delay='0'/>
+  <mac address='52:54:00:33:3e:79'/>
+  <domain name='net_10_10_10'/>
+  <ip address='10.10.10.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.10.5' end='10.10.10.254'/>
+    </dhcp>
+  </ip>
+  <ip family='ipv6' address='fc00::1' prefix='64'>
+    <dhcp>
+      <range start='fc00::100' end='fc00::1ff'/>
+    </dhcp>
+  </ip>
+</network>
+
+

@@ -1,8 +1,5 @@
-KVM Overview
-
 # Base packages
 yum install qemu-kvm libvirt libvirt-python libguestfs-tools virt-install python-virtinst virt-manager virt-top virt-viewer libvirt libvirt-client 
-
 
 # Check if Virtualization is enabled/supported:
 lscpu | grep Virtualization
@@ -10,7 +7,6 @@ Virtualisation:      VT-x
 
 # Enable/start libvirtd
 systemctl enable --now libvirtd
-
 
 ----- Verify kvm installation -----
 root@rhel79 ~ # lsmod | grep -i kvm
@@ -21,7 +17,6 @@ kvm                   637515  0
 irqbypass              13503  1 kvm
 
 
-
 ----- Configure bridged networking -----
 root@rhel79 ~ # brctl show
 bridge name     bridge id               STP enabled     interfaces
@@ -30,8 +25,6 @@ root@rhel79 ~ # virsh net-list
  Name                 State      Autostart     Persistent
 ----------------------------------------------------------
  default              active     yes           yes
-
-
 
 
 # Verify Private network:
@@ -59,7 +52,7 @@ root@rhel79 ~ # virsh net-dumpxml default
 
 --- Expose VMs to other systems on LAN ---
 
-Setup a NETWORK BRIDGE on the server that connected to the your LAN.
+Setup a NETWORK BRIDGE on the server that connects to LAN.
 
 # Update NIC config:
 echo "BRIDGE=br0" >> /etc/sysconfig/network-scripts/ifcfg-ens33
@@ -85,25 +78,13 @@ br0             8000.000000000000       no
 virbr0          8000.525400fec51e       yes             virbr0-nic
 
 
------ Create VM -----
-(1) Copy install-ISO to:
-/var/lib/libvirt/boot/
+--- Snapshots / Backups ---
 
-(2) Create VM:
-# virt-install \
---virt-type=kvm \
---name ol79 \
---ram 2048 \
---vcpus=1 \
---os-variant=ol7.6 \
---cdrom=/var/lib/libvirt/boot/OracleLinux-R7-U9.iso \
---network=bridge=br0,model=virtio \
---graphics vnc \
---disk path=/var/lib/libvirt/images/ol79.qcow2,size=40,bus=virtio,format=qcow2
+virsh list --all
+virsh snapshot-create-as --domain RHCE-Control --name "RHCE-Control-`date +%d_%h_%Y-%H_%M_%S`"
+virsh snapshot-list --domain RHCE-Control --tree
+virsh snapshot-delete RHCE-Control --current
+virsh snapshot-revert RHCE-Control RHCE-Control-22_Aug_2021-09_20_30
+virsh start RHCE-Control
 
-
-# Options for "--os-variant":
-# osinfo-query os
-
-
-
+--------------------------

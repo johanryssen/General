@@ -1,0 +1,33 @@
+## x11vnc setup
+
+### Install packages
+sudo apt-get install x11vnc net-tools
+
+## Manual VNC Server Start
+x11vnc -ncache 10
+
+## Set up service.
+
+### Create password
+sudo x11vnc -storepasswd  /etc/x11vnc.pass
+
+### Create Unit filoe:
+# /etc/systemd/system/x11vnc.service
+
+[Unit]
+Description="x11vnc"
+Requires=display-manager.service
+After=display-manager.service
+
+[Service]
+ExecStart=/usr/bin/x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :0 -auth guess -rfbauth /etc/x11vnc.pass
+ExecStop=/usr/bin/killall x11vnc
+Restart=on-failure
+Restart-sec=2
+
+[Install]
+WantedBy=multi-user.target
+
+## Enable Service
+sudo systemctl daemon-reload
+sudo systemctl enable --now x11vnc

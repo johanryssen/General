@@ -1,0 +1,65 @@
+
+# Options for "--os-variant":
+# osinfo-query os
+
+==============================================
+
+# Need X for --grahics
+# Not an Automated install - GUI installer.
+
+--- CDROM ---
+
+# virt-install \
+--virt-type=kvm \
+--name OracleLinux79 \
+--ram 2048 \
+--vcpus=1 \
+--os-variant=ol7.6 \
+--cdrom=/var/lib/libvirt/boot/OracleLinux-R7-U9.iso \
+--network=bridge=br0,model=virtio \
+--graphics vnc \
+--disk path=/var/lib/libvirt/images/OracleLinux79.qcow2,size=40,bus=virtio,format=qcow2
+
+
+==============================================
+
+--- LOCATION ---
+
+## To use '--location' with CDROM media:
+* Run virt-install as root and do: --location ISO
+-or-
+* Mount the ISO at a local directory, and do: --location DIRECTORY
+-or-
+* Mount the ISO at a local directory, export that directory over local http, and do: --location http://localhost/DIRECTORY
+
+# Install OracleLinux 7.9
+
+virt-install \
+--name OracleLinux79 \
+--description "OracleLinux79" \
+--ram=1024 \
+--vcpus=1 \
+--os-type=Linux \
+--os-variant=rhel7 \
+--disk path=/var/lib/libvirt/images/OracleLinux79.qcow2,bus=virtio,size=15 \
+--graphics none \
+--location /opt/ISO/OracleLinux-R7u9.iso \
+--network bridge:virbr0  \
+--console pty,target_type=serial \
+--extra-args console=ttyS0
+
+
+==============================================
+
+--- QCOW2 IMAGE ----
+
+# virt-install \
+--name OracleLinux79 \
+--memory 1024 \
+--vcpus 1 \
+--disk /var/lib/libvirt/images/OracleLinux79.qcow2 \
+--import \
+--os-type linux --os-variant generic \
+--noautoconsole
+
+==============================================
