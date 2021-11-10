@@ -1,0 +1,28 @@
+MAIN:   -----------------------------------------------------------------------------------------> 14.0-CURRENT
+		\_ 11.0-RELEASE -> p1, p2      \_ 12.0-RELEASE -> p1, p2   \_ 13.0-RELEASE
+		 \_ 11.1-RELEASE -> p1, p2      \_ 12.1-RELEASE             \
+		  \_ 11.2-RELEASE -> p1, p2      \_ 12.2-RELEASE             \
+		   \_ 11.3-RELEASE                \                         13-STABLE
+			\_ 11.4-RELEASE                \
+			 \                            12-STABLE
+			  \
+			 11-STABLE
+
+--------------------
+
+CURRENT = Bleeding edge
+STABLE  = Development Branch
+Changes go into this branch at a slower pace and with the general assumption that they have first been tested in CURRENT.
+
+There's one main development branch where all new work is done, this always has a version number XX.0-CURRENT.
+
+For a major release, a "STABLE" branch is created, (eg. stable/13) and from that branch, all minor releases are branched off
+(we now have releng/13.0 for the first minor release of 13, viz. 13.0-RELEASE).
+
+Now, the "trick": As soon as a new STABLE branch is created, the version number in the MAIN branch is incremented.
+Some time ago, we had 13.0-CURRENT, then, a STABLE branch for 13 was created
+(and also a RELEASE branch for 13.0, from which all the BETA and RC versions were built so far)
+and at the same time, the version number in the MAIN branch was set to 14, so it is 14.0-CURRENT now.
+
+In a nutshell, this just means that the next major RELEASE branched off will be 14 - 
+and when that happens, the MAIN branch will instantly switch to 15.0-CURRENT.

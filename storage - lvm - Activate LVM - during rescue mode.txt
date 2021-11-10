@@ -1,0 +1,12 @@
+# Rescue mode - to activate LVM
+
+lvchange -ay
+
+-a availability - Set logical volume availability.
+
+Availability can have one of the following values:
+y - Make a logical volume available.
+An open of the logical volume will succeed.
+
+n - Make a logical volume temporarily unavailable.
+An open of the logical volume will fail. However, all current processes that have the logical volume open remain open.

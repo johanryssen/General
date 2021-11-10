@@ -1,0 +1,34 @@
+# Update FreeBSD
+
+## Ensure Kernel SecurLevel = 0
+sysctl -n kern.securelevel
+# update in /etc/rc.conf and reboot
+
+## Check version
+freebsd-version
+
+## Save current package list
+pkg list > all_Files-`date +%d-%h-%Y`
+pkg info > /root/pre_pkg_update_`date +%d-%h-%Y`
+
+## Fetch FreeBSD base OS updates
+freebsd-update fetch
+
+## Install downloaded updates
+freebsd-update install
+
+## View reports about vulnerable software
+pkg audit -F
+pkg audit
+
+## Backup package database
+pkg backup -d /var/db/pkg/pkg-db-`date +%d-%h-%Y`
+
+### Restore local pkg DB:
+pkg backup -r pkg-db-01-Nov-2021
+
+## Update all FreeBSD packages database
+pkg update
+
+## Apply all outstanding packages security upgrades
+pkg upgrade

@@ -72,3 +72,14 @@ guG  : Change to lowercase until the end of document.
 ** Note the Capital "M" in :Man above.
 
 ==============================================
+
+Open up a new (horizontal) split-screen window in (n)vi with:
+
+:N <filename>
+-or-
+:E
+
+use ^w to switch between the two.
+
+==============================================
+

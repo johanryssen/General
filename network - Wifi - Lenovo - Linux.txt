@@ -1,20 +1,25 @@
 WIFI & Lenovo & Linux
 
-Some Lenovos have issues with the UEFI which is like a BIOS but cwstruggles with linux.
-In this case you have to change out the grub 2 bootloader in ubuntu for grub legacy.
+Some Lenovos have issues with the UEFI but cw struggles with linux.
+In this case you have to change out the grub2 bootloader in ubuntu for grub legacy.
 
 Another problem with some Lenovos is the wireless
 
-# service network-manager stop
+# systemctl stop NetworkManager
 # rmmod acer_wmi
 # modprobe acer_wmi
+# rfkill
 # rfkill unblock all
-# service network-manager start
+# rfkill
+# systemctl start NetworkManager
 # rmmod -f acer_wmi
 
-then to get the settings to stick after reboot type
-# su -
-# echo "blacklist acer_wmi" >> /etc/modprobe.d/blacklist.conf
-# exit
+Then to get the settings to stick after reboot type
+# sudo echo "blacklist acer_wmi" >> /etc/modprobe.d/blacklist.conf
 
 and you will have working WIFI.
+
+-----
+For Asus:
+blacklist asus_wmi
+-----

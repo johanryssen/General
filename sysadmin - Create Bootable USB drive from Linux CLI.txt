@@ -1,0 +1,31 @@
+Create Bootable USB drive from Linux CLI
+
+
+1. Insert USB key.
+2. Get the device name
+fdisk -l
+
+3. Unmount:
+umount /dev/sdb*
+
+4. Create fat filesystem:
+mkfs.vfat /dev/sdb -I
+
+5. Write ISO to USB:
+(Please use 'screen' or 'tmux' session since this will take a long time to complete)
+dd bs=4M if=/ISO/OracleLinux-R7-U9-Server-x86_64-dvd.iso of=/dev/sdb status=progress oflag=sync
+
+
+6. If "status=process" is not supported - View progress (at a this point in time)
+
+a. Open a 2nd terminal window.
+
+b. Get the pid of 'dd' process.
+# pgrep -l '^dd$'
+12345 dd
+
+c. Send USR1 signal to the 'dd' process
+# kill -USR1 12345
+
+d. Return to the 1st terminal to view the progress.
+Repeat step 6 to view the progress again.

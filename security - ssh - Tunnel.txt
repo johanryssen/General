@@ -1,10 +1,54 @@
+----- PUTTY -----
+3 systems:
+- Localhost
+- Intermediary
+- Final_Destination (Target).
+
+ROUTE: Localhost --> Intermediary --> Final_Destination
+
+Putty:
+Step 1. Session > Add the detail of the Intermediary server here - you will need SSH access to the Intermediary.
+
+Step 2. Category > Connection > SSH > Tunnels
+## Source Port: 50001 (Arbitrary port to conenct FROM on your local system - e.g. localhost:50001)
+
+--- Option A: ssh ---
+# Destination: Final_Destination / Remote IP and port - e.g. 10.10.10.123:22
+
+--- Option B: https ---
+# Destination: Final_Destination / Remote IP and port - e.g. 10.10.10.123:443
+
+## Radio Button: Local
+## Radio Button: Auto
+
+Step 3. Save and connect to Intermediary using the session just set up above.
+
+Step 4.
+--- Option A: ssh ---
+Create a new session in putty:
+IP: 127.0.0.1
+Port: 50001
+
+Click Open.
+
+This will route via Intermediary to Final_Destination.
+
+--- Option B: https ---
+In a browser:
+Address: 127.0.0.1:50001
+
+
+
+----- BASH -----
+
 ssh -f -L 8080:localhost:80 user2@server4 -N
 ---------------
 -f						-	Background
 
 -L 8080:localhost:80	-	Listen on port 8080, and then via SSH, send information that's going to be redirected to the localhost on the remote SSH server, to port 80.
+
 So if I connect as user2@server4, then what we're going to see is the information that I sent to port 8080,
-on my server1 system is going to be ended up being encrypted through SSH,
+on my server1 system is going to end up being encrypted through SSH,
 being received by the SSH server on server4, and server4 then sends it through to its own localhost on port 80
 
 -N						-	Not running a command in SSH

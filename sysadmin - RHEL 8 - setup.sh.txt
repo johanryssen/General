@@ -14,12 +14,13 @@ echo "--- Setting PS1 ---"
 echo ""
 echo "# BASH Prompt Generator: https://scriptim.github.io/bash-prompt-generator/"
 echo ""
-echo "export PS1='\[\e[0;38;5;155m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;87m\]\W \[\e[0m\]$ \[\e[0m\] '" >> /etc/skel/.bashrc
+echo "export PS1='\[\e[0;38;5;155m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;87m\]\W \[\e[0m\]$ \[\e[0m\]'" >> /etc/skel/.bashrc
 echo ""
 echo "--- Setting new prompt ---"
 echo "# Prompt" >> ~/.bashrc
 echo "export PS1='\[\e[0;38;5;199m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;47m\]\W \[\e[0m\]#\[\e[0m\] '" >> /root/.bashrc
 echo -e "\n#BASH Color for Directories\nLS_COLORS=\$LS_COLORS:'di=0;36'\nexport LS_COLORS\n" >> ~/.bashrc
+echo ""
 echo "--- Disable systemctl's auto-paging feature ---"
 sed -i 's/# export SYSTEMD_PAGER=/export SYSTEMD_PAGER=/g' ~/.bashrc
 source ~/.bashrc
@@ -44,7 +45,7 @@ echo "-- DNF Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart
+/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

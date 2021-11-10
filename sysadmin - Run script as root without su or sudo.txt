@@ -4,6 +4,7 @@ Run script as root without su or sudo (/etc/sudoers)
 %sudo ALL=NOPASSWD: /mypath/to/myscripts/myscript.sh
 
 -or-
+
 # To allow only some users to execute the script,
 # add the following to the end of /etc/sudoers:
 myuser1 ALL=(ALL) NOPASSWD: /mypath/to/myscripts/myscript.sh

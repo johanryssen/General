@@ -1,0 +1,1 @@
+for i in {1..254} ;do (ping 10.10.10.$i -c 1 -w 5  >/dev/null && echo "10.10.10.$i" &) ;done

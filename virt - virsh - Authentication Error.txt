@@ -1,0 +1,35 @@
+## ERROR
+# virsh list --all
+Please enter your authentication name: admin
+Please enter your password:
+error: failed to connect to the hypervisor
+error: authentication failed: authentication failed
+
+## FIX
+ln -s /etc/ovirt-hosted-engine/virsh_auth.conf /etc/libvirt/auth.conf
+
+## Or set a new account:
+# saslpasswd2 -a libvirt admin
+Password:		# pass
+Again (for verification):
+
+## TEST
+# virsh list --all
+Please enter your authentication name: admin
+Please enter your password:
+ Id   Name           State
+-------------------------------
+ -    HostedEngine   shut off
+
+
+--------------
+
+-or-
+
+# cat /etc/ovirt-hosted-engine/virsh_auth.conf
+[credentials-vdsm]
+authname=vdsm@ovirt
+password=shibboleth
+
+[auth-libvirt-localhost]
+credentials=vdsm

@@ -17,7 +17,7 @@ echo ""
 echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] $ '" >> /etc/skel/.bashrc
 echo ""
 echo "# Prompt" >> ~/.bashrc
-echo "export PS1='\[\e[36m\]\u\[\e[m\]@\h \[\e[33m\]\W\[\e[m\] # '" >> /root/.bashrc
+echo "export PS1='\[\e[0;38;5;199m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;47m\]\W \[\e[0m\]#\[\e[0m\] '" >> /root/.bashrc
 source ~/.bashrc
 echo "PS1: `env | grep PS1`"
 echo ""
@@ -39,7 +39,8 @@ echo "-- YUM Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils
+/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils telnet lvm2 tree cloud-utils-growpart device-mapper-multipath 
+
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

@@ -1,8 +1,18 @@
-# Base packages
-yum install qemu-kvm libvirt libvirt-python libguestfs-tools virt-install python-virtinst virt-manager virt-top virt-viewer libvirt libvirt-client 
+# KVM
+
+## Install ##
+apt install libvirt0 ebtables augeas-doc augeas-tools bridge-utils cpu-checker debhelper debootstrap dnsmasq-base ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete resolvconf sgabios sharutils-doc ssh-askpass vde2 virt-manager virt-top virtinst zfs-initramfs zfsutils-linux virt-viewer sgabios
+
+# ? libvirt-bin
+# ? qemu qemu-kvm qemu-system-data qemu-img
+# ? libguestfs-tools libguestfs-hfsplus libguestfs-perl libguestfs-reiserfs libguestfs-tools libguestfs-xfs libguestfs0 qemu-kvm qemu-system qemu-system-arm qemu-system-data qemu-system-mips qemu-system-misc qemu-system-x86
+
+# apt-get autoremove
+
+------------------------------------------
 
 # Check if Virtualization is enabled/supported:
-lscpu | grep Virtualization
+lscpu | grep -i virt
 Virtualisation:      VT-x
 
 # Enable/start libvirtd
@@ -10,7 +20,7 @@ systemctl enable --now libvirtd
 
 ----- Verify kvm installation -----
 root@rhel79 ~ # lsmod | grep -i kvm
-root@rhel79 ~ # 
+
 root@rhel79 ~ # modprobe kvm
 root@rhel79 ~ # lsmod | grep -i kvm
 kvm                   637515  0
@@ -87,4 +97,22 @@ virsh snapshot-delete RHCE-Control --current
 virsh snapshot-revert RHCE-Control RHCE-Control-22_Aug_2021-09_20_30
 virsh start RHCE-Control
 
---------------------------
+
+=======================================
+
+man ebtable
+ebtables - Ethernet bridge frame table administration
+FILES:
+/etc/ethertypes
+/var/lib/ebtables/lock
+------------------------------------------
+## FIX ##
+In x:
+dbus-launch virt-manager
+## added:
+eval `dbus-launch`
+to ~/.vnx/xstartup.
+Starts Gnome session
+
+=======================================
+

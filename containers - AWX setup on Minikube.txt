@@ -15,16 +15,13 @@ alias kubectl="minikube kubectl --"
 
 
 ## Deploy AWX Operator into your cluster:
-### SYNTAX:
-$ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml
 
 ## Make a note of the latest release (e.g. 0.13.0)
 https://github.com/ansible/awx-operator/releases
-## Replace <TAG> with release.
 
-
-### COMMAND:
-$ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/0.13.0/deploy/awx-operator.yaml
+## Replace <TAG> with release:
+### SYNTAX:
+$ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml
 
 
 ## Create YAML file.
@@ -43,15 +40,15 @@ spec:
 
 
 ## Use kubectl to create the awx instance in your cluster:
-$ kubectl apply -f awx.yml
+kubectl apply -f awx.yml
 
 
 ## Tail the Operator Pod Logs to follow the installation process:
-$ kubectl logs -f deployments/awx-operator
+kubectl logs -f deployments/awx-operator
 
 ## View Pods and SVC:
-$ kubectl get pods -l "app.kubernetes.io/managed-by=awx-operator"
-$ kubectl get svc -l "app.kubernetes.io/managed-by=awx-operator"
+kubectl get pods -l "app.kubernetes.io/managed-by=awx-operator"
+kubectl get svc -l "app.kubernetes.io/managed-by=awx-operator"
 
 -----------------
 
@@ -65,13 +62,14 @@ default		| awx-service	| http/80		| http://192.168.39.101:31451
 
 
 ### 2. AWX instance will be accessible by the command:
-$ minikube service awx-service --url
+minikube service awx-service --url
+
 http://192.168.39.101:31451
 
 
 ### 3. The admin user is admin and the password is available in the <resourcename>-admin-password secret.
 #### To retrieve the admin password, run:
-$ kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" | base64 --decode
+kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" | base64 --decode
 # <resourcename> = metadata.name ('awx' in thise case)
 
 $ kubectl get secret awx-admin-password -o jsonpath="{.data.password}" | base64 --decode

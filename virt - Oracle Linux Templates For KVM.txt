@@ -1,0 +1,32 @@
+cat <<EOF>> meta-data
+instance-id: iid-local01
+local-hostname: vm-01
+EOF
+
+cat <<EOF>> user-data
+#cloud-config
+password: <enter your password here>
+chpasswd: { expire: False }
+ssh_pwauth: True
+
+
+genisoimage -output /var/lib/libvirt/images/vm-01.iso -volid cidata -joliet -rock user-data meta-data
+
+cp ol84.qcow2 /var/lib/libvirt/images/vm-01.qcow2
+
+
+virt-install --name vm-01 \
+--memory 2048 \
+--vcpus 2 \
+--disk /var/lib/libvirt/images/vm-01.qcow2,device=disk,bus=virtio \
+--disk /var/lib/libvirt/images/vm-01.iso,device=cdrom \
+--os-type linux --os-variant rhel7.5 \
+--virt-type kvm --graphics none \
+--network network=default,model=virtio \
+--noautoconsole \
+--import
+
+# Download:
+https://yum.oracle.com/oracle-linux-templates.html?source=:so:ch:or:dg::::LinuxSocialG
+
+https://blogs.oracle.com/linux/post/a-quick-start-with-the-oracle-linux-templates-for-kvm?source=:so:ch:or:dg::::LinuxSocialG&SC=:so:ch:or:dg::::LinuxSocialG&pcode=

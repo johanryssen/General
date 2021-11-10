@@ -1,0 +1,87 @@
+sudo mkdir -p /etc/systemd/system/networking.service.d/
+sudo bash -c 'echo -e "[Service]\nTimeoutStartSec=20sec" > /etc/systemd/system/networking.service.d/timeout.conf'
+sudo systemctl daemon-reload
+
+--------------
+
+/etc/systemd/system/NetworkManager-wait-online.service.d/override.conf
+
+--------------
+
+sudo nano /etc/network/interfaces
+
+auto eno1
+iface eno1 inet dhcp
+
+-to-
+
+allow-hotplug eno1
+iface eno1 inet dhcp
+
+
+--------------
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+
+auto wlan0
+iface wlan0 inet dhcp
+
+======================================
+
+/etc/systemd/system/networking.service.d/timeout.conf
+[Service]
+TimeoutStartSec=20sec
+
+======================================
+
+## /etc/systemd/system/network-online.target.wants/networking.service
+
+[Unit]
+Description=Raise network interfaces
+Documentation=man:interfaces(5)
+DefaultDependencies=no
+Requires=ifupdown-pre.service
+Wants=network.target
+After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service ifupdown-pre.service
+Before=network.target shutdown.target network-online.target
+Conflicts=shutdown.target
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/networking
+ExecStart=/sbin/ifup -a --read-environment
+ExecStop=/sbin/ifdown -a --read-environment --exclude=lo
+RemainAfterExit=true
+TimeoutStartSec=10s
+
+
+
+======================================
+
+
+## /etc/systemd/system/network-online.target.wants/NetworkManager-wait-online.service
+[Unit]
+Description=Network Manager Wait Online
+Documentation=man:nm-online(1)
+Requires=NetworkManager.service
+After=NetworkManager.service
+Before=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nm-online -s -q --timeout=30
+RemainAfterExit=yes
+
+[Install]
+WantedBy=network-online.target
+
+
+======================================

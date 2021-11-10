@@ -1,0 +1,14 @@
+# Set up partitions from CLI, eg. 15G drive:
+
+echo -e "n\np\n1\n\n+1G\nw" | sudo fdisk /dev/sdd
+echo -e "n\np\n2\n\n+2G\nw" | sudo fdisk /dev/sdd
+echo -e "n\np\n3\n\n+3G\nw" | sudo fdisk /dev/sdd
+echo -e "n\ne\n\n\n\nw" | sudo fdisk /dev/sdd
+
+# Provides:
+Device     Boot    Start      End  Sectors Size Id Type
+/dev/sdd1           2048  2099199  2097152   1G 83 Linux
+/dev/sdd2        2099200  6293503  4194304   2G 83 Linux
+/dev/sdd3        6293504 12584959  6291456   3G 83 Linux
+/dev/sdd4       12584960 31457279 18872320   9G  5 Extended
+

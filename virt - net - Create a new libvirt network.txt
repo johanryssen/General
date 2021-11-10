@@ -1,0 +1,51 @@
+1. Create a new libvirt network (other than your default 198.162.x.x) file:
+
+cat <<EOF> new_network.xml 
+  <network>
+    <name>new_network</name>
+    <uuid>d0e9964a-f91a-40c0-b769-a609aee41bf2</uuid>
+    <forward mode='nat'>
+      <nat>
+        <port start='1024' end='65535'/>
+      </nat>
+    </forward>
+    <bridge name='virbr1' stp='on' delay='0' />
+    <mac address='52:54:00:60:f8:6e'/>
+    <ip address='192.169.142.1' netmask='255.255.255.0'>
+      <dhcp>
+        <range start='192.169.142.2' end='192.169.142.254' />
+      </dhcp>
+    </ip>
+  </network>
+EOF
+
+2. Define the above network:
+
+$ virsh net-define new_network.xml
+
+*****
+net-define == Persistent
+net-create == Transient
+*****
+
+3. Start the network and enable it for "autostart"
+
+$ virsh net-start new_network
+$ virsh net-autostart new_network
+
+
+4. List your libvirt networks to see if it reflects:
+
+$ virsh net-list
+  Name                 State      Autostart     Persistent
+  ----------------------------------------------------------
+  default              active     yes           yes
+  new_network         active     yes           yes
+
+
+5. Optionally, list your bridge devices:
+
+$ brctl show
+  bridge name     bridge id               STP enabled     interfaces
+  virbr0          8000.5254003339b3       yes             virbr0-nic
+  virbr1          8000.52540060f86e       yes             virbr1-nic

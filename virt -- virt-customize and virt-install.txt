@@ -1,5 +1,11 @@
 1. Download qcow2 image from:
+
+# CentOS / RHEL / Ubuntu / BSD:
 https://docs.openstack.org/image-guide/obtain-images.html
+
+# Oracle Linux:
+https://yum.oracle.com/oracle-linux-templates.html?source=:so:ch:or:dg::::LinuxSocialG
+
 
 2. Copy the master image to /var/lib/libvirt/images/
 (Use a descriptive name, matching the hostname)
@@ -10,18 +16,21 @@ sudo virt-customize -a /var/lib/libvirt/images/new_CentOS84.qcow2 \
 --root-password password:pass \
 --ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
 --uninstall cloud-init \
+--install vim,libselinux \
 --selinux-relabel
 
 
 **********
 virt-customize - Modifies the guest or disk image in place.
-(The guest must be shut down. You do not need to run virt-customize as root.)
+(The guest must be shut down.)
 -a - Add disk image file
 --hostname - Sets the VM hostname.
 --root-password - Sets the new root password
 --ssh-inject - Inject an SSH key to some user.
 --uninstall - Uninstall software contained by default in the downloaded image.
 **********
+
+osinfo-query os
 
 
 4. Provision new VM (Using same disk image as in 3)
@@ -31,7 +40,7 @@ sudo virt-install \
 --vcpus 1 \
 --disk /var/lib/libvirt/images/new_CentOS84.qcow2 \
 --import \
---os-type linux --os-variant generic \
+--os-type linux --os-variant rhel7.5 \
 --noautoconsole
 
 
@@ -41,7 +50,7 @@ sudo virt-install \
 --os-type and --os-variant - Optimize the guest configuration for a specific operating system.
 While they're not required, specifying these options is highly recommended, as it can significantly increase performance by specifying virtio, among other guest tweaks.
 
-$ osinfo-query # From libosinfo-bin / libosinfo
+$ osinfo-query os # From libosinfo-bin / libosinfo
 **********
 
 
@@ -97,4 +106,11 @@ $ virsh net-dumpxml net_10_10_10
   </ip>
 </network>
 
-
+------------------------------------
+## To use '--location' with CDROM media:
+* Run virt-install as root and do: --location ISO
+-or-
+* Mount the ISO at a local directory, and do: --location DIRECTORY
+-or-
+* Mount the ISO at a local directory, export that directory over local http, and do: --location http://localhost/DIRECTORY
+------------------------------------

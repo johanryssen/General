@@ -1,6 +1,5 @@
-
 # store IP addresses in a file
-nmap -sn 10.10.0.0/24 | awk '/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "nmap_discovered_ips"}'
+nmap -sn 10.10.10.0/24 | awk '/Nmap scan/{gsub(/[()]/,"",$NF); print $NF > "nmap_discovered_ips"}'
 
 
 nmap -sC -sV <IP>
@@ -45,6 +44,9 @@ nmap -vv -n -sn -PE -T4 --packet-trace 10.10.22.13
 --packet-trace (Trace sent and received packets)
 
 ------------------------
+
+# Scan only for port 22
+nmap -Pn -p 22 -n 10.10.10.0/24 --open -oG - 
 
 # Basic scan:
 nmap 192.168.0.0/24

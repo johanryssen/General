@@ -1,15 +1,21 @@
+##### Add SWAP File #####
+
 mkdir /opt/swap
 
 fallocate -l 2G /opt/swap/swapfile01
 -or-
 dd if=/dev/zero of=/opt/swap/swapfile01 bs=1024 count=2048000
 
-chmod 0600 /opt/swap/swapfile01
+chmod 600 /opt/swap/swapfile01
 mkswap /opt/swap/swapfile01
 swapon /opt/swap/swapfile01
+swapon -s
 
-# fstab
-/data/swap/swapfile01  swap  swap  defaults  0 0
+# /etc/fstab
+
+/opt/swap/swapfile01	none	swap	sw			0 0
+? -or- ?
+/data/swap/swapfile01	swap	swap	defaults	0 0
 
 swapon --show
 top
@@ -18,5 +24,88 @@ free
 
 --- Remove swap file ---
 swapoff -v /opt/swap/swapfile01
-Remove the swap file entry from /etc/fstab
+# Remove the swap file entry from /etc/fstab
 rm /opt/swap/swapfile01
+
+
+=============================================
+
+
+Swap usage may slowly increase but should stop at some point.
+
+If swap usage continues to grow steadily or is already large, then one of the following choices may need to be considered:
+
+*Adding more RAM.
+*Reducing the size of the SGA.
+*Increasing the size of the swap space.
+
+## Memory Info
+
+# cat /proc/meminfo |grep Swap
+SwapCached:        54376 kB
+SwapTotal:       2097144 kB
+SwapFree:         486244 kB
+
+# for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r > /tmp/swap_check.out
+# head /tmp/swap_check.out
+syssyncd 523568 kB
+java 511156 kB
+java 213768 kB
+autodiscd 125448 kB
+
+## Display amount of free and used memory in the system
+# free -m
+              total       used       free     shared    buffers     cached
+  Mem:          3832       3678        154          0         26        324
+  -/+ buffers/cache:       3328        504
+  Swap:         2047       1611        436
+
+==Virtual Memory Statistics==
+# vmstat 1 10
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+0  0 1654732 182012  13664 305156    0    0     7    20    0    0  7  2 90  1  0
+0  0 1654732 182004  13680 305168    0    0     0   204 1092 1764  5  1 93  1  0
+0  0 1654732 181808  13680 305168    0    0     0     0 2374 4771  8  5 87  0  0
+0  0 1654732 181996  13680 305176    0    0     0     0 1516 2497  9  2 89  0  0
+0  0 1654732 182004  13680 305180    0    0     0    36 1043 1674  6  1 93  0  0
+0  0 1654732 181880  13680 305180    0    0     0     4 1114 1735  7  1 93  0  0
+0  0 1654732 181880  13696 305196    0    0     0   152 1197 1816  8  2 89  1  0
+...
+
+## System Activity Information
+# sar -W -f /var/log/sa/sa02
+Linux 2.6.32-358.el6.x86_64 (au-ddauits.rim.au.gsoa)    02/05/16        _x86_64_        (2 CPU)
+00:00:01     pswpin/s pswpout/s
+00:10:01         0.17      0.00
+00:20:01         0.11      0.00
+00:30:01         1.62      0.00
+00:40:01         0.05      0.00
+00:50:01         0.31      0.00
+...
+
+The fields '''pswpin''' and '''pswpout''' show the total number of pages brought in and out per second, respectively.
+
+If the server shows sporadic swap activity or swap activity for a short period time at certain intervals, then you can either add more swap space or RAM.
+
+If swap usage is already very large, do not confuse very large swap usage with constant swapping, then more RAM is recommended.
+
+## All shared memory settings
+*IPC (Inter Process Communication)
+# ipcs -lm
+------ Shared Memory Limits --------
+max number of segments = 4096
+max seg size (kbytes) = 67108864
+max total shared memory (kbytes) = 17179869184
+min seg size (bytes) = 1
+Show only message queues:
+ipcs     -q
+Show only semaphores:
+ipcs     -s
+Show only shared memory:
+ipcs     -m
+Removes the IPC ID:
+ipcrm    <msg | sem | shm>  <IPC ID>
+
+=============================================
+

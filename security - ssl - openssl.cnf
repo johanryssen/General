@@ -1,0 +1,39 @@
+## Generate Private Key:
+openssl req -new -out server01.csr -newkey rsa:2048 -nodes -sha256 -keyout server01.key -config openssl.cnf
+
+## View CSR
+openssl req -text -noout -verify -in server01.csr
+
+--------------------
+
+## openssl.cnf:
+[ req ]
+default_bits       = 2048
+default_md         = sha256
+default_keyfile    = server01.key
+prompt             = no
+encrypt_key        = no
+
+# base request
+distinguished_name = req_distinguished_name
+
+# extensions
+req_extensions     = v3_req
+
+# distinguished_name
+[ req_distinguished_name ]
+countryName            = "AU"
+stateOrProvinceName    = "QLD"
+localityName           = "Brisbane"
+postalCode             = "4000"
+organizationName       = "Test Lab Inc"
+organizationalUnitName = "IT"
+commonName             = "server01.test.lab"
+
+# req_extensions
+[ v3_req ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = server01
+

@@ -1,0 +1,103 @@
+
+--- On server hosting repo/pkgs ---
+
+## Local Repo Setup
+
+1. Install REPO and FTP packages:
+vsftpd
+createrepo
+yum-utils
+vsftpd
+ftp
+
+2. Create repo dir
+# mkdir /repo
+
+3. Mount RHEL8.4 ISO and copy all content to /repo
+# mount -t iso9660 rhel8-4.iso /mnt
+# cp -pr /mnt/* /repo/
+
+4. Configure the local YUM/DNF repository
+
+cat <<EOF>> /etc/yum.repos.d/local.repo
+[LocalRepo_BaseOS]
+name=LocalRepo_BaseOS
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=file:///repo/BaseOS/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[LocalRepo_AppStream]
+name=LocalRepo_AppStream
+metadata_expire=-1
+enabled=1
+gpgcheck=1
+baseurl=file:///repo/AppStream/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
+
+5. Create repo
+# createrepo /repo
+
+6. Verify local repo
+# dnf clean all ; dnf repolist
+
+
+7. To suppress the message "This system is not registered to Red Hat Subscription Management."
+# vim /etc/yum/pluginconf.d/subscription-manager.conf
+[main]
+enabled=0
+
+
+### FTP Server setup
+1. Start & Enable vsftpd:
+# systemctl enable --now vsftpd
+
+2. Firewall config
+firewall-cmd --permanent --add-service=ftp
+firewall-cmd --reload
+
+3. vsftpd config
+#local_root=/repo -- Doesn't work with this option
+anon_root=/repo
+anonymous_enable=YES
+local_enable=YES
+write_enable=NO
+local_umask=022
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+xferlog_std_format=YES
+listen=NO
+listen_ipv6=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+
+
+4. Restart vsftpd
+systemctl restart vsftpd
+
+
+
+### Update permissions and SELinux
+1. ACLs 
+# setfacl -R -m u:root:rwx /repo/
+
+2. SELinux context:
+# chcon -Rt public_content_t /repo/
+
+
+--- On client system ---
+
+1. Create repo
+cat <<EOF>> /etc/yum.repos.d/localrhel8.repo 
+[LocalServerRepo]
+name=LocalServerRepo
+enabled=1
+gpgcheck=0
+baseurl=ftp://10.10.10.100
+EOF
+
+
+

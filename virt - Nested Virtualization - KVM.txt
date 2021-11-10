@@ -1,0 +1,165 @@
+## Nested Virtualization in KVM
+
+"L0" – the bare metal host, running KVM
+"L1" – a VM running on L0; also called the "guest hypervisor" — as it itself is capable of running KVM
+"L2" – a VM running on L1, also called the "nested guest"
+
+To enable nesting, set the nested module parameter to Y or 1.
+You may set this parameter persistently in a file in /etc/modprobe.d in the L0 host, for example:
+
+# If you have an Intel CPU, use this:
+$ cat /etc/modprobe.d/kvm_intel.conf
+options kvm-intel nested=Y
+
+# If you have an AMD CPU, then this:
+$ cat /etc/modprobe.d/kvm_amd.conf
+options kvm-amd nested=1
+
+Once your L0 host is capable of nesting, you should be able to start an L1 guest with the '-cpu' host option
+(or for better live migration compatibility, use a named CPU model supported by QEMU, such as:
+-cpu Haswell-noTSX-IBRS,vmx=on)
+and the guest will subsequently be capable of running an L2 guest with accelerated KVM.
+
+================== CHECKS ==================
+
+# modinfo kvm_intel | grep -i nested
+parm:           nested_early_check:bool
+parm:           nested:bool
+
+-----
+
+# cat /sys/module/kvm_intel/parameters/nested 
+Y
+
+-----
+
+# yum install sysfsutils -y
+# systool -m kvm_intel -v   | grep -i nested
+    nested              = "Y"
+    nested_early_check  = "N"
+
+====================================
+
+
+##### Enabling nested virtualization in KVM #####
+
+--- Checking if nested virtualization is supported ---
+
+# Intel processors:
+cat /sys/module/kvm_intel/parameters/nested
+
+# AMD processors:
+cat /sys/module/kvm_amd/parameters/nested
+
+If you see 1 or Y, nested virtualization is supported;
+if you see 0 or N, nested virtualization is not supported.
+
+E.g:
+cat /sys/module/kvm_intel/parameters/nested
+Y
+
+-or-
+
+# Check if "kvm_intel" kernel module has nesting enabled
+
+# modinfo kvm_intel | grep -i nested
+parm:           nested_early_check:bool
+parm:           nested:bool
+
+
+--- Enabling nested virtualization ---
+
+## Intel ##
+
+1. Shut down all running VMs and unload the kvm_probe module:
+sudo modprobe -r kvm_intel
+
+2. Activate the nesting feature:
+sudo modprobe kvm_intel nested=1
+
+3. Nested virtualization is enabled until the host is rebooted.
+To enable it permanently, add the following line to the /etc/modprobe.d/kvm.conf file:
+options kvm_intel nested=1
+
+## AMD ##
+
+1. Shut down all running VMs and unload the kvm_amd module:
+
+1. sudo modprobe -r kvm_amd
+
+2. Activate the nesting feature:
+sudo modprobe kvm_amd nested=1
+
+3. Nested virtualization is enabled until the host is rebooted.
+To enable it permanently, add the following line to: /etc/modprobe.d/kvm.conf
+options kvm_amd nested=1
+
+
+========================================================================
+
+
+## virsh ## Enable nested virtualization on KVM guest machines ##
+
+1. Find the VM
+virsh list --all
+
+ Id    Name                           State
+----------------------------------------------------
+ -     Fedora34                       shut off
+ -     OL79                           shut off
+
+
+2. Edit the VM
+virsh edit OL79
+
+3. Search for:
+cpu mode
+
+4. Change: mode='host-model'
+<cpu mode='custom' match='exact' check='partial'>
+-to-
+<cpu mode='host-model' match='exact' check='partial'>
+
+5. Start the vm
+
+6. Verify if nested feature is enabled:
+virsh dumpxml OL79 | grep 'cpu mode'
+  <cpu mode='custom' match='exact' check='partial'>
+
+7. Inside the VM:
+egrep --color -i "svm|vmx" /proc/cpuinfo
+
+======= or =======
+
+## virt-manager ## Enable nested virtualization on KVM guest machines ##
+
+1. Open virt-manager, double-click the VM in which you wish to enable nested virtualization, and click the Show virtual hardware details icon.
+
+2. Click CPUs in the side menu. In the Configuration section, there are two options - either:
+	- type: host-passthrough in the Model: field,
+	or 
+	- select the Copy host CPU configuration check box (that fills the host-model value in the Model field).
+
+> Using host-passthrough is not recommended for general usage. It should only be used for nested virtualization purposes.
+
+3. Click Apply.
+
+
+##### Testing nested virtualization #####
+
+1. Start the virtual machine.
+
+2. On the virtual machine, run:
+yum group install virtualization
+
+3. Verify that the virtual machine has virtualization correctly set up:
+sudo virt-host-validate
+  QEMU: Checking for hardware virtualization                                 : PASS
+  QEMU: Checking if device /dev/kvm exists                                   : PASS
+  QEMU: Checking if device /dev/kvm is accessible                            : PASS
+  QEMU: Checking if device /dev/vhost-net exists                             : PASS
+  QEMU: Checking if device /dev/net/tun exists                               : PASS
+
+---------------------------
+
+

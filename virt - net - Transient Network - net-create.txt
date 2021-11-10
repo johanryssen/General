@@ -1,0 +1,59 @@
+## Create a running, TRANSIENT virtual network ##
+
+(1) XML file: /root/newnetwork_transient.xml
+<network>
+  <name>newnetwork_transient</name>
+  <forward mode='nat'>
+  </forward>
+  <bridge name='"virbr20"' stp='on' delay='0'/>
+  <ip address='10.10.10.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.10.10' end='10.10.10.200'/>
+    </dhcp>
+  </ip>
+</network>
+
+
+(2) Start virsh interactively, then create the TRANSIENT virtual network:
+
+# virsh
+...
+virsh # net-list
+Name                 State      Autostart
+-----------------------------------------
+default              active     yes
+
+
+virsh # net-create /root/newnetwork_transient.xml
+Network newnetwork_transient created from /root/newnetwork_transient.xml
+
+
+(3) Created. Now we confirm:
+virsh # net-list
+Name                 State      Autostart
+-----------------------------------------
+default              active     yes
+newnetwork_transient       active     no
+
+(4) Check the details of the created network from virsh.
+
+virsh # net-dumpxml newnetwork_transient
+<network>
+  <name>newnetwork_transient</name>
+  <uuid>123123-1234-1234-1234-123123123</uuid>
+  <forward mode='route'/>
+  <bridge name='virbr10' stp='on' delay='0' />
+  <ip address='10.10.10.1' netmask='255.255.255.0'>
+  </ip>
+</network>
+
+(5) View network from OS perspective:
+# ifconfig virbr10
+virbr10  Link encap:Ethernet  HWaddr 02:95:C3:06:A5:BF  
+          inet addr:10.10.10.1  Bcast:10.10.10.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:11 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 b)  TX bytes:2653 (2.5 KiB)
+...

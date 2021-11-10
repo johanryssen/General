@@ -1,6 +1,0 @@
-oci-kvm create -D OL79b -d /dev/sdb -V --vcpus 1 --memory 2048 --boot cdrom,hd \ 
---location /ISO/OracleLinux-R7-U9-Server-x86_64-dvd.iso \
---nographics --console pty,target_type=serial \
---console pty,target_type=virtio --noautoconsole \
---os-variant=rhel7 \
---extra-args "console=tty0 console=ttyS0,115200n8 serial"

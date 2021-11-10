@@ -1,0 +1,71 @@
+## Create a stopped, PERSISTENT virtual network ##
+
+(1) XML file: /root/newnetwork_persistent.xml
+<network>
+  <name>newnetwork_persistent</name>
+  <forward mode='nat'>
+  </forward>
+  <bridge name='"virbr20"' stp='on' delay='0'/>
+  <ip address='10.10.20.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.20.10' end='10.10.20.200'/>
+    </dhcp>
+  </ip>
+</network>
+
+
+(2) Start virsh interactively, then create the PERSISTENT virtual network:
+
+# virsh
+...
+virsh # net-list
+Name                 State      Autostart
+-----------------------------------------
+default              active     yes
+
+
+virsh # net-define /root/newnetwork_persistent.xml
+Network newnetwork_persistent defined from /root/newnetwork_persistent.xml
+
+
+(3) Defined. Now we confirm:
+virsh # net-list --all
+Name                 State      Autostart
+-----------------------------------------
+default              active     yes
+newnetwork_persistent       inactive   no
+
+(4) Newly defined virtual networks aren't automatically started, so we manually start it now:
+
+virsh # net-start newnetwork_persistent
+Network newnetwork_persistent started
+
+virsh # net-list
+Name                 State      Autostart
+-----------------------------------------
+default              active     yes
+newnetwork_persistent       active     no
+
+## Set it to Auto Start
+virsh # net-autostart newnetwork_persistent
+
+(5) check the details of the started network from virsh.
+virsh # net-dumpxml newnetwork_persistent
+<network>
+  <name>newnetwork_persistent</name>
+  <uuid>97ce3914-231e-4026-0a78-822e1e2e7226</uuid>
+  <forward mode='route'/>
+  <bridge name='virbr20' stp='on' delay='0' />
+  <ip address='10.10.20.1' netmask='255.255.255.0'>
+  </ip>
+</network>
+
+(6) View network from OS perspective:
+# ifconfig virbr20
+virbr20  Link encap:Ethernet  HWaddr A6:45:97:AE:8E:08  
+          inet addr:10.10.20.1  Bcast:10.10.20.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:11 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 b)  TX bytes:2653 (2.5 KiB)

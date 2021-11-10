@@ -3,7 +3,7 @@
 # Rescan
 for host in $(ls -l /sys/class/scsi_host/host*/scan | awk {'print $9'}) ; do echo "- - -" > $host ; done
 -or-
-for host in `ls /sys/class/scsi_host/` ; do echo "- - -" > /sys/class/scsi_host/${host}/scan; done
+for host in `ls -1 /sys/class/scsi_host/` ; do echo "- - -" > /sys/class/scsi_host/${host}/scan; done
 
 
 # Check for new devices:
@@ -22,6 +22,10 @@ multipath -ll
                 alias                   newDisk2
         }
 ...
+
+fdisk -l| grep Disk
+
+
 
 # Create Logical Vol
 

@@ -1,0 +1,2 @@
+# Remove ^M characters from a DOS file
+tr -d \\r < dosfile > newfile

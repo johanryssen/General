@@ -641,6 +641,7 @@ $ if [ a = b ]
 > else echo "a is not the same as b."
 > fi
 a is not the same as b.
+
 if executes the command [ (remember, you don't need an if to run the [ command!) with the arguments a, =, b and ].
 [ uses these arguments to determine what must be checked.
 In this case, it checks whether the string a (the first argument) is equal (the second argument) to the string b (the third argument), and if this is the case, it will exit successfully.

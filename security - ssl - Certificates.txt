@@ -5,15 +5,19 @@ openssl genrsa -aes128 -out private_key.pem 2048
 2. # Generate a SELF-SIGNED CERTIFICATE #
 openssl req -utf8 -new -key <KEY_FILENAME> -x509 -days <CERT_LIFESPAN> -out <CERT_FILENAME>
 openssl req -utf8 -new -key private_key.pem -x509 -days 365 -out mycert.crt
+
 -then-
+
 3. # Display CERTIFICATE #
 openssl x509 -in mycert.crt -text -noout
 
 -or- 
+
 2. # Create CSR #
 openssl req -new -key <PRIVATE KEY.pem> -out <output.csr>
 openssl req -new -key private_key.pem -out myreq.csr
 -then-
+
 3. # Display CERTIFICATE #
 openssl x509 -in mycert.crt -text -noout
 
@@ -26,6 +30,5 @@ PFX/PKCS#12 - Binary format capable of storing keys, certs and intermediary cert
 ---------------------------
 
 ## Get the SAN (subjectAltName) of a site's certificate ##
-echo "quit" | openssl s_client -connect facebook.com:443 | openssl x509 -noout -text | grep "DNS:" | perl -pe "s/(, )?DNS:/\n/g"
-# Replace "facebook.com" with the desired hostname.
-
+echo "quit" | openssl s_client -connect example.com:443 | openssl x509 -noout -text | grep "DNS:" | perl -pe "s/(, )?DNS:/\n/g"
+# Replace "example.com" with the desired hostname.

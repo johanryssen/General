@@ -1,0 +1,50 @@
+# Create KVM bridge with virsh
+
+cat <<EOF> br10.xml
+<network>
+  <name>br10</name>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='br10' stp='on' delay='0'/>
+  <ip address='10.10.10.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.10.10' end='10.10.10.200'/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+
+
+## To define a network from an XML file without starting it, use:
+$ sudo virsh net-define  br10.xml
+Network br1 defined from br10.xml
+
+## To start a (previously defined) inactive network, use:
+$ sudo virsh net-start br10
+Network br10 started
+
+## To set network to autostart at service start:
+$ sudo virsh net-autostart br10
+Network br10 marked as autostarted
+
+## Check to Confirm if autostart flag is turned to yes – Persistent should read yes as well.
+
+$ sudo virsh net-list --all
+ Name              State    Autostart   Persistent
+----------------------------------------------------
+ br10              active   yes         yes
+ default           active   yes         yes
+ docker-machines   active   yes         yes
+ fed290            active   no          yes
+ vagrant-libvirt   active   no          yes
+
+
+## Confirm bridge creation and IP address.
+$ ip addr show dev br10
+28: br10: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
+    link/ether 52:54:00:94:00:f5 brd ff:ff:ff:ff:ff:ff
+    inet 10.10.10.1/24 brd 10.10.10.255 scope global br10
+       valid_lft forever preferred_lft forever

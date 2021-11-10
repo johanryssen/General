@@ -1,0 +1,76 @@
+# Generate Self-Signed Cert:
+openssl req -x509 -newkey rsa:4096 -keyout private_key.pem -out cert.pem -sha256 -days 365 -nodes -subj "/C=AU/ST=QLD/L=Brisbane/O=Test Lab Inc/OU=IT Security/CN=ls.test.lab"
+
+# -nodes (no DES) - No password required.
+
+# View the Cert:
+openssl x509 -in cert.pem -text -noout
+
+######################
+
+# Create a SELF-SIGNED CERTIFICATE (Addition of -x509 option):
+openssl req -config openssl.cnf -new -x509 -sha256 -newkey rsa:4096 -nodes -keyout test-lab.KEY.pem -days 365 -out test-lab.CERT.pem
+
+# Print a self-signed certificate:
+openssl x509 -in test-lab.CERT.pem -text -noout
+
+------------------
+
+# Create a SIGNING REQUEST (Lack of -x509 option):
+openssl req -config openssl.cnf -new -sha256 -newkey rsa:2048 -nodes -keyout test-lab.KEY.pem -days 365 -out test-lab.REQ.pem
+
+# Print a signing request:
+openssl req -in test-lab.REQ.pem -text -noout
+
+------------------
+## For Apache: 
+cp test-lab.KEY.pem /usr/local/apache/conf/ssl.key/server.key
+cp test-lab.CERT.pem /usr/local/apache/conf/ssl.crt/server.crt
+------------------
+
+# openssl.cnf
+[ req ]
+default_bits = 2048
+default_keyfile = test-lab.key.pem
+distinguished_name = subject
+req_extensions = req_ext
+x509_extensions = x509_ext
+string_mask = utf8only
+
+[ subject ]
+countryName = AU
+countryName_default = AU
+stateOrProvinceName = QLD
+stateOrProvinceName_default = QLD
+localityName = Brisbane
+localityName_default = Brisbane
+organizationName = Test Labs Inc
+organizationName_default = Company A
+commonName = ls.test.lab
+commonName_default = local.host
+emailAddress = root@ls.test.lab
+emailAddress_default = root@localhost
+
+# Section x509_ext is used when generating a SELF-SIGNED CERTIFICATE (eg. openssl req -x509)
+[ x509_ext ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+subjectAltName = @alternate_names
+nsComment = "OpenSSL Generated Certificate"
+
+[ req_ext ]
+subjectKeyIdentifier = hash
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+subjectAltName = @alternate_names
+nsComment = "OpenSSL Generated Certificate"
+
+[ alternate_names ]
+DNS.1 = test.lab
+DNS.2 = www.test.lab
+DNS.3 = mail.test.lab
+DNS.4 = ftp.test.lab
+
+######################

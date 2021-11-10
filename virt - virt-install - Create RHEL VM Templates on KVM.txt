@@ -1,0 +1,104 @@
+Create RHEL VM Templates on KVM
+-----------------------
+
+--- Install KVM ---
+
+sudo systemctl start libvirtd
+sudo systemctl enable libvirtd
+
+sudo modprobe vhost_net
+echo vhost_net | sudo tee -a /etc/modules
+
+---------------------------------
+
+
+--- Create RHEL VM ---
+
+## 1. Create a (20G) VM image using qemu-img.
+sudo qemu-img create -o preallocation=metadata -f qcow2 /var/lib/libvirt/images/__VM_NAME__.qcow2 20G
+
+
+## 2. Installation
+### [Requires X windows] Option 2.1 Start Installation of your baseline operating system.
+
+sudo virt-install --virt-type kvm --name __VM_NAME__ --ram 1024 \
+   --disk /var/lib/libvirt/images/__VM_NAME__.qcow2,format=qcow2 \
+   --network network=__NETWORK_NAME__ \
+   --graphics vnc,listen=0.0.0.0 --noautoconsole \
+   --os-type=linux --os-variant=rhel7.5 \
+   --location=__PATH_TO_ISO__.iso
+
+## Replace:
+- __VM_NAME__:	With the name of Base instance.
+- /var/lib/libvirt/images/__VM_NAME__.qcow2:	with the path to disk image
+- __PATH_TO_ISO__.iso:	with path to your ISO file
+- __NETWORK_NAME__:	with a name of KVM network to use.
+
+
+### [CLI - noX] Option 2.2 For console installation:
+
+sudo virt-install --virt-type kvm --name __VM_NAME__ --ram 1024 \
+   --disk /var/lib/libvirt/images/__VM_NAME__.qcow2,format=qcow2 \
+   --network network=__NETWORK_NAME__ \
+   --os-type=linux --os-variant=rhel7.5 \
+   --location=__PATH_TO_ISO__.iso \
+   --graphics none \
+   --console pty,target_type=serial \
+   --extra-args 'console=ttyS0,115200n8 serial'
+
+---------------------------------
+
+
+--- Prepare RHEL VM template ---
+
+1. Update system
+After VM installation, update all packages:
+sudo yum -y update
+
+2. Install standard basic packages missing:
+sudo yum install -y epel-release vim bash-completion wget curl telnet net-tools unzip lvm2 lsof mlocate sysstat tcpdump util-linux
+
+3. Install acpid and cloud-init packages:
+sudo yum -y install acpid cloud-init cloud-utils-growpart
+sudo systemctl enable --now acpid
+
+4. Disable the zeroconf route:
+echo "NOZEROCONF=yes" | sudo tee -a /etc/sysconfig/network
+
+5. Configure GRUB_CMDLINE_LINUX – For Openstack usage:
+If you plan on exporting template to Openstack Glance image service, edit the /etc/default/grub file and configure the GRUB_CMDLINE_LINUX option.
+Your line should look like below (remove rhgb quiet and add console=tty0 console=ttyS0,115200n8)
+
+GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=cl/root rd.lvm.lv=cl/swap console=tty0 console=ttyS0,115200n8"
+
+Generate grub configuration:
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+6. Install other packages you need on your baseline template.
+
+7. Power off the VM
+sudo poweroff
+
+---------------------------------
+
+
+Step 4: Clean VM template
+
+# Use virt-sysprep for cleaning the instance.
+sudo virt-sysprep -d __VM_NAME__
+
+# Undefine the libvirt domain after cleaning up the VM.
+sudo virsh undefine __VM_NAME__
+
+---------------------------------
+
+## Attach to VM Console:
+virsh console OL79 --safe
+
+## Detach from VM Console:
+Ctrl+]
+-or-
+Ctrl+5
+
+---------------------------------
+

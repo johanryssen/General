@@ -47,11 +47,11 @@ echo ""
 /usr/bin/updatedb
 /usr/bin/mandb -q
 echo ""
-echo > /root/.bash_history
-echo > /root/.viminfo
-for i in $(ls -1 /home);
-        do echo > /home/$i/.bash_history ;
-        echo > /home/$i/.vim_info ;
-done
+#echo > /root/.bash_history
+#echo > /root/.viminfo
+#for i in $(ls -1 /home);
+#        do echo > /home/$i/.bash_history ;
+#        echo > /home/$i/.vim_info ;
+#done
 echo ""
 exit 0

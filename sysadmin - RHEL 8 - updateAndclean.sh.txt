@@ -9,9 +9,6 @@ echo ""
 echo "--- DNF Clean All ---"
 /bin/dnf clean all --verbose | tail -1
 echo ""
-echo "--- Remove X-related packages ---"
-/bin/dnf remove xorg* motif xkeyboard-config -y ;
-echo ""
 echo "--- DNF MakeCache ---"
 /bin/dnf makecache timer
 echo ""
@@ -19,9 +16,12 @@ echo "--- DNF Update / Upgrade / AutoRemove ---"
 dnf update -y ;
 dnf upgrade -y ;
 dnf autoremove -y ;
+echo ""
+echo "DNF Done"
+echo ""
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
-echo "Done"
+echo "Log Rotate Done"
 echo ""
 echo "--- Temp File Cleanup ---"
 /bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
@@ -52,6 +52,7 @@ systemctl restart systemd-journald
 echo ""
 /bin/updatedb
 /bin/mandb -q
+echo ""
 echo ""
 echo "----- Disk Space -----"
 df -hTP | awk {'print $7 " " $6'} | column -t | head -1

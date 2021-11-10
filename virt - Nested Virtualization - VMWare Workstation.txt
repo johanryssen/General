@@ -1,0 +1,5 @@
+# VMware Workstation:
+PS> bcdedit /set hypervisorlaunchtype off
+
+# Hyper-V:
+PS> bcdedit /set hypervisorlaunchtype auto

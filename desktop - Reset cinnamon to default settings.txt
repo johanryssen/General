@@ -1,9 +1,0 @@
-1. Move this directory:
-/home/user1/.local/share/cinnamon
-
-2. Save anything you need to be saved.
-
-3. Restart X Server
-Ctrl+Alt+Backspace
-
-4. Log back in to Cinnamon

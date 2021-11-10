@@ -1,0 +1,6 @@
+# Issue:
+After installation of RHEV-M and with the Windows firewall enabled, the connection between RHEV-H and RHEV-M will not work.
+
+# Windows firewall setup for RHEV-M access
+c:\> for /D %p in (80,443,25285,54321,22,8006,8007,8008,8009) do (netsh firewall add portopening protocol = TCP port = %p name = RHEVM%p)
+c:\> netsh firewall set icmpsetting 8 enable

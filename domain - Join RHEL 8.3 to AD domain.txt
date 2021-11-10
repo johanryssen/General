@@ -2,6 +2,8 @@ Join RHEL 8.3 to AD domain
 
 ----------
 
+yum -y install realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation
+
 ## Prework:
 echo "10.10.25.200		dc1.lab.local dc1 kerberos _ldap._tcp lab.local" >> /etc/hosts
 echo "10.10.25.100		rhel83.lab.local    rhel83" >> /etc/hosts

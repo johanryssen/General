@@ -1,7 +1,150 @@
 FreeBSD
+-------------------
 
 
--------------------- Users --------------------
+
+
+To see the 10 largest files in a directory or on a UFS partition, use
+du -h /partition_or_directory_name | sort -rh | head
+
+---------------------------------------------------
+
+# Memory (in bytes) before the kernel and modules are loaded:
+sysctl hw.realmem
+
+# Memory after the kernel and modules are loaded:
+hw.physmem
+
+# Number of active CPUs:
+sysctl hw.ncpu
+
+---------------------------------------------------
+
+If you don't want to edit /etc/rc.conf directly, use sysrc(8) to add and remove entries.
+
+# Add:
+sysrc name=value
+
+# Delete:
+sysrc -x name
+
+---------------------------------------------------
+
+# List all files of an installed package:
+pkg info -l packagename
+
+---------------------------------------------------
+
+Open up a new (horizontal) split-screen window in (n)vi with:
+
+:N <filename>
+-or-
+:E
+
+use ^w to switch between the two.
+
+---------------------------------------------------
+
+View which daemons are listening for connection requests:
+# IPv4:
+sockstat -4l
+
+# IPv6:
+sockstat -l
+
+-----------------------------------
+# See the 10 largest files in a directory or on a UFS partition
+du -h /partition_or_directory_name | sort -rh | head
+-----------------------------------
+Need to leave your terminal for a few minutes and don't want to logout?
+lock -p
+When you return your password as the key to unlock the terminal.
+-----------------------------------
+# You can adjust the volume of various parts of the sound system in your computer by typing:
+mixer <type> <volume>
+# Get a list of what you can adjust:
+mixer
+-----------------------------------
+# Routing table
+netstat -rn
+# Gateway - The entry with the G flag
+-----------------------------------
+Strip UTF-8 BOM(Byte Order Mark) from given files
+sed -e '1s/^\xef\xbb\xbf//' < bomfile > newfile
+-----------------------------------
+# Remove ^M characters from a DOS file
+tr -d \\r < dosfile > newfile
+-----------------------------------
+Find out the hostname associated with an IP address:
+drill -x IP_address
+-----------------------------------
+Run a program directly after some other process has ended:
+pwait pid && new_program
+-----------------------------------
+Permanently set environment variables for your shell by putting them in a startup file for the shell.
+The name of the startup file varies depending on the shell
+- csh and tcsh uses .login
+- bash, sh, ksh and zsh use .profile.
+-----------------------------------
+To read a compressed file without having to first uncompress it "zcat" or "zless" to view it.
+There is also "bzcat", "bzless", "xzcat" and "xzless".
+-----------------------------------
+# After you compiled and installed a new version of FreeBSD, run:
+etcupdate
+# to merge configuration updates.
+
+# Run "etcupdate extract" once when your sources match your running system, then run "etcupdate" after every upgrade and "etcupdate resolve" to resolve any conflicts.
+-----------------------------------
+Handy bash(1) prompt:
+PS1="\u@\h \w \!$ "
+-----------------------------------
+Display version of FreeBSD:
+freebsd-version -ku
+-----------------------------------
+To easily configure your installed FreeBSD use:
+bsdconfig
+-----------------------------------
+# To set a custom ZFS property on the mypool pool, you need to provide it using the "key1:key2=value" syntax,
+# where the colon (:) is used as the separator and identifier from the built-in ZFS properties:
+zfs set warranty:expires=2038-01-19 mypool
+
+# The custom property is applied to all datasets and can be queried like any built-in properties using zfs get:
+zfs get warranty:expires mypool
+
+# To reset the value of a custom property the inherit subcommand:
+zfs inherit warranty:expires mypool
+
+# Removing a custom property from a pool is done using the -r flag to the "zfs inherit" command:
+zfs inherit -r warranty:expires mypool
+-----------------------------------
+# To make the "zfs list" output more script-friendly, you can suppress the output of the headers for each column by passing the -H parameter:
+zfs list -H
+
+# Another helpful option for script writers is -p, which displays the numbers in non-rounded, exact values:
+zfs list -p
+-----------------------------------
+# You can limit the depth of the displayed datasets in the "zfs list" output using the -d parameter.
+# To display only the first level of datasets below mypool/usr and not the ones deeper than those
+zfs list -d 1 mypool/usr
+-----------------------------------
+# To set a quota of 10 GB for the user named foo on a ZFS dataset:
+zfs set userquota@foo=10G pool/home/foo
+
+# The zfs userspace command can display the quota and current space usage:
+zfs userspace pool/home/foo
+# To unset a quota, assign "none" as the value.
+-----------------------------------
+# Sort the datasets by the "used" column in ascending order
+zfs list -s used
+
+# Sort in descending order
+zfs list -S used
+-----------------------------------
+
+
+
+
+-------------------- Users ------------------------------------
 ## Password & Password Aging info:
 
 /etc/passwd is generated from /etc/master.passwd
@@ -110,5 +253,5 @@ $6$salt1234$kA8JtOEiPmrrD4FAh8Hqg369uI9Ktd7A/uFmRAsvjNwG.Vc2EVYD1amPiO242Lx.uywE
 # Create new user:
 ./mp | pw useradd -n user2 -m -H 0
 
-----------------------------------------
+--------------------------------------------------------
 

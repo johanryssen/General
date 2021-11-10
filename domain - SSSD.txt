@@ -4,7 +4,7 @@
 ## Joining Active Directory Domain
 
 (1) Install realmd package:
-[user1@server32 ~]$ yum -y install realmd
+[user1@server32 ~]$ yum -y install realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation
 
 (2) Discover settings for domain.example.com:
 [user1@server32 ~]$ sudo realm discover domain.example.com

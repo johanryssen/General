@@ -1,0 +1,48 @@
+## Reset KVM Clone ##
+
+# Clone a vm named 'bionic' as 'new-vm' using the virt-clone command:
+sudo virt-clone --original bionic --name new-vm --auto-clone
+
+# Reset everything:
+sudo virt-sysprep -d new-vm
+
+# Set new hostname:
+sudo virt-sysprep -d new-vm --hostname new-vm.test.lab
+
+# Keep the user account named jo:
+sudo virt-sysprep -d new-vm --enable user-account --keep-user-accounts jo
+
+# Create new Linux user account (tom) and force password change on first login:
+sudo virt-sysprep -d new-vm --firstboot-command 'useradd -s /bin/bash -m -G sudo tom; chage -d 0 tom'
+
+# Set root user account password:
+sudo virt-sysprep -d new-vm --root-password password:pass123 --password-crypto sha512
+
+# Combined:
+sudo virt-sysprep -d new-vm --hostname new-vm  --enable user-account --keep-user-accounts jo --root-password password:pass123 --password-crypto sha512
+
+---------------------------------
+# Inject a public key into the guest:
+--ssh-inject <USER[:SELECTOR]>
+---------------------------------
+
+# Skip certain guest VM reset features:
+## You can enable specific operations with --enable. For example, enable all options except resetting fs-uuids ( Change filesystem UUIDs), lvm-uuids ( Change lvm2 PV and VG UUIDs), and ssh-userdir ( Remove ".ssh" directories in the guest):
+
+w=$(virt-sysprep --list-operations | egrep -v 'fs-uuids|lvm-uuids|ssh-userdir' | awk '{ printf "%s,", $1}' | sed 's/,$//')
+echo "$w"
+
+# Now run it as follows:
+sudo virt-sysprep -d new-vm --hostname new-vm --keep-user-accounts jo --enable $w
+
+## Another example:
+sudo virt-sysprep -d new-vm --hostname new-vm --keep-user-accounts jo --enable $w --firstboot-command 'dpkg-reconfigure openssh-server'
+
+---------------------------------
+
+3. Start VM
+virsh start new-vm
+
+
+4. Get IP
+virsh net-dhcp-leases default

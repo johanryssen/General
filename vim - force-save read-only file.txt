@@ -1,0 +1,7 @@
+When you've made modifications to a file in vim and then find that you can't write it, type:
+If you have sudo installed and permissions to use it, type:
+
+<ESC>
+:w ! sudo tee %
+
+to force a write.

@@ -25,14 +25,18 @@
 
 --- LOCATION ---
 
+------------------------------------
 ## To use '--location' with CDROM media:
 * Run virt-install as root and do: --location ISO
 -or-
 * Mount the ISO at a local directory, and do: --location DIRECTORY
 -or-
 * Mount the ISO at a local directory, export that directory over local http, and do: --location http://localhost/DIRECTORY
+------------------------------------
 
 # Install OracleLinux 7.9
+
+## CLI Install ##
 
 virt-install \
 --name OracleLinux79 \
@@ -41,9 +45,9 @@ virt-install \
 --vcpus=1 \
 --os-type=Linux \
 --os-variant=rhel7 \
---disk path=/var/lib/libvirt/images/OracleLinux79.qcow2,bus=virtio,size=15 \
+--disk path=/var/lib/libvirt/images/OracleLinux79.qcow2,bus=virtio,size=20 \
 --graphics none \
---location /opt/ISO/OracleLinux-R7u9.iso \
+--location /opt/ISO/OracleLinux-7u9.iso \
 --network bridge:virbr0  \
 --console pty,target_type=serial \
 --extra-args console=ttyS0

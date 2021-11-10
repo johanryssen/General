@@ -33,3 +33,35 @@ IP=$(ip a | grep "inet" | grep "ens" | awk -F/ '{print $1}' | awk '{print $2}') 
 
 eth0: \4{eth0}
 
+--------------------------
+
+# ip addr show enp0s3 | grep inet | awk {'print $2'}
+10.0.2.15/24
+
+-then-
+
+# ip addr show enp0s3 | grep inet | awk {'print $2'} | cut -d/ -f1
+10.0.2.15
+
+-f1 - Field 1
+-f2 - Field 2
+
+--------------------------
+
+root@ol8 ~ # ifconfig ens3 | grep inet6 | awk {'print $2'}
+fe80::17ff:fe01:6011
+
+root@ol8 ~ # ifconfig ens3 | grep inet6 | awk {'print $2'} | cut -d: -f4
+fe01
+
+root@ol8 ~ # ifconfig ens3 | grep inet6 | awk {'print $2'} | cut -d: -f4 | cut -df -f2
+e01
+
+root@ol8 ~ # ifconfig ens3 | grep inet6 | awk {'print $2'} | cut -d: -f4 | cut -df -f2 | cut -d1 -f1
+e0
+
+
+--------------------------
+
+
+--------------------------

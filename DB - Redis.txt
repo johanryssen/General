@@ -1,0 +1,175 @@
+# REDIS [REmote DIctionary Server]
+
+---------- Optimize Redis ----------
+
+----- Increase TCP backlog -----
+
+## /var/log/redis/redis.log:
+WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+
+## Configure rc.local:
+echo sysctl -w net.core.somaxconn=65535 >> /etc/rc.local
+chmod +x /etc/rc.local
+echo -e "\n[Install]\nWantedBy=multi-user.target\n" >> /usr/lib/systemd/system/rc-local.service
+systemctl enable --now rc-local.service
+
+
+----- Enable low-memory DB saves -----
+
+?????
+
+
+----- Set the Linux kernel overcommit memory setting to 1 -----
+echo vm.overcommit_memory = 1 >> /etc/sysctl.conf
+
+## /var/log/redis/redis.log:
+WARNING overcommit_memory is set to 0! Background save may fail under low memory condition.
+To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+
+
+
+----- Disable Transparent Huge Pages (THP) support -----
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
+
+### /var/log/redis/redis.log:
+WARNING you have Transparent Huge Pages (THP) support enabled in your kernel.
+This will create latency and memory usage issues with Redis.
+To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot.
+
+
+----- Use UNIX socket -----
+
+*** Not-fixed ***
+
+sed -i 's/port 6379/port 0/g' /etc/redis.conf
+sed -i 's/# unixsocket \/tmp\/redis.sock/unixsocket \/var\/run\/redis.socket/g' /etc/redis.conf
+sed -i 's/# unixsocketperm 700/unixsocketperm 770/g' /etc/redis.conf
+
+
+## /var/log/redis/redis.log:
+Opening Unix socket: bind: Permission denied
+
+
+
+---------- Setup ----------
+
+## Install / Enable / Start redis
+dnf install epel-release yum-utils redis python3-redis -y
+systemctl enable --now redis
+
+## Firewall
+firewall-cmd --permanent --add-port=6379/tcp 
+firewall-cmd --reload
+
+## Confirm port
+ss -tulpn | grep 6379
+
+
+---------- Config: /etc/redis.conf ----------
+
+### Allow interface for incomming connetions on localhost and IP:
+sed -i 's/bind/bind 10.10.10.203/g' /etc/redis.conf| grep bind
+
+### Set password:
+sed -i 's/# requirepass.*/requirepass s0mePassw0rd/g' /etc/redis.conf
+
+### Disable protected-mode
+sed -i 's/protected-mode yes/protected-mode no/g' /etc/redis.conf
+
+### Restart to read new conf:
+systemctl restart redis
+
+
+---------- Commands ----------
+
+### Local access
+$ redis-cli
+127.0.0.1:6379> auth s0mePassw0rd
+OK
+127.0.0.1:6379> ping
+PONG
+
+
+### Show connected clients:
+127.0.0.1:6379> client list
+id=3 addr=10.10.10.10:56908 fd=8 name= age=27 idle=20 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=0 obl=0 oll=0 omem=0 events=r cmd=ping
+id=4 addr=127.0.0.1:35046   fd=9 name= age=12 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=26 qbuf-free=32742 obl=0 oll=0 omem=0 events=r cmd=client
+
+
+### Set a value
+127.0.0.1:6379> set myname "John"
+OK
+127.0.0.1:6379> get myname
+"John"
+
+
+### Show memory util:
+# redis-cli -r 100 -i 1 info | grep used_memory_human:
+used_memory_human:834.09K
+used_memory_human:834.09K
+
+
+### Search for a pattern:
+redis-cli --scan --pattern '*myname*'
+myname
+
+--scan         List all keys using the SCAN command.
+--pattern pat  Useful with --scan to specify a SCAN pattern.
+
+
+### Remote Access
+$ redis-cli -h 10.10.10.123
+10.10.10.123:6379> auth s0mePassw0rd
+OK
+10.10.10.123:6379> ping
+PONG
+10.10.10.123:6379> INFO
+# Server
+redis_version:5.0.3
+...
+
+
+---------- redis-benchmark ----------
+
+## Info on system performance statistics
+## Some command options:
+-n:	This defines the number of requests to be made. The default is 100000
+-c:	Defines the number of parallel connections to be simulated. By default, this value is 50
+-p:	This is the Redis port which by default is 6379
+-h:	Used to define the host. By default, this value is set to localhost (127.0.0.1)
+-a:	Used to prompt for a password if the server needs authentication
+-q:	Stands for quiet mode. Displays the average requests made per second
+-t:	Used to run a combination of tests
+-P:	Used for pipelining for enhanced performance.
+-d:	Specifies the data size in bytes for GET and SET values. By default, this is set to 3 bytes
+
+
+### Avg no. of requests
+$ redis-benchmark -q
+
+### Subset: -t
+### Avg no. requests for SET and GET commands:
+$ redis-benchmark -t set,get -q
+
+### Default no. of parallel connections = 50.
+
+### Use -c to specify a different number of parallel client connections
+$ redis-benchmark -t set,get -q -c 100000
+
+### 10 parallel connections, 100'000 requests
+$ redis-benchmark -h 127.0.0.1 -p 6379 -n 100000 -c 10
+
+-------------------------------------
+
+## ansible.cfg
+
+[defaults]
+gathering = smart
+fact_caching = redis
+fact_caching_timeout = 6000
+fact_caching_connection = localhost:6379:0
+
+-------------------------------------
+
