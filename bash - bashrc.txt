@@ -1,12 +1,3 @@
-## Find executable files ##
-find <dir> -executable -type f
-
-# Disable bell sound when hitting the backspace
-echo "set bell-style none" >> ~/.inputrc
-bind -f ~/.inputrc
-
---------------------
-
 ### ~/.bashrc ###
 
 ## Change LS display colors [DIR=yellow, EXEC=green] ##
@@ -17,14 +8,3 @@ LS_COLORS='rs=0:di=1;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd
 PS1='\e[36;1m\u\e[37;1m@\e[35m\h\e[37;1m \e[32m\W\e[0m\$ '
 
 export LS_COLORS PS1
-
---------------------
-
-# HISTORY
-shopt -s histappend
-PROMPT_COMMAND='history -n;history -a'
-HISTSIZE=100000
-HISTFILESIZE=100000
-HISTTIMEFORMAT="%d-%b-%y %T  "
-
---------------------

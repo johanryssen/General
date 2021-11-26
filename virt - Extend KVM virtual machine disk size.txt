@@ -1,0 +1,152 @@
+https://ostechnix.com/how-to-extend-kvm-virtual-machine-disk-size-in-linux/
+
+--- Extend KVM virtual machine disk size ---
+
+## Install pkg
+dnf install libguestfs-tools
+
+## Get the volume ID
+virsh dumpxml myvm01 | grep blockSD
+
+## Search for absolute path to block device
+locate <output from above>
+
+
+-or-
+
+
+# virsh dumpxml kvm01 | grep 'disk type' -A5
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/var/lib/libvirt/images/kvm01.qcow2'/>
+      <backingStore/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+...
+
+## Inspect the partition details inside this disk image to find the correct path:
+virt-filesystems --long --parts --blkdevs -h -a /var/lib/libvirt/images/kvm01.qcow2
+
+Name       Type       MBR  Size  Parent
+/dev/sda1  partition  83   500M  /dev/sda
+/dev/sda2  partition  8e   37G   /dev/sda
+/dev/sda   device     -    37G   -
+
+# Create backup of original disk image:
+mv /var/lib/libvirt/images/kvm01.qcow2{,-bak}
+
+# Create new disk image with same name and with size 80GB:
+qemu-img create -f qcow2 -o preallocation=metadata /var/lib/libvirt/images/kvm01.  80G
+
+Formatting '/var/lib/libvirt/images/kvm01.qcow2', fmt=qcow2 size=85899345920 cluster_size=65536 preallocation=metadata lazy_refcounts=off refcount_bits=16
+
+# Check size of new image:
+virt-filesystems --long --parts --blkdevs -h -a /var/lib/libvirt/images/kvm01.qcow2
+
+Name      Type    MBR  Size  Parent
+/dev/sda  device  -    80G   -
+
+# Extend the KVM virtual machine disk image size:
+virt-resize --resize /dev/sda1=+500M --expand /dev/sda2 /var/lib/libvirt/images/kvm01.qcow2-bak /var/lib/libvirt/images/kvm01.qcow2
+
+
+/dev/sda1   partition  -    2.1G  /dev/sda
+/dev/sda14  partition  -    4.0M  /dev/sda
+/dev/sda15  partition  -    106M  /dev/sda
+
+virt-resize --expand /dev/sda1 Ubuntu_18.04-bionic.img-bk Ubuntu_18.04-bionic.img
+
+
+[   0.0] Examining /var/lib/libvirt/images/kvm01.qcow2-bak
+**********
+
+Summary of changes:
+
+/dev/sda1: This partition will be resized from 500.0M to 1000.0M.
+The filesystem xfs on /dev/sda1 will be expanded using the 'xfs_growfs' method.
+
+/dev/sda2: This partition will be resized from 36.5G to 79.0G.
+The LVM PV on /dev/sda2 will be expanded using the 'pvresize' method.
+
+**********
+[   3.0] Setting up initial partition table on /var/lib/libvirt/images/kvm01.qcow2
+[   3.7] Copying /dev/sda1
+[   4.7] Copying /dev/sda2
+ 100% ⟦▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒⟧ 00:00
+[  61.0] Expanding /dev/sda1 using the 'xfs_growfs' method
+[  61.4] Expanding /dev/sda2 using the 'pvresize' method
+
+Resize operation completed with no errors.  Before deleting the old disk,
+carefully check that the resized disk boots and works correctly.
+
+
+---------------
+--resize /dev/sda1=+500M - increases the size of the /dev/sda1 partition to 500 MB.
+--expand /dev/sda2 - resizes the /dev/sda2 partition to to fill all remaining space (36.5G to 79.0G).
+centos8.qcow2.backup - it is the original input disk image.
+centos8.qcow2 - it is the newly created output disk image.
+---------------
+
+
+## Check the partitions and their sizes with virt-filesystems command:
+
+root@asus:~# virt-filesystems --long -h --all -a /var/lib/libvirt/images/kvm01.qcow2
+Name                 Type       VFS  Label MBR Size  Parent
+/dev/sda1            filesystem xfs  /boot -   1000M -
+/dev/vg_main/lv_root filesystem xfs  -     -   33G   -
+/dev/vg_main/lv_swap filesystem swap -     -   4.0G  -
+/dev/vg_main/lv_root lv         -    -     -   33G   /dev/vg_main
+/dev/vg_main/lv_swap lv         -    -     -   4.0G  /dev/vg_main
+/dev/vg_main         vg         -    -     -   79G   /dev/sda2
+/dev/sda2            pv         -    -     -   79G   -
+/dev/sda1            partition  -    -     83  1000M /dev/sda
+/dev/sda2            partition  -    -     8e  79G   /dev/sda
+/dev/sda             device     -    -     -   80G   -
+
+
+----------------
+
+## Boot the VM and check physical volume
+pvs
+
+  PV         VG      Fmt  Attr PSize   PFree
+  /dev/vda2  vg_main lvm2 a--  <79.02g 42.51g
+
+
+## Extend a partition
+growpart /dev/vda 2
+
+CHANGED: partition=2 start=2050048 old: size=165719680 end=167769728 new: size=165722079 end=167772127
+
+
+## Check current size:
+df -h /
+
+Filesystem                   Size  Used Avail Use% Mounted on
+/dev/mapper/vg_main-lv_root   33G  5.4G   28G  17% /
+
+
+## Add space to a logical volume
+# lvextend -l +100%FREE -r /dev/vg_main/lv_root
+
+Size of logical volume vg_main/lv_root changed from <32.51 GiB (8322 extents) to <75.02 GiB (19205 extents).
+Logical volume vg_main/lv_root successfully resized.
+
+meta-data=/dev/mapper/vg_main-lv_root isize=256    agcount=4, agsize=2130432 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=0        finobt=0, sparse=0, rmapbt=0
+         =                       reflink=0
+data     =                       bsize=4096   blocks=8521728, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+log      =internal log           bsize=4096   blocks=4161, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 8521728 to 19665920
+
+
+## Check new size:
+[root@kvm01 ~]# df -h /
+Filesystem                   Size  Used Avail Use% Mounted on
+/dev/mapper/vg_main-lv_root   76G  5.4G   70G   8% /
+

@@ -39,7 +39,7 @@ echo "-- YUM Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils telnet lvm2 tree cloud-utils-growpart device-mapper-multipath 
+/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils telnet lvm2 tree cloud-utils-growpart device-mapper-multipath jq 
 
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"

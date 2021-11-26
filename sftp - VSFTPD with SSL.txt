@@ -1,0 +1,23 @@
+# /etc/vsftpd/vsftpd.conf
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+chroot_local_user=YES
+allow_writeable_chroot=YES
+pasv_min_port=45000
+pasv_max_port=46000
+userlist_file=/etc/vsftpd/user_list
+userlist_deny=NO
+rsa_cert_file=/etc/vsftpd/vsftpd.pem
+rsa_private_key_file=/etc/vsftpd.pem
+ssl_enable=YES
+xferlog_enable=YES
+xferlog_std_format=YES
+pam_service_name=vsftpd
+
+# Firewall
+firewall-cmd --permanent --add-port=20-21/tcp
+firewall-cmd --permanent --add-port=45000-46000/tcp
+
+# SSL cert
+openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/vsftpd.pem -out /etc/vsftpd/vsftpd.pem

@@ -1,7 +1,6 @@
 cat <<EOF>> ~/.tmux_startup.sh
 #!/bin/bash
-
-## Call from ~/.bash_profile
+## Call this script from ~/.bash_profile
 
 session_name="ANSIBLE"
 

@@ -1,4 +1,4 @@
-$ cat > newFile.txt << !
+cat > newFile.txt << !
 Any content
 	You want
 		can

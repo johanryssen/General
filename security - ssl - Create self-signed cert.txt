@@ -1,0 +1,5 @@
+# Create CSR & KEY files:
+openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
+
+# Sign the request:
+openssl x509 -req -in server.csr -signkey server.key -out server.crt

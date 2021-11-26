@@ -3,6 +3,10 @@ IP = $(ip a | grep "inet " | grep -v 127.0.0.1  | awk -F'[/ ]+' '{ print $3 }')
 echo "IP: $IP" > /etc/issue
 
 -or-
+IP = $(ip addr show eth0 | grep inet | grep -v inet6 | awk '{print $2'} | cut -d/ -f1)
+echo "IP: $IP" > /etc/issue
+
+-or-
 
 IP=$(/sbin/ifconfig ens33 | grep 'inet ' | awk {'print $2'})
 echo "eth0 IP: $IP" > /etc/issue
