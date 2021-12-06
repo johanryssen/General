@@ -1,5 +1,26 @@
 # Update FreeBSD
 
+----- script -----
+#! /usr/local/bin/bash
+echo ""
+echo "Disable PF"
+pfctl -d
+echo ""
+echo "Fetch and Install Binary updates"
+freebsd-update fetch ;
+freebsd-update install ;
+echo ""
+echo "Update and Upgrade packages"
+pkg update ; pkg upgrade
+echo ""
+echo "Enable PF"
+echo ""
+pfctl -e
+echo ""
+exit 0
+------------------
+
+
 ## Ensure Kernel SecurLevel = 0
 sysctl -n kern.securelevel
 # update in /etc/rc.conf and reboot

@@ -1,5 +1,28 @@
 RHEL 8 VersionLock
 
+
+****************************
+subscription-manager facts --list | grep dist
+
+subscription-manager register --org="Test_Lab" --activationkey=8Server --release=8.4
+subscription-manager attach --auto
+subscription-manager repos --enable=satellite-tools-6.9-for-rhel-8-x86_64-rpms
+
+subscription-manager release --list
+subscription-manager release --show
+
+
+cat <<EOF>>/etc/yum.conf
+exclude=kernel* redhat-release*
+distroverpkg=8.4
+EOF
+
+--or--
+
+# yum clean all
+# yum --releasever=8.4 update
+
+****************************
 --------------------
 
 # Install:

@@ -1,0 +1,16 @@
+CONTENT VIEWS:
+Allows administrators to take point in time 'snapshots' of repositories.
+This is a critical feature to ensure consistency in patching and providing a stable environment in which applications can run.
+
+COMPOSITE CONTENT VIEWS:
+Allow an administrator to take a group of views, such as all those related to Red Hat Server 7, and group them into a release which clients can be registered to.
+
+
+ACTIVATION KEYS:
+Allow for automatic allocation of a server to location, organisation, groups, lifecycle environments, subscriptions, and content views during registration.
+
+
+HOST COLLECTIONS:
+Provides a method for grouping and managed hosts logically within Satellite.
+Host Collections can have subscription changes applied at the group level, thereby ensuring correct license levels.
+Similarly, a content view can be assigned to a group of hosts within a lifecycle environment using a host collection

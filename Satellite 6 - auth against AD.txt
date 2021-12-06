@@ -1,0 +1,43 @@
+## Using AD as an external authentication source
+
+- Satellite must be joined to the target domain.
+
+- To enable single sign on using HTTPD it is required to create an SPN against the computer account on which Satellite runs.
+
+- The resulting keytab must be deployed to /etc/httpd/conf/httpd.keytab.
+
+- Once in place the HTTPD and GSSPROXY services must be configured to use the keytab when authenticating users and Satellite foreman will be enabled for external authentication.
+
+
+--- Config files ---
+
+# /etc/ipa/default.conf
+[global]
+server = unused
+realm = MY.DOMAIN
+
+
+# /etc/net-keytab.conf
+[global]
+workgroup = HOME	
+realm = MY.DOMAIN
+kerberos method = system keytab
+security = ads
+
+
+# /etc/gssproxy/00-http.conf
+[service/HTTP]
+mechs = krb5
+cred_store = keytab:/etc/krb5.keytab
+cred_store = ccache:/var/lib/gssproxy/clients/krb5cc_%U
+euid = 48
+
+
+# /etc/systemd/system/httpd.service
+.include /lib/systemd/system/httpd.service
+
+[Service]
+Environment=GSS_USE_PROXY=1
+
+---------------------------------------
+

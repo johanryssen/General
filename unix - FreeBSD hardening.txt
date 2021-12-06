@@ -25,13 +25,11 @@ kern.randompid=1
 # Hide Processes Running in Jails
 security.bsd.see_jail_proc=0
 
-
 # Generate a random ID for the IP packets as opposed to incrementing them by one.
 net.inet.ip.random_id=1
 
 # Discover dead connections and clear them.
 net.inet.tcp.always_keepalive=1
-
 
 # Enabling blackholes for udp and tcp will drop all packets 
 # that are received on a closed port and will not give a reply.

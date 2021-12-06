@@ -1,0 +1,157 @@
+https://etherarp.net/sshuttle-a-vpn-for-the-lazy/
+https://sshuttle.readthedocs.io/en/stable/
+https://perfecto25.medium.com/using-sshuttle-as-a-service-bec2684a65fe
+
+SSHUTTLE - Lightweight SSH-encrypted VPN
+
+## 1. Service Account on client
+
+groupadd sshuttle
+useradd -d /home/sshuttle -g sshuttle sshuttle
+mkdir -p /home/sshuttle/.ssh
+chown -R sshuttle:sshuttle /home/sshuttle
+chmod 700 /home/sshuttle/.ssh
+
+# generate a secure SSH key
+ssh-keygen -o -a 100 -t ed25519 -N "" -C "sshuttle_key" -f /home/sshuttle/.ssh/id_ed25519
+
+
+## 2. sudo access
+# sshuttle client needs sudo access to modify your firewall (on client only, not on the target server)
+# Make sure theres an empty line before and after the sudo line:
+
+cat <<EOF>> /etc/sudoers.d/sshuttle
+
+sshuttle ALL=(root) NOPASSWD: /usr/bin/python /usr/share/sshuttle/main.py /usr/bin/python --firewall 12*** 0
+
+EOF
+
+
+# This allows non-root users (like our service account) to launch Ssshutle and modify the firewall with ports 12xxx
+
+
+## 3. Install package client server
+yum install sshuttle
+
+
+# 4. Service scripts x 2
+
+1st SystemD:
+
+cat <<EOF>>/etc/systemd/system/sshuttle.service
+[Unit]
+Description=sshuttle service
+After=network.target
+
+[Service]
+User=sshuttle
+Restart=always
+Type=forking
+WorkingDirectory=/etc/sshuttle
+ExecStart=/etc/sshuttle/sshuttle.py start
+ExecStop=/etc/sshuttle/sshuttle.py stop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+
+
+# 2nd - Python script 
+https://gist.github.com/perfecto25/6e9a0c982fb76401f720b661f1a8a9f1
+
+mkdir /etc/sshuttle
+chown sshuttle:sshuttle /etc/sshuttle
+
+vim /etc/sshuttle/sshuttle.py
+
+chmod +x /etc/sshuttle/sshuttle.py
+
+
+## 5. Config File
+Tells sshuttle where you want to connect to and what networks you want to route via the target hop server, you can add multiple hop servers and multiple networks that you want to route via these hop proxies,
+
+cat <<EOF>> /etc/sshuttle/config.json
+{
+  "HopServerA": [
+    "12.182.293.180/32",
+    "129.33.78.18/32",
+    "129.13.280.0/24",
+    "sftp.somehost.com"
+  ],
+  "HopServerB": [
+    "11.38.26.0/24"
+  ]
+}
+EOF
+
+# Start the tunnel
+systemctl restart sshuttle
+
+
+### Update 1 - Keep Alive
+rpath = "-r {0}@{1} {2} -l listen '0.0.0.0' --ssh-cmd 'ssh -o ServerAliveInterval=60' --no-latency-control".format(ssh_user, rhost, netrange)
+
+# Allows sshuttle to listen on all interfaces so you use this host as a hop.
+# To keep your sshuttle session private, change the 0.0.0.0 to 127.0.0.1
+
+# Ensure SSH heartbeat is resent every 60 sec your SSH connection doesnt go stale, and that sshuttle doesn’t throttle your bandwidth on high speed networks.
+
+--ssh-cmd 'ssh -o ServerAliveInterval=60' --no-latency-control'
+
+
+### Update 2 - Proxying via 2 or more hops
+# Use sshuttle to hop over 2 or more hops to get to a destination, eg.
+
+server A needs to get to server D
+server A can connect to server B but not C,D
+server B can connect to server C but not D
+server C can connect to D
+
+# hops will look like this:
+A > B > C > D
+A needs to get to D, via B and C
+
+# Standard sshuttle config will allow you to hop A > B > C only
+# To get to D - configure sshuttle to use C as a hop to D, only after the 1st connection is established between A and B
+# Configure your config.json on server A, adding colon-separated steps to each connection
+# route all connections to C via B (step 0), and all connections to D via C (step 1)
+# Shuttle will read the step sequence and initiate the Step 0 connection 1st, once its established, it will start Step 1 connection 2nd (since you need Step 0 to be up before you can run Step 1)
+
+# config.json on server A{
+  "0:serverB": [
+    "serverC hostname or IP",
+ ],
+  "1:serverC": [
+    "serverD hostname or IP"
+ ]
+}
+
+# restart sshuttle service on serverA
+
+# On server B, update config.json to route all D-bound routes over C (here, you dont need to add steps since its a single connection)
+
+# config.json on server B
+{ 
+  "serverC": [
+    "serverD hostname or IP"
+  ]
+}
+
+# Restart sshuttle on server B
+
+sshuttle iterates your config.json on serverA, and looks at the 1st connection (B>C)
+it will then sleep for 3 seconds to allow this handshake to establish
+
+Once the 1st connection is up, it will attempt to connect C > D via this 1st connection (this happens on serverB)
+
+Also, by default sshuttle listens on 127.0.0.1 for any incoming requests, so on server B, make sure you configured the sshuttle.py to listen on all interfaces, not just 127.0.0.1 , this will allow B to proxy any incoming requests from external hosts, not just requests coming from itself.
+
+
+# Update /etc/sshuttle/sshuttle.py directly on server B to listen on all interfaces
+
+rpath = "-r {0}@{1} {2} -l 0.0.0.0 --no-latency-control".format(ssh_user, rhost, netrange)
+
+# Now when you initiate a connection from A, it will proxy like this:
+A > B > C > D

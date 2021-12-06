@@ -1,0 +1,52 @@
+# Add to /etc/rc.conf
+pf_enable="YES"
+pf_rules="/usr/local/etc/pf.conf"
+pflog_enable="YES"
+pflog_logfile="/var/log/pflog"
+
+
+# Add rules to /usr/local/etc/pf.conf
+
+
+## Check rules:
+service pf check
+
+
+## Reading the Log File
+# To view the log file:
+tcpdump -n -e -ttt -r /var/log/pflog
+
+# View real-time display of logged packets:
+tcpdump -n -e -ttt -i pflog0
+
+
+## Filtering Log Output
+# IP:
+tcpdump -n -e -ttt -i pflog0 host 10.10.10.123
+
+# Port:
+tcpdump -n -e -ttt -i pflog0 port 80
+
+# host and port combination:
+tcpdump -n -e -ttt -r /var/log/pflog port 80 and host 10.10.10.123
+
+## The tcpdump filter language has been extended for reading pflogd output:
+
+ip - address family is IPv4.
+ip6 - address family is IPv6.
+on int - packet passed through the interface int.
+ifname int - same as on int.
+ruleset name - the ruleset/anchor that the packet was matched in.
+rulenum num - the filter rule that the packet matched was rule number num.
+action act - the action taken on the packet. Possible actions are pass and block.
+reason res - the reason that action was taken. Possible reasons are match, bad-offset, fragment, short, normalize, memory, bad-timestamp, congestion, ip-option, proto-cksum, state-mismatch, state-insert, state-limit, src-limit and synproxy.
+inbound - packet was inbound.
+outbound - packet was outbound. 
+
+# Examples:
+# Display the log, in real-time, of inbound packets that were BLOCKED on the vtnet0 interface.
+tcpdump -n -e -ttt -i pflog0 inbound and action block and on vtnet0
+
+# Display the log, in real-time, of inbound packets that were allowed (PASS) on the vtnet0 interface.
+tcpdump -n -e -ttt -i pflog0 inbound and action pass and on vtnet0
+

@@ -3,7 +3,6 @@ FreeBSD
 
 
 
-
 To see the 10 largest files in a directory or on a UFS partition, use
 du -h /partition_or_directory_name | sort -rh | head
 

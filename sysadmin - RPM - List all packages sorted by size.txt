@@ -1,0 +1,3 @@
+# List all packages sorted by size:
+echo "PACKAGE,VERSION,SIZE" > rpm.csv
+rpm -qa --queryformat "%{NAME},%{VERSION},%{SIZE:humansi}\n" | sort -r -k 2 -n >> rpm.csv
