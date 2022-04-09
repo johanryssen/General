@@ -1,18 +1,17 @@
 ### Satellite Troubleshooting Commands ###
 
--------------------
 
 # Reset Admin Password
 foreman-rake permissions:reset
 
-############################################
+-------------------------
 
 
 # View Sync progress on CLI:
 tail -f /var/log/foreman/production.log
 tail -f /var/log/messages
 
-############################################
+-------------------------
 
 # Refresh Manifest
 hammer subscription refresh-manifest --organization "My Org"
@@ -26,7 +25,7 @@ satellite-maintain service restart
 foreman-rake katello:correct_repositories COMMIT=true
 
 
-############################################
+-------------------------
 
 
 # Show list of tasks (that are not stopped)
@@ -69,7 +68,7 @@ foreman-rake foreman_tasks:export_tasks TASK_SEARCH='' TASK_DAYS=1
 for i in pulp_resource_manager pulp_workers pulp_celerybeat pulp_streamer; do service $i restart; done
 
 
-############################################
+-------------------------
 
 Search in above "TASK-EXPORT"
 
@@ -106,5 +105,5 @@ hammer repository synchronize --async --validate-contents true --id  <ID>
 Web UI → Infrastructure → Capsules → Select the Capsule → Use the drop-down next to Synchronize → Run Complete Sync
 
 
-############################################
+-------------------------
 

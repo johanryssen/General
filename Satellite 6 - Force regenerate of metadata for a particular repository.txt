@@ -1,0 +1,18 @@
+----- Force regenerate of metadata for a particular repository on Satellite 6 -----
+
+## Issue:
+# yum repolist
+...
+Setting up Install Process
+https://satellite.example.com/pulp/repos/GSSLAB_ORG/Library/content/dist/rhel/server/6/6Server/x86_64/os/repodata/repomd.xml: [Errno 14] PYCURL ERROR 22 - "The requested URL returned error: 404 Not Found"
+
+---------
+
+## To regenerate metadata for a repository:
+
+1. WEB UI and navigate to Content --> Products.
+2. Click on the Product Name to which the repository belongs to and this would list all the available repositories for the Product.
+3. Now click on the repository name for which metadata needs to be re-generated, this will show more details of the repository.
+4. In Satellite 6.5 or newer, click to "Select Action" button on top right, and select "Republish Repository Metadata". Wait until the task is completed and you are done.
+
+---------

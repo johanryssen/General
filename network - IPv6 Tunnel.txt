@@ -1,0 +1,84 @@
+## Setting up an IPv6 tunnel via Hurricane Electric
+
+https://learning.oreilly.com/library/view/linux-networking-cookbook/9781785287916/ch03s02.html#ch03lvl2sec35
+
+1. Visit https://tunnelbroker.net and click Sign up now!, and sign up for a Free account.
+2. User Functions > Create Regular Tunnel (You may create up to 5 tunnels)
+3. Enter your IP address under IPv4 endpoint.
+4. Select a tunnel end point which is close to you.
+5. Collect the local and remote IPv4 and IPv6 addresses provided by HE's website, and use them to populate your configuration.
+6. > Create Tunnel
+
+7. For Ubuntu/Debian > configure the interface in /etc/network/interfaces:
+
+auto he-ipv6
+iface he-ipv6 inet6 v4tunnel
+        address CLIENTIPv6
+        netmask 64
+        endpoint SERVERIPv4
+        local CLIENTIPv4
+        ttl 255
+        gateway SERVERIPv6
+...
+
+8. via CLI:
+
+### SYNTAX:
+modprobe ipv6
+ip tunnel add he-ipv6 mode sit remote SERVERIPv4 local LOCALIPV4 ttl 255
+ip link set he-ipv6 up
+ip addr add LOCALIPv6 dev he-ipv6
+ip route add ::/0 dev he-ipv6
+ip -f inet6 addr
+
+### Ubuntu:
+auto he-ipv6
+iface he-ipv6 inet6 v4tunnel
+        address 2001:470:1f0a:9bf::2
+        netmask 64
+        endpoint 216.66.80.30
+        local 5.180.62.231
+        ttl 255
+        gateway 2001:470:1f0a:9bf::1
+...
+
+
+
+### Netplan / Ubuntu:
+
+network:
+  version: 2
+  tunnels:
+    he-ipv6:
+      mode: sit
+      remote: 216.66.80.30
+      local: 5.180.62.231
+      addresses:
+        - "2001:470:1f0a:9bf::2/64"
+      gateway6: "2001:470:1f0a:9bf::1"
+...
+
+
+### RHEL
+
+modprobe ipv6
+ip tunnel add he-ipv6 mode sit remote 216.66.80.30 local 5.180.62.231 ttl 255
+ip link set he-ipv6 up
+ip addr add 2001:470:1f0a:9bf::2/64 dev he-ipv6
+ip route add ::/0 dev he-ipv6
+ip -f inet6 addr
+
+
+
+
+-------------
+
+# Add a Simple Internet Transition (SIT) tunnel, which is represented as an interface named he-ipv6.
+# SIT tunnels require that you provide both the local and remote ipv4 addresses:
+ip tunnel add he-ipv6 mode sit remote SERVERIPv4 local LOCALIPV4 ttl 255
+
+# Bring up our new he-ipv6 interface:
+ip link set he-ipv6 up
+
+# Assign your local ipv6 address to that interface:
+ip addr add LOCALIPv6 dev he-ipv6

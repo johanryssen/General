@@ -1,0 +1,12 @@
+
+vgdisplay -vv --config="global{locking_type=0 metadata_read_only=1}"
+
+vgscan -vvv --config="global{locking_type=0 metadata_read_only=1}"
+
+pvscan -v --config="global{locking_type=0 metadata_read_only=1}"
+
+pvs -a -v -o +pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count,pe_start --config="global{locking_type=0 metadata_read_only=1}"
+
+vgs -v -o +vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count,vg_tags --config="global{locking_type=0 metadata_read_only=1}"
+
+lvs -a -o +lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,stripes,stripesize --config="global{locking_type=0 metadata_read_only=1}"

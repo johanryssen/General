@@ -29,14 +29,14 @@ echo "--- Temp File Cleanup ---"
 echo "Done"
 echo ""
 echo "--- Log File Cleanup ---"
-/bin/rm -rf /var/log/*-2021*
+/bin/rm -rf /var/log/*-2022*
 /bin/rm -rf /var/log/*.?.log
 /bin/rm -rf /var/log/*.?
 /bin/rm -rf /var/log/*.0
 /bin/rm -rf /var/log/*.gz
 /bin/rm -rf /var/log/*log.old
 /bin/rm -rf /var/log/*log.?
-/bin/rm -rf /var/log/*/*-2021*
+/bin/rm -rf /var/log/*/*-2022*
 /bin/rm -rf /var/log/*/*gz
 /bin/rm -rf /var/log/*/*xz
 /bin/rm -rf /var/log/audit/audit.log.?

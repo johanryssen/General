@@ -59,7 +59,7 @@ Need to leave your terminal for a few minutes and don't want to logout?
 lock -p
 When you return your password as the key to unlock the terminal.
 -----------------------------------
-# You can adjust the volume of various parts of the sound system in your computer by typing:
+# Adjust volume of various parts of the sound system:
 mixer <type> <volume>
 # Get a list of what you can adjust:
 mixer
@@ -68,25 +68,26 @@ mixer
 netstat -rn
 # Gateway - The entry with the G flag
 -----------------------------------
-Strip UTF-8 BOM(Byte Order Mark) from given files
+# Strip UTF-8 BOM(Byte Order Mark) from file
 sed -e '1s/^\xef\xbb\xbf//' < bomfile > newfile
 -----------------------------------
 # Remove ^M characters from a DOS file
 tr -d \\r < dosfile > newfile
 -----------------------------------
-Find out the hostname associated with an IP address:
+# Find out the hostname associated with an IP address:
 drill -x IP_address
 -----------------------------------
-Run a program directly after some other process has ended:
+# Run a program directly after some other process has run successfully:
 pwait pid && new_program
 -----------------------------------
-Permanently set environment variables for your shell by putting them in a startup file for the shell.
-The name of the startup file varies depending on the shell
+# Permanently set environment variables for your shell by putting them in a startup file for the shell.
+# The name of the startup file varies depending on the shell
 - csh and tcsh uses .login
 - bash, sh, ksh and zsh use .profile.
 -----------------------------------
-To read a compressed file without having to first uncompress it "zcat" or "zless" to view it.
-There is also "bzcat", "bzless", "xzcat" and "xzless".
+# Read a compressed file without having to first uncompress it:
+zcat or zless to view it.
+Also bzcat, bzless, xzcat and xzless
 -----------------------------------
 # After you compiled and installed a new version of FreeBSD, run:
 etcupdate
@@ -94,7 +95,7 @@ etcupdate
 
 # Run "etcupdate extract" once when your sources match your running system, then run "etcupdate" after every upgrade and "etcupdate resolve" to resolve any conflicts.
 -----------------------------------
-Handy bash(1) prompt:
+# Handy bash(1) prompt:
 PS1="\u@\h \w \!$ "
 -----------------------------------
 Display version of FreeBSD:

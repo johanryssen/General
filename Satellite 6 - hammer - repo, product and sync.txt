@@ -7,3 +7,6 @@ createrepo -v /var/www/html/newrepo/
 hammer product create --name MyProduct --organization "Home Lab"
 hammer repository create --product MyProduct --name myNewRepo --url http://10.10.10.123/newrepo/ --organization "Home Lab" --content-type yum
 hammer repository synchronize --name myNewRepo --product MyProduct --organization "Home Lab"
+
+
+

@@ -4,6 +4,12 @@ iptables -{A|I} {ACCEPT|REJECT|FORWARD} [i/o iface][-s/d ip] [-p udp/tcp/icmp --
 iptables -A <chain> -j <target>
 
 
+
+------ iptables - delete individual rules -------
+iptables -L --line-numbers
+iptables -D INPUT <line num to delete>
+-------------
+
 Allow current connection to persist -->to maintain SSH session<--
 Packets coming IN, with a Connection State of ESTABLISHED or RELATED to an established rule
 -j ACCEPT --> Jump to the 'ACCEPT' target

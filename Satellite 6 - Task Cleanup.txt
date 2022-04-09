@@ -1,0 +1,100 @@
+https://access.redhat.com/solutions/2755731
+
+-------- Task Cleanup for Satellite 6 --------
+
+1 - It is possible to use a foreman-rake task to clean old tasks from the database.
+It's recommended to use 'NOOP=true' option first to see how many tasks would get cleaned and what exactly the search query would be:
+'foreman-rake foreman_tasks:cleanup NOOP=true'
+
+2 - To clean all the tasks older than 30 days with verbosity and non-execution the below command can be used:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label ~ *' AFTER='30d' VERBOSE=true NOOP=true
+
+3 - With NOOP option enabled, no task is actually deleted.
+
+4 - To get the list of currently running and paused tasks:
+sudo su - postgres -c "psql -d foreman -c 'select label,count(label),state,result from foreman_tasks_tasks where state <> '\''stopped'\'' group by label,state,result ORDER BY label;'"
+
+
+5 - To clean tasks with specific label and state the below command can be used:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = <label name>' STATES='<state>' VERBOSE=true
+
+Example:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::Repository::Sync' STATES='running' VERBOSE=true
+
+
+6 - When specifying multiple states of a task run below command:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = Actions::Katello::Repository::Sync' STATES='running,pending,stopped' VERBOSE=true
+
+
+7 - Commonly mistaken syntax for filtering tasks with a certain result:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label == a_label' RESULT='<result>' STATES='<state>'
+## This is incorrect - there is no parameter RESULT.
+## In order to filter per result, use TASK_SEARCH=' result = <result>'
+
+
+8 - The tasks cleanup script accepts the same search syntax that is available in 'Monitor -> Tasks Web UI'.
+## A cleanup script that clean all the virt-who tasks older than an hour:
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = "Actions::Katello::Host::Hypervisors"' AFTER='5h' VERBOSE=true
+
+
+## By default, only stopped tasks are cleaned, to avoid accidental deletion of tasks, that would be preferred to resume to avoid potential data corruption.
+
+
+## To see all the options available for the command, see
+foreman-rake -D foreman_tasks:cleanup
+
+
+## Notice
+# The deletion of tasks itself can still keep some reserved disk space in the database.
+# To finish the cleanup process, vacuum the database:
+
+foreman-maintain service stop
+service postgresql start
+su - postgres -c 'vacuumdb -f -d foreman'
+foreman-maintain service start
+
+
+The full vacuuming needs to be executed with an exclusive access to the database, therefore stopping other Satellite services is required.
+It is possible to call plain vacuum (without -f / --full option), without the necessity to stop Satellite services.
+However, extra space is not returned to the operating system (in most cases); it's just kept available for re-use within the same table.
+
+
+-----
+
+### Cron based automatic cleanup that can be enabled via the installer:
+
+satellite-installer --foreman-plugin-tasks-automatic-cleanup true
+
+This adds an entry for daily cleanup of:
+- all stopped tasks older than 30 days
+- all tasks older than 1 year
+Found in /etc/cron.d/foreman-tasks
+
+
+-------------------------
+
+
+# Diagnostic Steps
+
+## Check the size of the PostgreSQL database.
+
+### Satellite 6.6 & below:
+# du -sh /var/lib/pgsql/
+121.9G    /var/lib/pgsql/
+
+### Satellite 6.7 & above:
+# du -sh /var/opt/rh/rh-postgresql12/lib/pgsql/
+121.9G    /var/opt/rh/rh-postgresql12/lib/pgsql/
+
+
+
+## Identify the largest tasks:
+su - postgres -c 'psql -d foreman -c\
+     "SELECT foreman_tasks_tasks.label,
+      count(foreman_tasks_tasks.id) tasks_total,
+      count(dynflow_actions.id) actions_total
+      FROM dynflow_actions
+      LEFT JOIN foreman_tasks_tasks
+      ON (foreman_tasks_tasks.external_id = dynflow_actions.execution_plan_uuid)
+      GROUP BY foreman_tasks_tasks.label ORDER BY actions_total DESC LIMIT 30"'
+...

@@ -1,0 +1,40 @@
+Redis
+
+
+# 1. Create new LIST and add values:
+[ LPUSH - Prepend one or multiple elements to a list ]
+LPUSH jmeter value11,value12 value21,value22 value31,value32
+
+
+
+# 2. Add value to Redis LIST
+[ RPUSH - Append one or multiple elements to a list ]
+RPUSH jmeter value41,value42
+
+
+# 3. List all entries in "ljmeter":
+[ LRANGE - Get a range of elements from a list ]
+
+> SYNTAX:
+> LRANGE key start stop
+
+LRANGE jmeter 0 -1
+
+
+
+# 4. Another example:
+
+RPUSH mylist "hello"
+RPUSH mylist "world"
+LRANGE mylist 0 -1
+
+------------------
+
+## Indexes
+
+Indexes can be visualized like a table or collection of records e.g. a collection of products.
+
+To create a new index, use the command FT.CREATE:
+
+FT.CREATE products ON HASH PREFIX 1 product: SCHEMA name TEXT SORTABLE quantity NUMERIC SORTABLE description TEXT
+

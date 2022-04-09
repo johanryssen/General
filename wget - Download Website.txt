@@ -1,0 +1,14 @@
+wget --random-wait -r -p -e robots=off -U mozilla something.example.com/content/
+
+-or-
+
+wget \
+     --recursive \
+     --no-clobber \
+     --page-requisites \
+     --html-extension \
+     --convert-links \
+     --restrict-file-names=windows \
+     --domains example.com \
+     --no-parent \
+		 https://something.example.com/content/

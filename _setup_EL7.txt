@@ -1,6 +1,6 @@
 #!/bin/bash
 echo ""
-echo "----- RHEL 8 initial setup -----"
+echo "----- RHEL 7 initial setup -----"
 echo ""
 echo "-- Set GRUB timeout = 2 --"
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
@@ -14,15 +14,12 @@ echo "--- Setting PS1 ---"
 echo ""
 echo "# BASH Prompt Generator: https://scriptim.github.io/bash-prompt-generator/"
 echo ""
-echo "export PS1='\[\e[0;38;5;155m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;87m\]\W \[\e[0m\]$ \[\e[0m\]'" >> /etc/skel/.bashrc
+echo "export PS1='\[\e[0;38;5;155m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;330m\]\W \[\e[0m\]$ \[\e[0m\]'" >> /etc/skel/.bashrc
 echo ""
 echo "--- Setting new prompt ---"
 echo "# Prompt" >> ~/.bashrc
 echo "export PS1='\[\e[0;38;5;199m\]\u\[\e[0m\]@\[\e[0m\]\h \[\e[0;38;5;47m\]\W \[\e[0m\]#\[\e[0m\] '" >> /root/.bashrc
 echo -e "\n#BASH Color for Directories\nLS_COLORS=\$LS_COLORS:'di=0;36'\nexport LS_COLORS\n" >> ~/.bashrc
-echo ""
-echo "--- Disable systemctl's auto-paging feature ---"
-sed -i 's/# export SYSTEMD_PAGER=/export SYSTEMD_PAGER=/g' ~/.bashrc
 source ~/.bashrc
 echo "PS1: `env | grep PS1`"
 echo ""
@@ -30,22 +27,22 @@ echo "Uncomment the next line to use 'subscription-manager register'"
 # /sbin/subscription-manager register
 echo ""
 echo "-- Setup .vimrc --"
-echo -e "colo desert\nset paste" > /root/.vimrc ;
 for i in $(ls -1 /home);
         do echo -e "colo desert\nset paste" > /home/$i/.vimrc ;
 done
 echo ""
-echo "-- EPEL 8 install --"
+echo "-- EPEL 7 install --"
 curl https://getfedora.org/static/fedora.gpg | gpg --import ;
-/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 ;
-/bin/dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;
+/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 ;
+/bin/yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;
 echo ""
-echo "-- DNF Update --"
-/bin/dnf -y update
+echo "-- YUM Update --"
+/bin/yum -y update
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq 
+/bin/yum -y install deltarpm bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils telnet lvm2 tree cloud-utils-growpart device-mapper-multipath jq 
+
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync
@@ -53,6 +50,7 @@ echo ""
 echo "-- JournalD Setup --"
 mkdir -p /var/log/journal ;
 /bin/sed -i ' s/#Storage=auto/Storage=persistent/g ' /etc/systemd/journald.conf
+/bin/sed -i ' s/#Compress=yes/Compress=yes/g ' /etc/systemd/journald.conf
 systemd-tmpfiles --create --prefix /var/log/journal ;
 systemctl restart systemd-journald ;
 echo ""
@@ -60,24 +58,25 @@ echo "-- Refreshing Subscription Data --"
 subscription-manager refresh
 echo "Done"
 echo ""
-echo "-- DNF Clean All --"
-/bin/dnf clean all --verbose | tail -1
+echo "-- YUM Clean All --"
+/bin/yum clean all --verbose | tail -1
 echo ""
-echo "-- DNF AutoRemove --"
-/bin/dnf autoremove -y
+echo "-- YUM AutoRemove --"
+/bin/yum autoremove -y
 echo ""
+echo "Done"
 echo "Done"
 echo ""
 echo "-- Journal Disk Usage --"
 journalctl --disk-usage
 echo ""
 echo "-- Journal Clean Up --"
-journalctl --rotate
 journalctl -m --vacuum-time=1s
 systemctl restart systemd-journald
 echo ""
 /bin/updatedb
 /bin/mandb -q
+echo ""
 echo "-- Restart needed? --"
 echo ""
 /bin/needs-restarting -r

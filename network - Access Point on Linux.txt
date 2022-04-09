@@ -1,0 +1,190 @@
+================================================
+
+# Install pkgs
+apt install hostapd dnsmasq udhcpd -y
+
+
+# Check if AP mode is supported:
+
+iw list | egrep -A5  'Wiphy|Supported interface modes'
+
+Wiphy phy4								# Interface name
+        wiphy index: 4
+        max # scan SSIDs: 4
+        max scan IEs length: 2257 bytes
+        max # sched scan SSIDs: 0
+        max # match sets: 0
+--
+        Supported interface modes:
+                 * IBSS
+                 * managed
+                 * AP					# AP Mode suppored
+                 * AP/VLAN
+                 * monitor
+--
+
+...
+
+
+# Create Virtual Wireless Interface on top of above interface
+iw phy phy1 interface add APusb type __ap
+
+
+# Set IP for new interface:
+ifconfig APusb 10.10.100.1 up
+
+
+================================================
+
+# View:
+ip addr show APusb
+15: APusb: <BROADCAST,MULTICAST> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
+    link/ether a4:34:d9:21:e6:21 brd ff:ff:ff:ff:ff:ff
+    inet 10.10.100.1/8 brd 10.255.255.255 scope global APusb
+       valid_lft forever preferred_lft forever
+
+================================================
+
+# hostapd config
+
+cat <<EOF>/etc/hostapd/hostapd.conf
+interface=APusb
+driver=nl80211
+ssid=APusb
+channel=7
+hw_mode=g
+wme_enabled=1
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=3
+wpa_passphrase=Password_123
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+EOF
+
+
+
+
+================================================
+
+# Config DHCP server:
+
+## 
+
+cat <<EOF>/etc/udhcpd.conf
+start           10.10.100.2
+end             10.10.100.254
+interface       APusb
+opt     dns     8.8.8.8 8.8.4.4
+option  subnet  255.255.255.0
+opt     router  192.168.100.2  # IP of ext_if/internet
+option  domain  local
+option  lease   864000
+EOF
+
+
+cat <<EOF>/etc/default/udhcpd
+DHCPD_ENABLED="yes"
+EOF
+
+
+================================================
+
+# Set port forwarding:
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+
+# Start hostapd:
+hostapd /etc/hostapd/hostapd.conf
+
+
+# Restart udhcpd service:
+systemctl restart udhcpd
+-or-
+udhcpd -f
+...
+
+================================================
+
+# iwconfig
+APusb  IEEE 802.11  ESSID:off/any
+          Mode:Managed  Access Point: Not-Associated   Tx-Power=0 dBm
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:on
+...
+- or --
+APusb  IEEE 802.11  Mode:Master  Tx-Power=22 dBm
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+...
+
+
+# ifconfig
+APusb: flags=4098<BROADCAST,MULTICAST>  mtu 1500
+        ether a4:34:d9:21:e6:23  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+...
+
+APusb: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.10.100.1  netmask 255.0.0.0  broadcast 10.255.255.255
+        ether a4:34:d9:21:e6:21  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 18  bytes 2483 (2.4 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+...
+
+================================================
+
+## OUTPUT
+
+# hostapd hostapd.conf
+
+Configuration file: hostapd.conf
+Using interface APusb with hwaddr 12:12:12:12:12:12 and ssid "APusb"
+random: Only 17/20 bytes of strong random data available from /dev/random
+random: Not enough entropy pool available for secure operations
+WPA: Not enough entropy in random pool for secure operations - update keys later when the first station connects
+APusb: interface state UNINITIALIZED->ENABLED
+APusb: AP-ENABLED
+
+================================================
+
+## Error:
+udhcpd: started, v1.27.2
+udhcpd: can't open '/var/lib/misc/udhcpd.leases': No such file or directory
+
+## Fix:
+# touch /var/lib/misc/udhcpd.leases
+
+
+## Check:
+# udhcpd -f
+udhcpd: started, v1.27.2
+
+
+## Reset
+nmcli radio wifi off
+rfkill unblock wlan
+ifconfig wlan0 10.20.30.1/24 up
+sleep 1
+systemctl restart udhcpd
+systemctl restart hostapd
+
+
+# nmcli
+APusb: unavailable
+        "Intel 8260"
+        wifi (iwlwifi), EE:B9:9B:12:12:12, sw disabled, hw, mtu 1500   ## SW Disabled
+...
+
+
+
+================================================

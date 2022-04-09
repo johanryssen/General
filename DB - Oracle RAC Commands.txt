@@ -1,0 +1,341 @@
+### Oracle RAC Commands ###
+
+-------------------- STATUS CHECKS --------------------
+
+1. Check "Oracle Enterprise Manager Cloud Control" Agent Status:
+# USER: oracle
+$ export PATH=/u02/app/oracle/product/agent/13.2.0.0/agent_inst/bin/:$PATH
+$ emctl status agent
+
+2. Oracle Cluster Registry status: 
+# USER: grid:
+$ ocrcheck
+$ crsctl stat res -t
+
+3. Check "Oracle Database" RAC Database Status:
+# USER: oracle
+$ export PATH=/u02/app/oracle/product/11.2.0.3/db1/bin/:$PATH
+$ srvctl status database -d FINHSPR 
+
+4. Check "ActiveBatch Agent" Scheduling Agent Status:
+$ export PATH=/opt/ASCI/ActiveBatchV12/bin/:$PATH
+$ abatstatus
+
+5. Check "Oracle ASM" ASM Driver status:
+$ oracleasm status
+
+
+
+---------- Shutdown and Start sequence steps of Oracle RAC components ----------
+
+1. Stop Oracle RAC 12c
+
+Perform these steps in the order listed:
+
+srvctl stop listener [-listener listener_name] [-node node_name] [-force] (stops all listener services)
+srvctl stop database -db db_unique_name [-stopoption stop_options] [-eval(12c only)] [-force] [-verbose]
+srvctl stop asm [-proxy] [-node node_name] [-stopoption stop_options] [-force]
+srvctl stop nodeapps [-node node_name] [-gsdonly] [-adminhelper] [-force] [-relocate] [-verbose]
+crsctl stop crs
+	
+
+2. Start Oracle RAC 12c
+
+Perform these steps in the order listed:
+
+1. crsctl start crs
+2. crsctl start res ora.crsd -init
+3. srvctl start nodeapps [-node node_name] [-gsdonly] [-adminhelper] [-verbose]
+4. srvctl start asm [-proxy] [-node node_name [-startoption start_options]]
+5. srvctl start database -db db_unique_name [-eval(12c only)]] [-startoption start_options] [-node node_name]
+6. srvctl start listener [-node node_name] [-listener listener_name] (start all listener services)
+
+To start resources of your HA environment if that are still down (e.g. ora.ons, Listener):
+crsctl start resource -all
+
+
+3. Debug
+The log and trace files of the clusterware files are stored in the Automatic Diagnostic Repository (ADR) under the ADR_HOME location:
+$ADR_BASE/diag/crs/`hostname`/crs
+
+$ adrci
+adrci> show homes
+
+
+---------- Manage low level cluster resources: CRS, HAS, cluster ----------
+
+
+## crs_stat
+
+-t	Tabular form
+-a	allows a specific resource_name to be entered 
+-g	Returns 0 if the resource is registered with clusterware, 1 if it is not 
+-r	Returns 0 if the resource is running currently, and 1 if it is not
+	- May also be combined with -c cluster_node to narrow the query to a specific node
+-p	Prints the profile of any resource
+-f	Extended information and the profile
+-ls	Lists resources along with their owners and permissions
+	- May include a resource_name
+-v	Extended information including failover counts
+
+
+1. "Oracle Enterprise Manager Cloud Control" Agent Status:
+# USER: oracle
+export PATH=/u02/app/oracle/product/agent/13.2.0.0/agent_inst/bin/:$PATH
+emctl status agent
+
+
+2. Start all resources across a cluster
+crs_start -all
+
+# If the -all option is not specified, a resource name must be given, eg:
+crs_start ora.racnode1.vip
+
+
+3. Find offline resources:
+crs_stat -t | grep -i offline
+
+# List each resource registered with clusterware and show its status
+crs_stat
+
+
+4. Clusterware Resource Status:
+## USER: grid
+ocrcheck
+
+crsctl stat res -t
+## -or shorter-
+crsctl stat res -t
+
+
+5. Check the current status of a cluster:
+crsctl check cluster
+
+# Display cluster name:
+olsnodes -c
+
+
+6. Current status of CRS
+crsctl check crs
+
+
+7. Stop/Start the local node
+crsctl stop has
+
+This command will also abort the database and CRS.
+Local Listeners will stop and VIP listeners will migrate elsewhere.
+
+# Start all the CRS components, listeners and the database.
+crsctl start has
+
+
+8. Stop/Start the whole cluster
+
+crsctl stop cluster -all
+crsctl start cluster -all
+
+
+9. Start and stop oracle clusterware (CRS)
+
+crsctl stop crs
+crsctl start crs
+
+
+---------- Manage Network components ----------
+
+
+1. Display global public and global cluster_interconnect
+
+C:\Windows\system32>oifcfg ge34f
+
+Heartbeat 192.168.67.0 global cluster_interconnect,asm
+Production 10.20.30.0 global public
+
+
+2. Check if nodeapps running on a node
+
+srvctl status nodeapps [-n my-node]
+
+For each VIP address: network enabled/disabled, running on node host1 or not running.
+
+Nodeapps are standard set of oracle application services which are started automatically for RAC.
+
+Node apps Include:
+1) VIP
+2) Oracle Net listeners
+3) Global Service Daemon
+4) Oracle Notification Service (ONS).
+
+Nodeapp Services run on each node of the cluster.
+They switch over to other nodes through VIP during a failover.
+
+
+3. Check the SCAN Configuration
+
+The SCAN makes it possible to add or remove nodes from the cluster without needing to reconfigure clients.
+
+Using CLUVFY to Confirm DNS is Correctly Associating the SCAN addresses.
+
+cluvfy comp scan
+Verifying Single Client Access Name (SCAN) …PASSED
+Verification of SCAN was successful.
+CVU operation performed: SCAN
+Date: Oct 19, 2017 1:17:59 PM
+CVU home: C:\…\grid_home\bin\..\
+User: .\VFENOLL
+
+
+4. Display the current configuration of the SCAN VIPs
+
+srvctl config scan
+
+SCAN name: MY-CLUSTER-SCAN, Network: 1
+Subnet IPv4: 10.40.50.0/255.255.255.0/Production, static
+Subnet IPv6:
+SCAN 1 IPv4 VIP: 10.55.66.77
+...
+
+
+5. Display the status of SCAN VIPs and SCAN listeners
+
+srvctl status scan
+
+
+Add or modify a scan VIP:
+srvctl add | modify scan -n my-scan
+
+To delete it:
+srvctl remove scan
+
+
+6. Display the status of SCAN listeners
+
+srvctl status scan_listener
+
+
+Add or remove a scan_listener:
+srvctl add | remove scan_listener
+
+To change the port:
+srvctl modify scan_listener -p
+
+
+---------- Manage the Oracle Cluster Registry (OCR) ----------
+
+
+1. Verify the integrity of OCR
+
+cluvfy comp ocr -n all -verbose
+
+
+2. Backup the OCR
+
+Oracle takes physical backup of OCR automatically every 3 hours.
+Default location is:
+CRS_home/cdata/my_cluster_name/OCRBackup
+
+The ocrconfig tool is used to make daily copies of the automatically generated backup files.
+
+Show backups:
+ocrconfig -showbackup
+
+Change default location of physical OCR copies:
+ocrconfig -backuploc
+
+After that, you have to copy these files on tape or in another backup location:
+cp -p -R CRS_home/cdata/my_cluster_name /u03/backups
+
+To do a manual backup:
+ocrconfig -export /u03/backups/exports/OCR_exportBackup.dmp
+
+
+3. Recover OCR from physical or export backup
+
+Pre-requisite:
+All RAC components shutdow
+
+Recover OCR from automatic physical backups:
+crconfig -restore CRS_home/cdata/my_cluster_name/OCRBackup/backup00.ocr
+
+Recover OCR from export backup:
+ocrconfig -import /u03/backups/exports/OCR_exportBackup.dmp
+
+
+4. Backup the Voting disks
+
+In older versions of Oracle Clusterware you have to backup voting disks with the dd command.
+Starting with Oracle Clusterware 11g Release 2 you no longer need to backup them.
+Voting disks are automatically backed up as a part of the OCR.
+
+
+
+----------  Manage database components ----------
+
+1. find the name of the database
+
+This name is useful as it is used in RAC commands with -d parameter.
+
+# With SQL*Plus:
+connect / as sysdba
+show parameter db_unique_name
+
+# With crsctl:
+crsctl status resource -t | grep db
+
+
+2. Inspect the database configuration
+
+srvctl config database -d my-db-name
+
+
+3. Display the name and the status of the instances in the RAC
+
+srvctl status database -d my-db-name
+
+# To list just active nodes:
+olsnodes -s –t
+
+
+4. Start|stop the database
+
+srvctl stop database -d my-db-name -o immediate
+srvctl start database -d my-db-name
+
+
+5. Start|stop one instance of the RAC
+
+srvctl start instance -d my-db-name -i my-db-name1
+srvctl stop instance -d my-db-name -i my-db-name1
+
+Use -force if the instance to stop is not on the local server
+
+
+6. Start and stop a PDB in Oracle RAC
+
+# Stop a PDB (Pluggable DataBase)
+
+On the current node [or on all the nodes]:
+
+ALTER PLUGGABLE DATABASE my-PDB-name CLOSE IMMEDIATE [Instances=all];
+
+This will stop the associated service too.
+Manually stopping the associated service will not close the PDB.
+You have to use this SQL command.
+
+
+# Start a PDB
+
+On the current node [or on all the nodes]:
+
+ALTER PLUGGABLE DATABASE my-PDB-name OPEN [Instances=all;]
+
+You can also start the PDB with the associated service
+This will NOT start the service(s) associated with this PDB.
+
+
+7. Stop and start a Listener
+
+srvctl stop listener -l LISTENER_NAME
+srvctl start listener -l LISTENER_NAME
+
+--------------------

@@ -48,6 +48,13 @@ nmap -vv -n -sn -PE -T4 --packet-trace 10.10.22.13
 # Scan only for port 22
 nmap -Pn -p 22 -n 10.10.10.0/24 --open -oG - 
 
+-Pn: Treat all hosts as online -- skip host discovery / Host enumeration is disabled
+-p <port ranges>: Only scan specified ports
+-n: No DNS resolution. Tells Nmap to never do reverse DNS
+--open: Only show open (or possibly open) ports
+-oG filespec (grepable output)
+
+
 # Basic scan:
 nmap 192.168.0.0/24
 
@@ -59,7 +66,7 @@ nmap -sn 192.168.0.0/24
 
 # To view what an options does:
 nmap | grep -- -sV
-  -sV: Probe open ports to determine service/version info
+-sV: Probe open ports to determine service/version info
 
 # Scan open ports:
 nmap -sV -p 22,443 192.168.0.0/24 –open
@@ -72,5 +79,15 @@ nmap -sV -p 22-443 192.168.0.0/24 –open
 # Resolve target with Google DNS:
 host somehost.local 8.8.8.8
 
-# Run a stealth list scan -sL on the IP address 192.168.0.123
+# Run a stealth list [-sL] scan on the IP address 192.168.0.123
 nmap --dns-servers 8.8.4.4,8.8.8.8 -sL 192.168.0.123/24
+
+# OS version [-A], Faster execution [-T4]
+nmap -A -T4 172.16.11.150
+
+
+OS DETECTION:
+-O: Enable OS detection
+--osscan-limit: Limit OS detection to promising targets
+--osscan-guess: Guess OS more aggressively
+

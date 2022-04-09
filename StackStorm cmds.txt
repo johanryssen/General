@@ -1,4 +1,3 @@
-PS> 
 docker exec stackstorminabox-master_stackstorm_1 /bin/bash
 # stcctl reload --register-all
 # stcctl reload --register-setup-virtualenvs

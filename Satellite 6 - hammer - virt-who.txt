@@ -1,0 +1,9 @@
+
+---------- VIRT-WHO ----------
+# Verifying virt-who Status using Hammer
+hammer virt-who-config list
+
+# Check for Duplicate Configuration Lines
+cat /etc/sysconfig/virt-who /etc/virt-who.d/* | sort | uniq -c
+
+

@@ -1,4 +1,12 @@
 cat << EOF > ~/.tmux.conf
+
+## --------- USAGE ----------- ##
+# New window:           Ctrl+a c
+# Name window:          Ctrl+a ,
+# List windows:         Ctrl+a w
+# Show pane num:        Ctrl+a q
+## --------------------------- ##
+
 # set first window to index 1 (not 0) to map more to the keyboard layout
 set -g base-index 1
 setw -g pane-base-index 1
@@ -58,10 +66,4 @@ set-option -g pane-active-border-fg red
 set-option -g display-panes-active-colour red
 set-option -g display-panes-colour blue
 # w-option -g clock-mode-colour cyan
-
-## Notes ##
-# New window:           Ctrl+a c
-# Name window:          Ctrl+a ,
-# List windows:         Ctrl+a w
-# Show pane num:        Ctrl+a q
 EOF

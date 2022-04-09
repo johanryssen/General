@@ -119,7 +119,7 @@ Disk identifier: 0xab0afa55
   PE Size               4.00 MiB
   Total PE              42625
   Alloc PE / Size       8066 / 31.51 GiB
-  Free  PE / Size       34559 / 135.00 GiB								<----------- modifier = 256 (Conversion beteen Physical Extends and GiB)
+  Free  PE / Size       34559 / 135.00 GiB			<--- modifier = 256 (Conversion beteen Physical Extends and GiB)
   VG UUID               PKSUkK-XhW0-iti2-PJqG-WyIX-MbQf-ngAxzj
 
 ## Conversion formula:

@@ -23,10 +23,16 @@ w - List Windows
 , - Rename Window
 &  kill window
 
-
 ## Panes
 % - Create Horizontal pane
 " - Create Vertical pane
+
+## --------- USAGE ----------- ##
+# New window:           Ctrl+a c
+# Name window:          Ctrl+a ,
+# List windows:         Ctrl+a w
+# Show pane num:        Ctrl+a q
+## --------------------------- ##
 
 ========================================
 

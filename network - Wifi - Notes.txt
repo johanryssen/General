@@ -1,3 +1,17 @@
+---------------------------------------
+
+# Get wifi interface:
+iwconfig
+
+# Scan for SSIDs:
+iwlist wlan0 scan | grep ESSID
+
+# Use ESSID from above to connect:
+nmcli d wifi connect myAPname password myP@ssw0rd
+Device 'wlan0' successfully activated with 'bdasdas-4kjf-asd39j'.
+
+---------------------------------------
+
 # Enable WIFI #
 
 ---- Option 1 -----
@@ -47,7 +61,7 @@ dhclient wlan0
 
 [3] cp wireless_up.sh /usr/local/bin
 
-################################################################################
+----------------------------
 
 [1] Find available wifi adapters
 

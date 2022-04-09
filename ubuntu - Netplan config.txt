@@ -1,0 +1,34 @@
+Netplan config - Ubuntu
+
+----- CONFIG -----
+
+# /etc/netplan/01-netcfg.yaml
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp8s0:
+     dhcp4: no
+     addresses: [172.16.11.123/24]
+     gateway4: 172.16.1.1
+     nameservers:
+       addresses: [8.8.8.8,172.16.11.1]
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+     dhcp4: no
+     addresses: [10.10.10.123/24]
+     gateway4: 10.10.10.1
+     nameservers:
+       addresses: [8.8.8.8,10.10.10.1]
+
+------------------
+
+netplan generate
+netplan --debug apply
+
+------------------

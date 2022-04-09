@@ -1,4 +1,10 @@
+colo desert
+set paste
+
 set nocompatible
+
+" Disable GUI mouse so that cut and paste will work
+set mouse-=a
 
 filetype off
 filetype plugin indent on

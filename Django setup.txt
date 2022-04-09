@@ -1,0 +1,13 @@
+python3 -m pip install Django --user
+mkdir www
+cd www
+django-admin startproject django_app
+python3 manage.py migrate
+python3 manage.py createsuperuser
+vim django_app/settings.py
+> ALLOWED_HOSTS = ['172.16.11.101']
+
+python3 manage.py runserver 0.0.0.0:8000
+-or-
+python3 manage.py runserver 0:8002
+

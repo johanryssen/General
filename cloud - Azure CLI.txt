@@ -1,4 +1,8 @@
+az login
+
 az account show
+-or-
+az account list
 
 az vm image list --publisher RedHat --offer rhel-byos --all
 
@@ -13,3 +17,29 @@ az vm list --offer RHEL
 --sku
 
 az vm image list --publisher RedHat --offer rhel-byos --all
+
+---------
+
+## List subscriptions you have access to:
+az account list
+
+## Set your preferred subscription:
+az account set --subscription 'my-subscription-name'
+
+## Create Resource Group:
+az group create --location westus --name MyRG
+
+## Create a Linux VM
+az vm create -n myVM -g MyRG --image UbuntuLTS --generate-ssh-keys
+
+Using --generate-ssh-keys instructs Azure CLI to create and set up public and private keys in your VM and $Home directory. By default keys are placed in Cloud Shell at /home/<user>/.ssh/id_rsa and /home/<user>/.ssh/id_rsa.pub. Your .ssh folder is persisted in your attached file share's 5-GB image used to persist $Home.
+
+
+
+## Username on this VM will be your username used in Cloud Shell ($User@Azure:)
+
+## Delete Resource Group:
+az group delete -n MyRG
+
+---------
+

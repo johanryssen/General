@@ -1,0 +1,15 @@
+-------- Renewing Host Subscriptions --------
+## Using Hammer CLI
+
+List available subscriptions in the organization.
+# hammer --output json subscription list --organization example
+
+Search for hosts that do not have a valid subscription.
+# hammer host list --search "subscription_status = invalid"
+
+Attach a subscription to the desired host.
+# hammer host subscription attach --host devnode-146.example.com --quantity 2 --subscription-id 192
+
+Confirm the subscription has been successfully attached.
+# hammer host list --search "subscription_status = invalid"
+

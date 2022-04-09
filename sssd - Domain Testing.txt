@@ -1,0 +1,71 @@
+1. DNS lookup of AD is resolving
+
+
+# Commands to run
+dig +short SRV _ldap._tcp.test.lab
+dig +short SRV _kerberos._tcp.test.lab
+dig +short SRV _kerberos._udp.test.lab
+
+
+# LDAP Expected output:
+0 100 389 adserver1.test.lab.
+0 100 389 adserver2.test.lab.
+...
+
+#KERBEROS Expected output:
+0 100 88 adserver1.test.lab.
+0 100 88 adserver2.test.lab.
+...
+
+----------------------
+
+2. Validate if all ports listed are reachable to Active Directory servers which are part of AD domain.
+
+* DNS Ports
+nc -zv adserver1.test.lab 53
+nc -zuv adserver1.test.lab 53
+
+* LDAP Ports
+nc -zv adserver1.test.lab 389
+nc -zuv adserver1.test.lab 389
+nc -zv adserver1.test.lab 636
+
+* Kerberos
+nc -zv adserver1.test.lab 88
+nc -zuv adserver1.test.lab 88
+
+* Kerberos Kadmin
+nc -zv adserver1.test.lab 464
+nc -zuv adserver1.test.lab 464
+
+* Active Directory: Global Catalog
+nc -zv adserver1.test.lab 3268
+nc -zv adserver1.test.lab 3269
+
+* NTP
+nc -zuv adserver1.test.lab 123
+
+
+----------------------
+
+3. Validate time sync with Active Directory Servers.
+
+ntpstat
+
+systemctl stop ntpd
+ntpdate adserver1.test.lab
+systemctl start ntpd
+systemctl status ntpd
+
+----------------------
+
+4. Set hostname as FQDN.
+Short names should not be used.
+
+hostname
+
+hostnamectl  set-hostname <fqdn>
+hostnamectl  set-hostname rhels1.example.com
+hostnamectl
+
+----------------------

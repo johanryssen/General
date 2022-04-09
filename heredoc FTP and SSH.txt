@@ -1,0 +1,71 @@
+===== Example 1 =====
+
+# FTP
+
+lftp ftp.test.lab <<EOF
+cd pub
+put /etc/hosts
+EOF
+
+---------------------------
+
+# SYNTAX
+
+COMMAND <<InputComesFromHERE
+...
+...
+...
+InputComesFromHERE
+
+---------------------------
+
+## A 'LimitString' delineates (frames) the command list.
+## << precedes the limit string.
+### This has the effect of redirecting the output of a command block into the STDIN of the program or command.
+
+interactive-program <<LimitString
+command #1
+command #2
+...
+LimitString
+
+
+
+===== Example 2 =====
+
+# SSH:
+
+## here string:
+ssh -T user1@test.lab "touch log1.txt"
+ssh -T user1@test.lab "touch log2.txt"
+
+-or-
+
+## here doc:
+ssh -T user1@host.com << EOF
+touch log1.txt
+touch log2.txt
+EOF
+
+
+
+===== Example 3 =====
+
+# PARAMETER Substitution
+
+cat <<EOF 
+Hello ${USER}
+EOF
+
+
+===== Example 4 =====
+
+# COMMAND Substitution
+
+cat <<EOF
+Hello! It is currently: $(date)
+EOF
+
+
+---------------------------
+

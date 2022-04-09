@@ -29,37 +29,28 @@ EOF
 dnf install python3-dnf-plugin-versionlock
 
 # Lock:
-dnf versionlock dbus
-dnf versionlock kernel
-dnf versionlock glibc
-dnf versionlock gcc
-dnf versionlock selinux-policy*
+dnf versionlock dbus kernel glibc gcc selinux-policy*
 
 # View:
-/etc/dnf/plugins/versionlock.list
+cat /etc/dnf/plugins/versionlock.list
 
 --------------------
 
 cat /etc/yum.conf
 [main]
-distroverpkg=8.2
+distroverpkg=8.4
 
 --------------------
 
-subscription-manager release=8.2
+subscription-manager release=8.4
 
 --------------------
 
-yum --releasever=8.2 update
-
---------------------
 
 cat /etc/redhat-release
-Red Hat Enterprise Linux release 8.2 (Ootpa)
+Red Hat Enterprise Linux release 8.4 (Ootpa)
 
 /etc/dnf/vars/releasever
-8.2
--or-
-(Ootpa)
+8.4
 
 --------------------

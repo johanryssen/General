@@ -5,16 +5,7 @@ https://ostechnix.com/how-to-extend-kvm-virtual-machine-disk-size-in-linux/
 ## Install pkg
 dnf install libguestfs-tools
 
-## Get the volume ID
-virsh dumpxml myvm01 | grep blockSD
-
-## Search for absolute path to block device
-locate <output from above>
-
-
--or-
-
-
+## Find path to disk image:
 # virsh dumpxml kvm01 | grep 'disk type' -A5
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
@@ -23,6 +14,14 @@ locate <output from above>
       <target dev='vda' bus='virtio'/>
       <alias name='virtio-disk0'/>
 ...
+
+-or- 
+## Get the volume ID 
+virsh dumpxml myvm01 | grep blockSD
+## Search for absolute path to block device
+locate <output from above>
+
+
 
 ## Inspect the partition details inside this disk image to find the correct path:
 virt-filesystems --long --parts --blkdevs -h -a /var/lib/libvirt/images/kvm01.qcow2
@@ -36,18 +35,24 @@ Name       Type       MBR  Size  Parent
 mv /var/lib/libvirt/images/kvm01.qcow2{,-bak}
 
 # Create new disk image with same name and with size 80GB:
-qemu-img create -f qcow2 -o preallocation=metadata /var/lib/libvirt/images/kvm01.  80G
+qemu-img create -f qcow2 -o preallocation=metadata /var/lib/libvirt/images/kvm01 80G
+...Formatting '/var/lib/libvirt/images/kvm01.qcow2', fmt=qcow2 size=85899345920 cluster_size=65536 preallocation=metadata lazy_refcounts=off refcount_bits=16
 
-Formatting '/var/lib/libvirt/images/kvm01.qcow2', fmt=qcow2 size=85899345920 cluster_size=65536 preallocation=metadata lazy_refcounts=off refcount_bits=16
-
-# Check size of new image:
+# Confirm size of new image:
 virt-filesystems --long --parts --blkdevs -h -a /var/lib/libvirt/images/kvm01.qcow2
 
 Name      Type    MBR  Size  Parent
 /dev/sda  device  -    80G   -
 
+
 # Extend the KVM virtual machine disk image size:
+## Resize sda1 (+500M) and expand sda2 to fill the remaining space:
 virt-resize --resize /dev/sda1=+500M --expand /dev/sda2 /var/lib/libvirt/images/kvm01.qcow2-bak /var/lib/libvirt/images/kvm01.qcow2
+
+-or-
+
+## Just expand sda2 to fill the remaining space:
+virt-resize --expand /dev/sda2 /var/lib/libvirt/images/kvm01.qcow2-bak /var/lib/libvirt/images/kvm01.qcow2
 
 
 /dev/sda1   partition  -    2.1G  /dev/sda

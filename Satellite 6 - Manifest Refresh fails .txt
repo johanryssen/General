@@ -1,0 +1,29 @@
+# Manifest Refresh fails 
+
+- Satellite web UI > Monitor > Tasks
+- Open the Refresh Manifest task which is stopped with warning.
+
+- Click on the Dynflow Console button, go to that tab called Run and expand the first action by the name: 
+'Actions::Candlepin::Owner::UpstreamUpdate' and look for the field 'expiration'
+
+serial:
+  created: '2019-01-24T12:38:00+0000'
+  updated: '2019-06-04T11:17:04+0000'
+  id: 4251147710546321896
+  serial: 4251147710546321896
+expiration: '2020-01-24T12:38:00+0000'
+  collected: false
+  revoked: false
+
+
+As It can be observed, the expiration date is set to 2020-01-24 in the example output, which means after that date any attempt of refreshing the manifest will fail and that will also affect the repository synchronization tasks as well.
+
+---------
+
+# Add/update Subscription in an imported manifest using Red Hat Satellite Web UI
+## Subscriptions can be added into the existing manifest by executing the below steps:
+
+- Web UI > Content > Subscriptions > Add Subscriptions
+- Select the needed subscription and quantity required > Scroll down and click Submit.
+- Manifest will be refreshed automatically after adding subscriptions from UI and newly added subscriptions will be available for the client registered with the Red Hat Satellite server.
+

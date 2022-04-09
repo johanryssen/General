@@ -1,0 +1,6 @@
+## foreman-rake console with rollback
+
+CMD:
+foreman-rake console -- --sandbox
+
+(Any modifications you make will be rolled back on exit)

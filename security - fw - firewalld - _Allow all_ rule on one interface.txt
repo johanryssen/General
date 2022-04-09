@@ -1,0 +1,12 @@
+## FirewallD - 'Allow all' rule on one interface
+
+1. Add source IP for this zone:
+firewall-cmd --permanent --zone=private --add-source="10.10.10.123"
+
+2. ACCEPT all for this zone
+firewall-cmd --permanent --zone=private --set-target=ACCEPT
+
+set-target can be:
+ACCET
+DROP
+%%REJECT%%

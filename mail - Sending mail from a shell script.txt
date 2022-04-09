@@ -23,3 +23,14 @@ tar -zcf /tmp/backup.tar.gz /home/user1/files
 echo | mutt -a /tmp/backup.tar.gz -s "Multiple reports" user1@example.com
 
 # The echo at the start of the last line adds a blank into the body of the mail being set out.
+
+-------------
+
+
+### Send IP
+#!/bin/bash
+ip a | grep inet > /root/ip.out
+#
+@reboot echo | mutt -i /root/ip.out -s "My IP" someone@example.com
+#
+exit 0

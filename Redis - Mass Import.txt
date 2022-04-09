@@ -1,0 +1,52 @@
+# Redis - Mass Import
+
+## filename: data.txt
+SET Key0 Value0
+SET Key1 Value1
+SET Key2 Value2
+SET Key3 Value3
+SET Key4 Value4
+SET Key5 Value5
+SET Key6 Value6
+SET Key7 Value7
+SET Key8 Value8
+SET Key9 Value9
+SET Key10 Value10
+
+
+
+# GOOD # Import
+cat data.txt | redis-cli --pipe
+
+
+
+# BAD # Import:
+cat data.txt | nc localhost 6379
+
+
+
+----------------------------
+
+
+
+----- ALT -----
+
+Use the undocumented DEBUG POPULATE command.
+
+DEBUG POPULATE count [prefix] [size]: Create count string keys named key:<num>.
+
+If a prefix is specified it's used instead of the key prefix.
+
+The value starts with value:<num> and is filled with null chars if needed until it achieves the given size if specified.
+
+# redis-cli:
+
+DEBUG POPULATE 5 test 1000000
+KEYS *
+STRLEN test:0
+STRLEN test:4
+GETRANGE test:1 0 10
+
+
+----------------------------
+

@@ -4,7 +4,6 @@ tcpdump -D
 # Capture X number of packets and then stops.
 tcpdump -c 5 -i any
 
-
 ## Give maximally human-readable timestamp output: -tttt
 tcpdump -i eth0 -tttt
 

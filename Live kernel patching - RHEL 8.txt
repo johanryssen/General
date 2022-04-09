@@ -1,0 +1,21 @@
+# yum install -y kpatch
+
+# uname -r
+4.18.0-305.el8.x86_64
+# yum list available kpatch-patch*305*
+
+# yum install -y "kpatch-patch = $(uname -r)"
+
+# kpatch list
+
+
+----------------------------
+
+# Limitations of kpatch
+The kpatch feature is not a general-purpose kernel upgrade mechanism.
+It is used for applying simple security and bug fix updates when rebooting the system is not immediately possible.
+
+Do not use the SystemTap or kprobe tools during or after loading a patch.
+The patch could fail to take effect until after such probes have been removed. 
+
+----------------------------

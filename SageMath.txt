@@ -1,0 +1,18 @@
+--- iPython ---
+# Open ipython Notebook:
+/opt/SageMath/sage -n ipython
+
+--- JupyterLabs ---
+# Install jupyterlab
+python3 -m pip install jupyterlab --user
+# Install Sage package: jupyterlab_widgets
+/opt/SageMath/sage -i jupyterlab_widgets
+# Open jupyterlab Notebook (-n)
+/opt/SageMath/sage -n jupyterlab
+
+
+--- Access from remote host ---
+# Run in local shell:
+ssh -L localhost:8888:localhost:8888 -t user1@server32 /opt/SageMath/sage -n jupyter --no-browser --port=8888
+# Then open either the "file:///..." or "http://localhost..." link in a local browser.
+# Ensure port 8888 is allowed.

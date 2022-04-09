@@ -1,0 +1,68 @@
+# How to configure DNS caching server with dnsmasq in RHEL
+https://access.redhat.com/solutions/2189401
+
+# Setup a DNS/DHCP Server Using dnsmasq
+https://www.tecmint.com/setup-a-dns-dhcp-server-using-dnsmasq-on-centos-rhel/
+
+-----------------
+
+# yum -y install dnsmasq
+
+## Config files
+
+# /etc/dnsmasq.conf
+interface=eth1
+bind-interfaces
+listen-address=127.0.0.1
+cache-size=1000
+resolv-file=/etc/resolv.dnsmasq
+no-poll
+
+NOTE:
+In this configuration, we use the bind-interfaces option to make dnsmasq listen only on interface lo (address 127.0.0.1).
+This prevents possible conflicts with the libvirt package, since libvirtd uses dnsmasq as DNS and DHCP server for its virtual guests.
+
+# /etc/resolv.dnsmasq
+nameserver <IP address of an upper DNS server>
+nameserver <IP address of an upper DNS server>
+
+
+
+## 2.1 Make /etc/resolv.conf immutable:
+chattr +i /etc/resolv.conf
+lsattr /etc/resolv.conf
+
+### To revert:
+chattr -i /etc/resolv.conf
+
+-or-
+
+## 2.2 Set 'PEERDNS=no' in ifcfg-ethX:
+# /etc/sysconfig/network-scripts/ifcfg-eth1
+TYPE=Ethernet
+DEVICE=eth1
+BOOTPROTO=dhcp
+PEERDNS=no
+
+-or-
+
+## 2.3 Set 'dns=none' in NetworkManager.conf
+# /etc/NetworkManager/NetworkManager.conf
+[main]
+dns=none
+
+# systemctl restart NetworkManager
+
+
+## 3. Local Caching using NetworkManager
+/etc/NetworkManager/NetworkManager.conf:
+[main]
+dns=dnsmasq
+
+# systemctl restart NetworkManager
+
+---------------------
+
+firewall-cmd --add-service=dns --permanent
+firewall-cmd --add-service=dhcp --permanent
+firewall-cmd --reload

@@ -1,1 +1,5 @@
+# Keyboard Backlight
 echo 3 | sudo tee /sys/class/leds/asus::kbd_backlight/brightness
+
+# Lightbar on Laptop Lid
+echo 1 | sudo tee /sys/class/leds/asus::lightbar/brightness

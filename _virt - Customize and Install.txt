@@ -40,7 +40,7 @@ sudo virt-install \
 --vcpus 1 \
 --disk /var/lib/libvirt/images/new_CentOS84.qcow2 \
 --import \
---os-type linux --os-variant rhel7.5 \
+--os-type linux --os-variant rhel8.4 \
 --noautoconsole
 
 
