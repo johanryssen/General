@@ -1,7 +1,8 @@
 ----- Packages -----
-yum -y install nc lsof unzip strace traceroute motif util-linux xterm xorg-x11-utils xorg-x11-xauth xorg-x11-apps
+dnf install nc lsof unzip strace traceroute motif util-linux xterm xorg-x11-utils xorg-x11-xauth xorg-x11-apps
 
 ----- /etc/ssh/sshd_config -----
+
 X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost yes
@@ -9,24 +10,31 @@ AllowAgentForwarding yes	# If you are using ssh-agent
 
 ----- Creating new .Xauthority file -----
 
-# Rename the existing .Xauthority file by running the following command
+# Rename the existing .Xauthority file:
 mv .Xauthority old.Xauthority
 
-# Create empty ~/.Xauthority file
+# Create empty ~/.Xauthority file:
 touch ~/.Xauthority
 
-# Generate key (needed for X11 over SSH )
+# Generate key (needed for X11 over SSH ):
 xauth generate :0 . trusted
 
-# Add key (xauth requires 128 bit hex encoding)
+# Add key (xauth requires 128 bit hex encoding):
 xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
 
-# View listing of .Xauthority
+# View listing of .Xauthority:
 xauth list
+
+-----------------
+
+## Putty
+Connection > SSH > X11:
+"Enable X11 forwarding"
+X display location ':10'
 
 -or-
 
-ssh -X user2@localhost
+ssh -X -Y REMOTE_HOST
 
 
 ----- Enable X export for ROOT user -----

@@ -1,8 +1,8 @@
-Join RHEL 8.3 to AD domain
+Join RHEL8 to AD domain
 
 ----------
 
-yum -y install realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation
+yum install realmd oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authselect-compat adcli -y
 
 ## Prework:
 echo "10.10.25.200		dc1.lab.local dc1 kerberos _ldap._tcp lab.local" >> /etc/hosts
@@ -10,19 +10,17 @@ echo "10.10.25.100		rhel83.lab.local    rhel83" >> /etc/hosts
 
 # hostnamectl set-hostname rhel83.lab.local
 
-# dnf install realmd sssd oddjob oddjob-mklabdir samba-common-tools krb5-workstation authselect-compat adcli
-
 ----------
 
 ## Join AD domain:
-root@rhel83 ~# realm join -v -U Administrator LAB.local
+# realm join -v -U Administrator LAB.local
 
 ----------
 
 ## Verify:
-root@rhel83 ~# realm list
-root@rhel83 ~# klist -kte
-root@rhel83 ~# getent passwd Administrator@lab.local
+# realm list
+# klist -kte
+# getent passwd Administrator@lab.local
 
 ----------
 
@@ -47,14 +45,14 @@ uid=1796001121(adminuser01@LAB.local) gid=1796000513(domain users@LAB.local) gro
 ----------
 
 ## Lockdown access via SSH:
-root@rhel83 ~# echo "AllowGroups "it admins@LAB.local"" >> /etc/ssh/sshd_config
-root@rhel83 ~# systemctl restart sshd
+# echo "AllowGroups "it admins@LAB.local"" >> /etc/ssh/sshd_config
+# systemctl restart sshd
 
 ## Test lockdown:
 Attempt ssh login as a user who is not in "it admins@LAB.local" AD group.
 
 ## View log
-root@rhel83 ~# tail -10f /var/log/secure
+# tail -10f /var/log/secure
 
 Dec 28 11:43:25 rhel83 sshd[2047]: User regularuser01@LAB.local from 10.10.25.54 not allowed because none of user's groups are listed in AllowGroups
 Dec 28 11:43:28 rhel83 sshd[2047]: pam_sss(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.10.25.54 user=regularuser01@lab.local
