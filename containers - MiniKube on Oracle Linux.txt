@@ -1,0 +1,21 @@
+dnf -y update ; dnf -y install curl
+
+# Install the container-tools module, which includes podman.
+dnf -y module install container-tools:ol8
+
+# Install the Conntrack tools, which provide the means to setup High-availability clusters.
+dnf -y install conntrack
+
+# Install Minikube
+## Download the Minikube binary to your home directory.
+cd ~; curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+# Install the Minikube binary.
+install minikube-linux-amd64 /usr/local/bin/minikube
+
+# Start Cluster
+## Start minikube with the podman driver only.
+minikube start --driver=podman
+
+# Confirm you have a functional system.
+minikube kubectl -- get pods -A

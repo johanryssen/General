@@ -1,0 +1,92 @@
+### If there's an issue on the server side ###
+
+﻿w32tm /register
+net start w32time
+net time /setsntp:
+net stop w32time
+net start w32time
+w32tm /config /manualpeerlist:pool.ntp.org,time.windows.com /syncfromflags:manual /reliable:yes /update
+w32tm /resync /rediscover
+net stop w32time
+net start w32time
+
+-----------------------------------------
+
+### Start Windows Time Service ###
+
+w32tm /unregister
+w32tm /register
+net start w32time
+w32tm /resync
+w32tm /query /source
+
+-----------------------------------------
+
+w32tm /query /status /verbose
+w32tm /query /peers /verbose
+
+-----------------------------------------
+
+### Configure the PDC emulator to synchronize from its internal hardware clock ###
+
+w32tm /config /syncfromflags:domhier /reliable:yes /update
+net stop w32time
+net start w32time
+
+-----------------------------------------
+
+### Set client to sync time automatically from a domain source ###
+
+w32tm /config /syncfromflags:domhier /update
+net stop w32time
+net start w32time
+
+-----------------------------------------
+
+### Show config ###
+
+reg query HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+    ServiceDllUnloadOnStop    REG_DWORD    0x1
+    ServiceMain    REG_SZ    SvchostEntry_W32Time
+    ServiceDll    REG_EXPAND_SZ    C:\Windows\SYSTEM32\w32time.DLL
+
+
+C:\Windows\system32>reg query HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters
+    ServiceDllUnloadOnStop    REG_DWORD    0x1
+    ServiceMain    REG_SZ    SvchostEntry_W32Time
+    ServiceDll    REG_EXPAND_SZ    C:\Windows\SYSTEM32\w32time.DLL
+    NtpServer    REG_SZ    pool.ntp.org,time.windows.com	-->		NtpServer
+    Type    REG_SZ    NTP
+
+
+# From above NtpServer, eg.
+W32tm /query /computer:time.windows.com /configuration
+-or-
+W32tm /query /computer:pool.ntp.org /configuration
+
+
+**********
+
+
+C:\Windows\system32>w32tm /query /status /verbose
+Leap Indicator: 0(no warning)
+Stratum: 4 (secondary reference - syncd by (S)NTP)
+Precision: -23 (119.209ns per tick)
+Root Delay: 0.0000000s
+Root Dispersion: 10.0000000s
+ReferenceId: 0x349472BC (source IP:  52.148.114.188)		-->		NtpServer
+Last Successful Sync Time: 28/04/2022 7:55:04 AM
+Source: time.windows.com,0x9								-->		NtpServer
+Poll Interval: 10 (1024s)
+...
+
+
+**********
+
+w32tm /query /configuration
+
+-----------------------------------------

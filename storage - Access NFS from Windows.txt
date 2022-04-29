@@ -1,0 +1,40 @@
+# Access NFS from Windows
+
+1. Powershell
+2. Run the appropriate command for your situation:
+Server OS: Install-WindowsFeature NFS-Client
+Desktop OS: Enable-WindowsOptionalFeature -FeatureName ServicesForNFS-ClientOnly, ClientForNFS-Infrastructure -Online -NoRestart
+
+3. Mount the share using the following command, after making the required modifications:
+mount -o anon nfs.share.server.name:/share-name X:
+
+cmd> mount -o anon \\10.10.10.123\mnt\nfs Z:
+
+
+------------
+
+# Enable Write Permissions for the Anonymous User
+
+1. egEdit:
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\ClientForNFS\CurrentVersion\Default
+
+2. Create a new New DWORD (32-bit) Value inside the Default folder named:
+AnonymousUid
+and assign the UID found on the UNIX directory as shared by the NFS system.
+
+3. Create a new New DWORD (32-bit) Value inside the Default folder named:
+AnonymousGid
+and assign the GID found on the UNIX directory as shared by the NFS system.
+
+4. Restart the NFS client or reboot the machine to apply the changes.
+
+5. The output of the mount command should now look like this:
+
+Local    Remote                                 Properties
+-------------------------------------------------------------------------------
+Z:       \\10.10.10.123\mnt\nfs                   UID=0, GID=0
+
+...
+
+Notice the 0 value applied to the UID and GID.
+This means the share is mounted using the root user.

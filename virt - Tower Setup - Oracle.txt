@@ -1,0 +1,96 @@
+## Install Oracle Linux Automation Manager - Ansible Tower | AWX
+
+dnf config-manager --enable ol8_baseos_latest
+dnf install oraclelinux-automation-manager-release-el8 -y
+
+dnf config-manager --enable ol8_automation ol8_addons ol8_UEKR6 ol8_appstream
+firewall-cmd --add-service=http --permanent
+firewall-cmd --add-service=https --permanent
+firewall-cmd --reload
+dnf install ol-automation-manager -y
+
+
+## Append to: /etc/redis.conf
+cat <<EOF>> /etc/redis.conf
+unixsocket /var/run/redis/redis.sock
+unixsocketperm 775
+EOF
+
+## Run script to install and initialize the database.
+/var/lib/ol-automation-manager/ol-automation-manager-DB-init.sh
+
+## Switch to the awx user and shell.
+su -l awx -s /bin/bash
+
+## Create OLVM schema and admin user account.
+awx-manage migrate
+awx-manage createsuperuser --username admin --email root@TOWER_IP_or_HOSTNAME
+# enter password: pass
+
+awx-manage create_preload_data
+awx-manage provision_instance --hostname=TOWER_IP_or_HOSTNAME
+awx-manage register_queue --queuename=tower --hostnames=TOWER_IP_or_HOSTNAME
+
+awx-manage setup_managed_credential_types
+
+## Exit awx user shell.
+exit
+
+## Generate SSL certificate for NGINX.
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/tower/tower.key -out /etc/tower/tower.crt
+
+## Edit the /etc/nginx/nginx.conf file and replace default configuration with the following text.
+cp /etc/nginx/nginx.conf{,-bak}
+
+cat <<EOF>/etc/nginx/nginx.conf
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /run/nginx.pid;
+
+# Load dynamic modules. See /usr/share/doc/nginx/README.dynamic.
+include /usr/share/nginx/modules/*.conf;
+
+events {
+ worker_connections 1024;
+}
+
+http {
+ log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                   '$status $body_bytes_sent "$http_referer" '
+                   '"$http_user_agent" "$http_x_forwarded_for"';
+
+ access_log  /var/log/nginx/access.log  main;
+
+ sendfile            on;
+ tcp_nopush          on;
+ tcp_nodelay         on;
+ keepalive_timeout   65;
+ types_hash_max_size 2048;
+
+ include             /etc/nginx/mime.types;
+ default_type        application/octet-stream;
+
+ # Load modular configuration files from the /etc/nginx/conf.d directory.
+ # See http://nginx.org/en/docs/ngx_core_module.html#include
+ # for more information.
+ include /etc/nginx/conf.d/*.conf;
+}
+EOF
+
+
+
+## Set 'CLUSTER_HOST_ID' in /etc/tower/settings.py
+vi /etc/tower/settings.py
+CLUSTER_HOST_ID = "TOWER_IP_or_HOSTNAME"
+
+## Start the service.
+systemctl enable --now ol-automation-manager.service
+
+## Web UI:
+https://TOWER_IP_or_HOSTNAME
+
+## or Configure an SSH tunnel.
+ssh -L 8444:localhost:443 opc@TOWER_IP_or_HOSTNAME
+## Open a web browser and enter the URL.
+https://localhost:8444

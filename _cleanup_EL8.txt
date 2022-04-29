@@ -39,7 +39,6 @@ echo "--- Log File Cleanup ---"
 /bin/rm -rf /var/log/*/*-2022*
 /bin/rm -rf /var/log/*/*gz
 /bin/rm -rf /var/log/*/*xz
-/bin/rm -rf /var/log/audit/audit.log.?
 echo "Done"
 echo ""
 echo "--- Journal Disk Usage ---"
