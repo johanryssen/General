@@ -1,0 +1,23 @@
+# CMD
+
+You need to use Clink (opens new window)(v1.2.30+) with Cmd.
+Create a file at this path
+%LocalAppData%\clink\starship.lua
+
+ with the following contents:
+
+load(io.popen('starship init cmd'):read("*a"))()
+
+
+# PS
+
+Add the following to the end of Microsoft.PowerShell_profile.ps1.
+You can check the location of this file by querying the $PROFILE variable in PowerShell.
+
+Typically the path is
+~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
+-or-
+~/.config/powershell/Microsoft.PowerShell_profile.ps1 on -Nix.
+
+Invoke-Expression (&starship init powershell)
+

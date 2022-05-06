@@ -1,0 +1,1 @@
+qemu-img convert -f raw -O vmdk OpenBSD-7.img OpenBSD-7.vmdk

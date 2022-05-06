@@ -1,0 +1,110 @@
+## VyOS ##
+
+https://docs.vyos.io/en/equuleus/quick-start.html
+
+1. Boot from ISO
+
+2. Login:
+USER: vyos
+PASS: vyos
+
+3. Network setup:
+
+vyos@vyos:~$ configure
+
+# Configure interfaces:
+set interfaces ethernet eth0 address dhcp
+set interfaces ethernet eth0 description 'OUTSIDE'
+set interfaces ethernet eth1 address '192.168.85.1/24'
+set interfaces ethernet eth1 description 'INSIDE'
+
+# Allow SSH:
+set service ssh port '22'
+
+# Commit / save:
+vyos@vyos# commit
+vyos@vyos# save
+Saving configuration to '/config/config.boot'...
+
+# exit to $
+vyos@vyos# exit
+vyos@vyos$
+
+# Install to HDD:
+
+$ install image
+
+$ reboot
+
+----------------
+
+# New user
+set system login user jo authentication plaintext-password MyPass123
+
+# Set up Key Based Authentication:
+set system login user jo authentication public-keys myusername@mydesktop type ssh-ed25519
+
+## set system login user myvyosuser authentication public-keys myusername@mydesktop key <CONTENTS_OF_ID_RSA.pub>
+set system login user jo authentication public-keys myusername@mydesktop key AAAAC3Nza9438hwf93f4334/32fnoiq34ufhq43wpoquh23pqou42hfq4p
+
+
+# SSH into the VyOS install as your new user.
+
+# Delete vyos user:
+delete system login user vyos
+set service ssh disable-password-authentication
+
+# Commit, save, exit:
+vyos@vyos# commit
+vyos@vyos# save
+Saving configuration to '/config/config.boot'...
+Done
+vyos@vyos# exit
+vyos@vyos$ reboot
+
+---------
+
+## SNMPv2
+
+# Define a community
+set service snmp community routers authorization ro
+
+# Allow monitoring access from the entire network
+set service snmp community routers network 192.168.85.0/24
+set service snmp community routers network 2001::db8:ffff:eeee::/64
+
+# Allow monitoring access from specific addresses
+set service snmp community routers client 192.168.85.145
+set service snmp community routers client 192.168.85.146
+
+# Define optional router information
+set service snmp location "AU, Brisbane"
+set service snmp contact "snmpuser@vyos.test.lab"
+
+# Trap target if you want asynchronous communication
+set service snmp trap-target 203.0.113.10
+
+# Listen only on specific IP addresses (port defaults to 161)
+set service snmp listen-address 192.168.85.200 port 161
+set service snmp listen-address 2001:db8::f00::1
+
+
+------------------
+
+##### Ansible #####
+
+# host_vars/vyos
+ansible_python_interpreter: /usr/bin/python3
+ansible_connection: network_cli
+ansible_network_os: vyos
+
+
+*************
+fatal: [vyos]: FAILED! => changed=false
+  ansible_facts:
+    discovered_interpreter_python: /usr/libexec/platform-python
+  msg: 'paramiko is not installed: No module named ''paramiko'''
+*************
+
+###################
+
