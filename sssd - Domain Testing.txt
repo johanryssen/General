@@ -1,21 +1,13 @@
-1. DNS lookup of AD is resolving
+1. Verify the configuration for name resolution
+### Specifically the DNS SRV records:
 
+# Lookup realm LDAP details
+dig +short -t SRV _ldap._tcp.dc._msdcs.TEST.LAB
+dig +short -t SRV _ldap._tcp.TEST.LAB
 
-# Commands to run
-dig +short SRV _ldap._tcp.test.lab
-dig +short SRV _kerberos._tcp.test.lab
-dig +short SRV _kerberos._udp.test.lab
-
-
-# LDAP Expected output:
-0 100 389 adserver1.test.lab.
-0 100 389 adserver2.test.lab.
-...
-
-#KERBEROS Expected output:
-0 100 88 adserver1.test.lab.
-0 100 88 adserver2.test.lab.
-...
+# Lookup realm KERBEROS details
+dig +short -t SRV _kerberos._tcp.dc._msdcs.TEST.LAB
+dig +short -t SRV _kerberos._tcp.TEST.LAB
 
 ----------------------
 
@@ -62,10 +54,6 @@ systemctl status ntpd
 4. Set hostname as FQDN.
 Short names should not be used.
 
-hostname
-
-hostnamectl  set-hostname <fqdn>
-hostnamectl  set-hostname rhels1.example.com
-hostnamectl
+hostnamectl  set-hostname server42.test.lab
 
 ----------------------
