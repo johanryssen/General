@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Usage:
-# xping.sh file_containing_hosts.txt
+echo " Usage:"
+eecho "xping.sh file_containing_hosts.txt"
 
 for i in `cat $1`
 do

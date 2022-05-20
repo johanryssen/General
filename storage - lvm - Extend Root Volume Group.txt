@@ -15,7 +15,6 @@ pvresize /dev/sda2
 
 lvextend -l +100%FREE -r /dev/mapper/centos-root
 
-
 ### Add 2nd Disk on Hypervisor:
 Add new disk to root-LV
 pvcreate /dev/nvme0n2

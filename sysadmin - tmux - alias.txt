@@ -1,0 +1,6 @@
+## ccze = colorize logs:
+alias tmux4='/usr/bin/tmux a -t tmux4 || /usr/bin/tmux new-session -s tmux4\; split-window -v -l 10 \; send-keys '\''journalctl --since yesterday -b -p warning -f|ccze'\'' '\''C-m'\'' \; select-pane -U \; split-window -h \; split-window \; attach'
+
+
+## Without ccze
+alias tmux4='/usr/bin/tmux a -t tmux4 || /usr/bin/tmux new-session -s tmux4\; split-window -v -l 10 \; send-keys '\''journalctl --since yesterday -b -p warning -f'\'' '\''C-m'\'' \; select-pane -U \; split-window -h \; split-window \; attach'

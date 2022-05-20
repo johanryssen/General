@@ -1,69 +1,206 @@
-===== Example 1 =====
+A Here document (Heredoc) is a type of REDIRECTION that allows you to pass multiple lines of input to an interactive command (eg. tee, cat, sftp).
 
-# FTP
+---------------------------
 
-lftp ftp.test.lab <<EOF
-cd pub
-put /etc/hosts
-EOF
+1. The first line starts with an optional command followed by the special redirection operator << and the delimiting identifier.
+1.1 You can use any string as a delimiting identifier
+Most commonly used are EOF or END.
+
+1.2 If the delimiting identifier is unquoted, the shell will substitute all variables, commands and special characters before passing the here-document lines to the command.
+
+1.3 Appending a minus sign to the redirection operator <<-, will cause ALL LEADING TAB CHARACTERS TO BE IGNORED/SUPPRESSED.
+This allows you to use indentation when writing here-documents in shell scripts.
+Leading whitespace characters are not allowed, only TAB.
+
+2. The here-document block can contain strings, variables, commands and any other type of input.
+
+3. The last line ends with the delimiting identifier. White space in front of the delimiter is not allowed.
 
 ---------------------------
 
 # SYNTAX
 
-COMMAND <<InputComesFromHERE
-...
-...
-...
-InputComesFromHERE
+A LIMITSTRING/DELIMITER delineates (frames) the command list.
+<< precedes the limit string.
+This has the effect of redirecting the output of a command block into the STDIN of the program or command.
+
+
+[COMMAND] <<[-] 'DELIMITER'
+  HERE-DOCUMENT
+DELIMITER
+
 
 ---------------------------
 
-## A 'LimitString' delineates (frames) the command list.
-## << precedes the limit string.
-### This has the effect of redirecting the output of a command block into the STDIN of the program or command.
-
-interactive-program <<LimitString
-command #1
-command #2
-...
-LimitString
-
-
-
-===== Example 2 =====
-
-# SSH:
-
-## here string:
-ssh -T user1@test.lab "touch log1.txt"
-ssh -T user1@test.lab "touch log2.txt"
-
--or-
-
-## here doc:
-ssh -T user1@host.com << EOF
-touch log1.txt
-touch log2.txt
-EOF
-
-
-
-===== Example 3 =====
-
-# PARAMETER Substitution
-
+## PARAMETER Substitution
 cat <<EOF 
 Hello ${USER}
 EOF
 
-
-===== Example 4 =====
-
-# COMMAND Substitution
-
+## COMMAND Substitution
 cat <<EOF
 Hello! It is currently: $(date)
+EOF
+
+
+## Weather
+cat <<EOF
+Weather at Brisbane airport:
+------------
+
+$(curl -s wttr.in/BNE?0)
+EOF
+
+-----------------------------
+
+## Eg 1 - Pass two lines of text containing an environment variable and a command to cat:
+tmp $ cat << EOF
+> The current working directory is: $PWD
+> You are logged in as: $(whoami)
+> EOF
+
+### Eg 1 Output
+> Both the variable and the command output are substituted:
+The current working directory is: /tmp
+You are logged in as: devops
+
+
+## Eg 2 Enclosing the delimiter in single or double quotes.
+cat <<- "EOF"
+The current working directory is: $PWD
+You are logged in as: $(whoami)
+EOF
+
+### Eg 2 Output
+> when the delimiter is quoted no parameter expansion and command substitution is done by the shell.
+
+The current working directory is: $PWD
+You are logged in as: $(whoami)
+
+
+## Eg 3 - Redirect output to file:
+tmp $ cat << EOF > file.txt
+> The current working directory is: $PWD
+> You are logged in as: $(whoami)
+> EOF
+
+### Eg 3 - Output
+
+tmp $ cat file.txt
+The current working directory is: /tmp
+You are logged in as: devops
+
+## Eg 4 - wall
+
+### Script using wall:
+
+#!/bin/bash
+wall <<EOM
+E-mail your lunch orders to $USER
+    (Tabbed string here)
+# Additional message text goes here.
+# Note: 'wall' prints comment lines.
+EOM
+
+exit
+
+
+### Eg 4 - Output
+
+Broadcast message from devops@control.test.lab (pts/0) (Sat May 21 09:12:39 202
+
+E-mail your lunch orders to devops
+    (Tabbed string here)
+# Additional message text goes here.
+# Note: 'wall' prints comment lines.
+
+
+
+## Eg 5 - Here document with parameter substitution.
+
+#!/bin/bash
+# Another 'cat' here document, using parameter substitution.
+
+# Try it with no command-line parameters,   ./scriptname
+# Try it with one command-line parameter,   ./scriptname Mortimer
+# Try it with one two-word quoted command-line parameter,
+#                           ./scriptname "Mortimer Jones"
+
+CMDLINEPARAM=1     #  Expect at least command-line parameter.
+
+if [ $# -ge $CMDLINEPARAM ]
+then
+  NAME=$1          #  If more than one command-line param,
+                   #+ then just take the first.
+else
+  NAME="John Doe"  #  Default, if no command-line parameter.
+fi
+
+RESPONDENT="the author of this fine script"
+
+
+cat <<Endofmessage
+
+Hello, there, $NAME.
+Greetings to you, $NAME, from $RESPONDENT.
+
+# This comment shows up in the output (why?).
+
+Endofmessage
+
+# Note that the blank lines show up in the output.
+# So does the comment.
+
+exit
+
+
+### Eg 5 - Output - no command-line parameters
+
+tmp $ bash a.sh 
+
+Hello, there, John Doe.
+...
+
+
+### Eg 5 - Output - with command-line parameters
+
+tmp $ bash a.sh "Sam James"
+
+Hello, there, Sam James.
+...
+
+
+---------------------------
+
+# Heredoc with SSH
+## Execute multiple commands on a remote system over SSH
+
+When using unquoted delimiter make sure you escape all variables, commands and special characters otherwise they will be interpolated locally:
+
+ssh -T remoteuser32@server33.test.lab << EOF
+echo "The current local working directory is: $PWD"
+echo "The current remote working directory is: \$PWD"
+EOF
+
+### Output:
+The current local working directory is: /home/devops
+The current remote working directory is: /home/remoteuser32
+
+-or-
+
+# Here String with SSH
+ssh -T user1@test.lab "touch log1.txt"
+ssh -T user1@test.lab "touch log2.txt"
+
+
+
+---------------------------
+
+# Heredoc with FTP
+
+lftp ftp.test.lab <<EOF
+cd pub
+put /etc/hosts
 EOF
 
 

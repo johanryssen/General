@@ -1,0 +1,150 @@
+## Add new repo to Githhub
+
+cd /dir/to/be/made/a/git/repo
+echo "# MyNewRepo" >> README.md
+git init
+git add README.md
+git config --global user.email "my.git.mail"
+git config --global user.name "my name"
+git add -A
+git commit -m "Initial Commit"
+git branch -M main
+git remote add origin https://github.com/MYGITACCOUNT/MyNewRepo.git
+git push -u origin main
+
+
+## Push an existing repo
+
+git remote add origin https://github.com/MYGITACCOUNT/MyNewRepo.git
+git branch -M main
+git push -u origin main
+
+
+------------------------
+
+## Set GIT username/email for EVERY repo (--global)
+
+git config --global user.name "your_username"
+git config --global user.email "your_email_address@example.com"
+git config --global --list
+git config user.name
+
+
+## Set GIT username/email for a SINGLE repo
+
+git config user.name "your_username"
+git config user.email "your_email_address@example.com"
+git config --list
+git config user.name
+
+
+## SINGLE repo setup - add/change user
+> Default is to use `--global user.name`
+
+### View remote origin URL
+
+$ git config -l | grep url
+remote.origin.url=https://github.com/GIT_USER/REPO
+
+
+### Also view with
+
+$ git remote -v
+
+
+### Add different GIT username
+
+$ git remote set-url origin "https://GIT_USER@github.com/GIT_USER/REPO.git"
+
+
+### View remote origin URL
+
+$ git config -l | grep url
+remote.origin.url=https://GIT_USER@github.com/GIT_USER/REPO
+
+
+> Add the email address to your account on GitHub, so that your commits are attributed to you and appear in your contributions graph.
+
+----------
+## Auto Correct
+
+git config --global help.autocorrect 1
+
+## Count Commits
+
+git rev-list -count master
+
+## Search
+
+git rev-list --all | xargs git grep -F 'SEARCH_STRING'
+
+
+------------------------
+
+## Switching remote URLs from HTTPS to SSH
+- cd to local project.
+- List existing remotes to get name of the remote you want to change.
+
+$ git remote -v
+> origin  https://github.com/USERNAME/REPOSITORY.git (fetch)
+> origin  https://github.com/USERNAME/REPOSITORY.git (push)
+
+
+## Change remote's URL from HTTPS to SSH
+
+$ git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
+
+
+## Verify that the remote URL has changed
+
+$ git remote -v
+> origin  git@github.com:USERNAME/REPOSITORY.git (fetch)
+> origin  git@github.com:USERNAME/REPOSITORY.git (push)
+
+
+------------------------
+
+## View GIT Config
+### Global
+
+git config --global --list
+
+
+### Local
+
+git config --list
+
+------------------------
+
+## GIT Config File
+
+[user]
+	name = myusername
+	email = myemail@example.com
+[help]
+	autocorrect = 1
+[core]
+	excludesfile = ~/.gitignore
+	editor = notepad++
+	autocrlf = true
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[color]
+	ui = auto
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+[color "status"]
+	added = green bold
+	changed = yellow bold
+	untracked = red bold
+
+
+------------------------

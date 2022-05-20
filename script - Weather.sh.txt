@@ -1,0 +1,8 @@
+#!/bin/bash
+read -p "Provide location or press enter for auto-detection: " LOCATION
+
+cat <<EOM
+$(curl -s wttr.in/$LOCATION?0)
+EOM
+
+exit 0

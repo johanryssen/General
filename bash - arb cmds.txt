@@ -1,3 +1,19 @@
+# Show IPv4 and IPv6 addresses
+ip a | egrep "state|global" | awk '{print $2}'
+
+
+# ccze - coloured logs
+tail -f -n 100 /var/log/messages | ccze
+##  tailc function
+### Add to .bashrc
+tailc () {
+    tail $@ | ccze -A
+}
+### Then use tailc just as you would tail.
+tailc -100f /var/log/messages 
+
+
+
 # web server
 $ python3 -m http.server 8888
 
@@ -11,6 +27,12 @@ $ scp -r local/source/dir user@remote_server:/path/on/remote_server
 # Backup Remote Directory to Local Linux
 $ scp -r user@remote_server:/path/on/remote_server local/target/dir
 
+--- rsync ---
+# Backup Local to Local:
+rsync -azvP /etc/* /mnt/my-backup
+
+# Backup Local to Remote:
+rsync -azvP /etc/* username@remote_host:/backup/
 
 ## Search for a file (include some extensions, exclude others).
 # grep
@@ -37,8 +59,40 @@ $ lsblk --json | jq -c '.blockdevices[]|[.name,.size]'
 # Convert a CSV to JSON
 $ python3 -c "import csv,json,sys;print(json.dumps(list(csv.reader(open(sys.argv[1])))))" covid19-vaccinations-town-age-grp.csv
 
-# Weather
-curl https://wttr.in/
+
+--- Weather ---
+## https://github.com/chubin/wttr.in
+## curl wttr.in/:help
+
+## Auto location
+curl wttr.in
+-or-
+wget -O- -q wttr.in
+
+-- Location --
+SyNTAX: curl wttr.in/<LOCATION>
+
+## Airport
+curl wttr.in/BNE
+
+## City
+curl wttr.in/Maroochydore
+
+-- Options --
+SYNTAX: curl wttr.in?<OPTION>
+0 # only current weather
+1 # current weather + today's forecast
+2 # current weather + today's + tomorrow's forecast
+
+### current weather + today's forecast:
+curl wttr.in?1
+
+## Combined
+curl wttr.in/BNE?0
+
+## Powershell
+Invoke-RestMethod https://wttr.in/Brisbane
+
 
 # Expose a web directory using containers
 $ podman run --rm -v .:/usr/share/nginx/html:ro,Z -p 30080:80 -d nginx
@@ -47,7 +101,6 @@ $ podman run --rm -v .:/usr/share/nginx/html:ro,Z -p 30080:80 -d nginx
 $ docker run --rm --interactive curlimages/curl curl \
 --verbose --location --fail --silent --output - \
 https://example.com
-
-The command ends with a dash (-), which tells curl to output to your terminal.
+## The command ends with a dash (-), which tells curl to output to your terminal.
 
 -----------------------

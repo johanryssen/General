@@ -1,14 +1,12 @@
 #!/bin/bash
 
 errortext=""
-EMAILS="address@domain.com,otheraddress@domain.com"
+EMAILS="mailbox1@test.lab,mailbox2@test.lab"
 
-# get file system disk usage report for
+# File System disk usage report for:
 # all file systems (-a)
 # with POSIX output (P)
 # in human readable format (h)
-# Look for only vgroup (I've LVM), but if you want only /home and /var
-# to be checked for, do something like this: egrep 'home|var'
 
 for line in `df -aPh | egrep 'vgroup-' | sort | awk '{print$6"-"$5"-"$4}'`
 do
@@ -17,8 +15,8 @@ do
     percent=`echo "$line" | awk -F - '{print$2}' | cut -d % -f 1`
     partition=`echo "$line" | awk -F - '{print$1}' | cut -d % -f 1`
 
-    # Let's set the limit to 90% when alert should be sent
-    limit=90
+    # Alert on 85pct
+    limit=85
 
     if [ $percent -ge $limit ]; then
         errortext="$errortext $line"
@@ -27,6 +25,6 @@ done
 
 # send an email
 if [ -n "$errortext" ]; then
-    echo "$errortext" | mail -s "NOTIFICATION: some partitions on almost full"        
+    echo "$errortext" | mail -s "NOTIFICATION: Partitions Disk space"
 $EMAILS
 fi
