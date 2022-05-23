@@ -1,9 +1,26 @@
-
 ==============================================
 
-# Copy shell STDOUT into current vim session:
-:r! ls
-## r! - Read in the stdout of this command
+# reload .vimrc
+:source ~/.vimrc
+-or-
+:so $MYVIMRC
+
+
+# Edit .vimrc file from within a vim session:
+:e $MYVIMRC
+
+# If you're editing .vimrc, reload it with:
+:so %
+
+## % - current file name
+## :so - short for :source, which reads the content of the specified file and treats it as Vim code
+
+
+# Configure Vim to watch for changes in .vimrc and automatically reload the config:
+augroup myvimrc
+    au!
+    au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+augroup END
 
 ==============================================
 
@@ -33,11 +50,14 @@ y    yank
 
 ==============================================
 
+# Copy shell STDOUT into current vim session:
+:r! ls
+## r! - Read in the stdout of this command
+
+
 ## Read the contents of another file into the open file:
 :r filename
 
-## To edit your .vimrc file from within a vim session:
-:e $MYVIMRC
 
 ## Modelines
 # Syntax:

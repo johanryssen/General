@@ -1,6 +1,10 @@
 Recursive search with grep
 
-$ grep -nrHi generate.*sh .i3/
-Performs a case-insensitive (-i) recursive search (-r) and prints not only the match, but
-also the filename (-H) in which the match was found and corresponding line number (-n).
+# grep -nrHi compress /etc/logrotate.d/*
+
+-i case-insensitive
+-r recursive
+-H filename
+-n corresponding line number
+
 All this is highlighted with different colours.

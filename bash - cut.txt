@@ -1,12 +1,13 @@
-----------------------
+-------------------
 # cat testfile.txt
 yum - Yellowdog Updater Modified
 top - display Linux processes
 ls - list directory contents
-----------------------
+-------------------
 
 
----------- COLUMNS ----------
+----- COLUMNS -----
+
 
 ## Select Column of Characters:
 $ cut -c2 testfile.txt
