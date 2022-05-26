@@ -1,0 +1,79 @@
+///ref
+https://coder.com/docs/code-server/latest/guide
+https://www.digitalocean.com/community/tutorials/how-to-set-up-the-code-server-cloud-ide-platform-on-debian-10
+\\\
+
+## Install code-server
+curl -fsSL https://code-server.dev/install.sh | sh
+
+## ALT ##
+wget https://github.com/cdr/code-server/releases/download/3.2.0/code-server-3.2.0-linux-x86_64.tar.gz
+##
+
+-or-
+## Run as a Docker container:
+mkdir code-server && cd code-server
+docker run -it --name code-server -p 127.0.0.1:8080:8080 \
+  -v "$PWD:/home/coder" \
+  -u "$(id -u):$(id -g)" \
+  -e "DOCKER_USER=$USER" \
+  codercom/code-server:latest
+
+
+--- Syncing code-server and VS Code settings (optional) ---
+1. This will configure code-server to use the same settings and extensions as VS Code.
+2. on the machine/container with code-server installed:
+vim $HOME/.config/code-server/config.yaml
+
+3. Add the VS Code directories. On OSX, they are:
+## vim ~/.config/code-server/config.yaml
+user-data-dir: "/Users/<USERNAME>/Library/Application Support/Code"
+extensions-dir: "/Users/<USERNAME>/.vscode/extensions"
+
+
+--- Connect to a remote server ---
+
+code-server -link
+
+Instead of authenticating with a password, you’ll be prompted to log in with GitHub.
+Future logins with the tunneled URL will verify your GitHub account.
+
+You can also add:
+link: true
+to code-server’s config.yaml to launch with -link by default.
+
+Note: code-server -link will not proxy your SSH server. Other options, such as inlets can do this for you.
+
+
+--- unit-file ---
+
+# /lib/systemd/system/code-server.service
+
+[Unit]
+Description=code-server
+After=nginx.service
+
+[Service]
+Type=simple
+Environment=PASSWORD=myPasswd321
+ExecStart=/usr/bin/code-server --bind-addr 10.10.10.100:8080 --user-data-dir /var/lib/code-server --auth password
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+--- Connect to the server with SSH forwarding ---
+1. Stop the server
+2. Disable password auth method:
+sed -i.bak 's/auth: password/auth: none/' ~/.config/code-server/config.yaml
+
+3. Restart the server:
+systemctl restart code-server@$USER
+
+4. Assuming that you have already set a project-wide SSH key, launch your local terminal and run the following command:
+ssh -i [path/to/your/private/key] -N -L 8080:127.0.0.1:8080 [user]@<instance-ip>
+
+4 Launch a terminal and navigate to http://127.0.0.1:8080/
+------

@@ -1,0 +1,13 @@
+# vim /etc/network/interfaces
+
+auto ens160
+# iface ens160 inet dhcp
+iface ens160 inet static
+	address 10.10.10.123
+	netmask 255.255.255.0
+	gateway 10.10.10.2
+dns-nameservers 8.8.8.8 8.8.4.4
+
+-----
+	
+/etc/init.d/networking restart

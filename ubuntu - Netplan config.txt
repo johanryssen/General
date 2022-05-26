@@ -1,34 +1,140 @@
-Netplan config - Ubuntu
+https://netplan.io/examples/
 
------ CONFIG -----
+# Netplan reads network configuration from /etc/netplan/*.yaml
+## During early boot, Netplan generates backend specific configuration files in /run to hand off control of devices to a particular networking daemon.
 
-# /etc/netplan/01-netcfg.yaml
+# Using Network Manager as a renderer
+## Netplan supports both networkd and Network Manager as backends.
+## You can specify which network backend should be used to configure particular devices by using the renderer key.
+## You can also delegate all configuration of the network to Network Manager itself by specifying only the renderer key:
+network:
+    version: 2
+    renderer: NetworkManager
+
+*****
+netplan generate: Use /etc/netplan to generate the required configuration for the renderers.
+netplan --debug apply: Apply all configuration for the renderers, restarting them as necessary.
+netplan try: Apply configuration and wait for user confirmation; will roll back if network is broken or no confirmation is given.
+*****
+
+----------------
+# vim /etc/netplan/00-installer-config.yaml
+----------------
+
+--- ETHERNET ---
+
+## STATIC ##
+
+### 1 x NIC:
 
 network:
   version: 2
   renderer: networkd
   ethernets:
-    enp8s0:
+    ens33:
+      addresses:
+        - 10.10.10.123/24
+      nameservers:
+        search: [test.lab]
+        addresses: [10.10.10.2, 8.8.8.8]
+      routes:
+        - to: default
+          via: 10.10.10.2
+-or-
+
+### 2 x NICs:
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens33:
      dhcp4: no
-     addresses: [172.16.11.123/24]
-     gateway4: 172.16.1.1
+     addresses: [192.178.0.123/24]
+     gateway4: 192.168.0.1
      nameservers:
-       addresses: [8.8.8.8,172.16.11.1]
+       addresses: [8.8.8.8,192.168.0.2]
 
 network:
   version: 2
   renderer: networkd
   ethernets:
-    enp1s0:
+    ens39:
      dhcp4: no
      addresses: [10.10.10.123/24]
      gateway4: 10.10.10.1
      nameservers:
        addresses: [8.8.8.8,10.10.10.1]
+###
 
-------------------
+## DHCP:
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        ens33:
+            dhcp4: true
 
-netplan generate
-netplan --debug apply
 
-------------------
+--- WIFI ---
+
+## WPA Personal wireless network
+
+network:
+  version: 2
+  renderer: networkd
+  wifis:
+    wlp2s0b1:
+      dhcp4: no
+      dhcp6: no
+      addresses: [192.168.0.21/24]
+      nameservers:
+        addresses: [192.168.0.1, 8.8.8.8]
+      access-points:
+        "network_ssid_name":
+          password: "**********"
+      routes:
+        - to: default
+          via: 192.168.0.1
+##
+
+# WPA Enterprise wireless networks
+# WPA or WPA2 Enterprise require additional authentication parameters.
+# Eg. if the network is secured using WPA-EAP and TTLS:
+
+network:
+  version: 2
+  wifis:
+    wl0:
+      access-points:
+        workplace:
+          auth:
+            key-management: eap
+            method: ttls
+            anonymous-identity: "@internal.test.lab"
+            identity: "joe@internal.test.lab"
+            password: "s0meP@ssword123"
+      dhcp4: yes
+##
+
+-or-
+
+## Network secured with WPA-EAP and TLS:
+
+network:
+  version: 2
+  wifis:
+    wl0:
+      access-points:
+        university:
+          auth:
+            key-management: eap
+            method: tls
+            anonymous-identity: "@cust.test.lab"
+            identity: "cert-joe@cust.test.lab"
+            ca-certificate: /etc/ssl/cust-cacrt.pem
+            client-certificate: /etc/ssl/cust-crt.pem
+            client-key: /etc/ssl/cust-key.pem
+            client-key-password: "pr1v@teKeeeey321"
+      dhcp4: yes
+##
