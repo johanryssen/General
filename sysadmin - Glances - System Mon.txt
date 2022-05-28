@@ -1,0 +1,70 @@
+# Glances
+## https://github.com/nicolargo/glances
+
+apt-get install -y python3-pip python-dev python3-docker gcc lm-sensors wireless-tools 
+
+# Install Glances:
+pip3 install glances
+
+# Install libraries to use optional features:
+pip install --user 'glances[action,browser,cloud,cpuinfo,docker,export,folders,gpu,graph,ip,raid,snmp,web,wifi]'
+
+-or-
+curl -L https://bit.ly/glances | /bin/bash
+
+-or-
+wget -O- https://bit.ly/glances | /bin/bash
+
+
+
+# Upgrade Glances to the latest version:
+pip install --user --upgrade glances
+
+# Current develop branch:
+pip install --user -i https://test.pypi.org/simple/ Glances
+
+--- Run ---
+# Standalone mode
+glances
+
+# Web server mode
+glances -w
+
+# Client/server mode
+## On the server side:
+glances -s
+
+## On the client one:
+glances -c <ip>
+
+
+# Detect and display all Glances servers available on your network or defined in the configuration file:
+glances --browser
+
+# Display raw stats on stdout:
+glances --stdout cpu.user,mem.used,load
+
+# Display in CSV format:
+glances --stdout-csv now,cpu.user,mem.used,load
+
+
+
+--- Docker ---
+# Get the Glances container:
+docker pull nicolargo/glances:<version>
+
+# Available versions on the Docker Hub repository:
+- nicolargo/glances:latest				-	Basic Debian Glances image version with minimal dependencies
+- nicolargo/glances:alpine-latest		-	 for a basic Alpine Glances image version with minimal dependencies
+- nicolargo/glances:latest-full			-	Full Debian Glances image version with all dependencies
+- nicolargo/glances:alpine-latest-full	-	Full Alpine Glances image version with all dependencies
+
+# Run last version of Glances container in console mode:
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro --pid host --network host -it nicolargo/glances:latest-full
+
+# To use a custom glances.conf file - create Dockerfile:
+FROM nicolargo/glances:latest
+COPY glances.conf /etc/glances.conf
+CMD python -m glances -C /etc/glances.conf $GLANCES_OPT
+
+---

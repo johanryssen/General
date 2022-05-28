@@ -1,57 +1,62 @@
 #!/bin/bash
+#
 echo ""
 echo "Synchronize cached writes to persistent storage"
 /bin/sync
 echo ""
-echo "--- APT Clean All ---"
-/usr/bin/apt update -y
-/usr/bin/apt upgrade -y
-/usr/bin/apt autoremove -y
-/usr/bin/apt clean
-/usr/bin/apt -s clean
-/usr/bin/apt clean all
-/usr/bin/apt-get clean
-/usr/bin/apt-get -s clean
-/usr/bin/apt-get clean all
-/usr/bin/apt-get autoclean
+echo "--- Clean and Update ---"
+sudo /usr/bin/apt clean all
+sudo /usr/bin/apt update -y
+sudo /usr/bin/apt upgrade -y
+sudo /usr/bin/apt -s clean
+sudo /usr/bin/apt clean all
+sudo /usr/bin/apt autoremove -y
+sudo /usr/bin/apt install -f
+echo ""
+echo ""
+echo "--- Clear Cache ---"
+sudo rm -rf /home/jo/.config/google-chrome/Default/*
+sudo rm -rf /home/jo/.cache/google-chrome/Default/*
+sudo rm -rf /home/jo/.cache/mozilla/firefox/*
+sudo rm -rf /home/jo/.cache/mozilla/firefox/*
+sudo rm -rf /home/jo/.mozilla/firefox/*default/*.sqlite
+sudo rm -rf /home/jo/.mozilla/firefox/sfvs30vt.default-esr/*.sqlite
+sudo rm -rf /home/jo/.mozilla/firefox/Crash\ Reports/*
+sudo rm -rf /home/jo/.cache/sublime-text/Cache/*
+echo ""
 echo ""
 echo "--- Log Rotate ---"
 /sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
 echo "Done"
+echo ""
+echo "--- Remove files from /var/log ---"
+sudo find /var/log -type f -exec rm -f {} \;
 echo ""
 echo "--- Temp File Cleanup ---"
 /bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
 /bin/rm -rf /var/tmp/*
 echo "Done"
 echo ""
-echo "--- Log File Cleanup ---"
-/bin/rm -rf /var/log/*-2021*
-/bin/rm -rf /var/log/*.?.log
-/bin/rm -rf /var/log/*.?
-/bin/rm -rf /var/log/*.0
-/bin/rm -rf /var/log/*.gz
-/bin/rm -rf /var/log/*log.old
-/bin/rm -rf /var/log/*log.?
-/bin/rm -rf /var/log/*/*-2021*
-/bin/rm -rf /var/log/*/*gz
-/bin/rm -rf /var/log/*/*xz
-echo "Done"
+echo "--- Journal ---"
+sudo journalctl --rotate
+sudo journalctl -m --vacuum-time=1s
+sudo systemctl restart systemd-journald
 echo ""
-echo "--- Journal Disk Usage ---"
-journalctl --disk-usage
+echo "--- Fix grub timeout ---"
+sudo cp /boot/grub/grub.cfg{,-`date +%d-%h-%Y`}
+sudo sed -i 's/timeout=30/timeout=3/g' /boot/grub/grub.cfg
 echo ""
-echo "--- Journal Clean Up ---"
-journalctl -m --vacuum-time=1s
-systemctl restart systemd-journald
+sudo updatedb
+sudo mandb -q
+sudo mandb -q
 echo ""
-/usr/bin/updatedb
-/usr/bin/mandb -q
 echo ""
-#echo > /root/.bash_history
-#echo > /root/.viminfo
-#for i in $(ls -1 /home);
-#        do echo > /home/$i/.bash_history ;
-#        echo > /home/$i/.vim_info ;
-#done
+echo > /root/.bash_history
+echo > /root/.viminfo
+for i in $(ls -1 /home);
+	do echo > /home/$i/.bash_history ;
+	echo > /home/$i/.vim_info ;
+done
 echo ""
+echo "--- Done ---"
 exit 0

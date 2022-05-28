@@ -16,6 +16,8 @@ alias kubectl="minikube kubectl --"
 
 ## Deploy AWX Operator into your cluster:
 
+
+
 ## Make a note of the latest release (e.g. 0.13.0)
 https://github.com/ansible/awx-operator/releases
 
@@ -24,10 +26,12 @@ https://github.com/ansible/awx-operator/releases
 $ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml
 
 
+
+
 ## Create YAML file.
 ## The 'metadata.name' will be the name of the AWX deployment.
-# /opt/AWX/awx.yml
 
+cat /opt/AWX/awx.yml
 ---
 apiVersion: awx.ansible.com/v1beta1
 kind: AWX

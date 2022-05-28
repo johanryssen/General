@@ -1,0 +1,70 @@
+about:config
+
+# Set to true:
+browser.tabs.loadBookmarksInTabs
+browser.search.openintab
+browser.urlbar.openintab
+
+
+# Extend Scripts Execution Time
+dom.max_script_run_time = 20
+
+
+# Number of Content Processes
+dom.ipc.processCount = 10
+
+
+# Disable Unnecessary Animations
+toolkit.cosmeticAnimations.enabled
+False
+
+
+# Reduce Session History Cache, Save RAM
+browser.sessionhistory.max_total_viewers
+8
+
+# Lower Memory Usage When Minimized
+config.trim_on_minimize
+true
+
+# Select All Text When You Click on the URL Bar
+browser.urlbar.clickSelectsAll
+- False: place cursor at the insertion point
+- True: select all text when you click
+
+# Same Zoom Level for Every Site
+browser.zoom.siteSpecific
+False
+
+# Increasing "Save Link As" Timeout Value
+Browser.download.saveLinkAsFilenameTimeout
+8000
+
+# Autohide Toolbar in Fullscreen Mode
+browser.fullscreen.autohide
+false
+
+-------------
+
+## Pipelining
+
+Enabling "pipelining" will make several requests at once
+
+network.http.pipelining
+true
+
+network.http.proxy.pipelining
+true
+
+network.http.pipelining.maxrequests
+8
+
+network.http.max-connections = 96
+network.http.max-connections-per-server = 32
+
+### Adjust Delay Option
+nglayout.initialpaint.delay = 0
+
+## Additional options
+network.dns.disableIPv6 = false
+plugin.expose_full_path = true
