@@ -1,4 +1,20 @@
-DNS
+--------------
+
+# Fwd lookup
+$ dig @192.168.1.1 mydomain.test A +noall +answer +nocmd
+
+# Reverse lookup
+## Get pointer (PTR) record 
+## This is a reverse lookup to get the server's name by providing the IP address:
+$ dig -x @192.168.1.1 mydomain.test +noall +answer +nocmd
+
+# Request DNS transfer of a domain zone (incl all record types) to make a backup of your DNS domain:
+$ dig +short ns mydomain.test
+ns12.domaincontrol.test.
+ns13.domaincontrol.test.
+$ dig axfr mydomain.test @ns13.domaincontrol.test.
+
+--------------
 
 dnstop -l 3 eth0
 

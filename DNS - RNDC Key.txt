@@ -1,8 +1,7 @@
 # RNDC - Remote Name Daemon Control - Name server control utility in bind.
-
-Allows command line administration of the named service both locally and remotely.
-Controls the operation of a name server.
-RNDC config file specifies which server controls and what algorithm the server should use.
+- Allows CLI admin of named service - both locally and remotely.
+- Controls the operation of a name server.
+- RNDC config file specifies which server controls and what algorithm the server should use.
 
 To prevent unauthorized users to the named daemon, BIND uses a shared secret key authentication method to grant privileges to particular hosts.
 It means that an identical key must be present in the configuration file of bind, /etc/named.conf and configuration file, /etc/rndc.conf.

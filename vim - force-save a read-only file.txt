@@ -1,4 +1,3 @@
-When you've made modifications to a file in vim and then find that you can't write it:
-
+# When you've made modifications to a file in vim and then find that you can't write it:
 <ESC>
 :w ! sudo tee %

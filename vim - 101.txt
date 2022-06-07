@@ -1,5 +1,9 @@
 ==============================================
 
+# Mute start message
+set shm+=I
+
+
 # reload .vimrc
 :source ~/.vimrc
 -or-
@@ -12,8 +16,8 @@
 # If you're editing .vimrc, reload it with:
 :so %
 
-## % - current file name
-## :so - short for :source, which reads the content of the specified file and treats it as Vim code
+## %   --> current file name
+## :so --> short for :source, which reads the content of the specified file and treats it as Vim code
 
 
 # Configure Vim to watch for changes in .vimrc and automatically reload the config:

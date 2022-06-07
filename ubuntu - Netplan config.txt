@@ -7,6 +7,7 @@ https://netplan.io/examples/
 ## Netplan supports both networkd and Network Manager as backends.
 ## You can specify which network backend should be used to configure particular devices by using the renderer key.
 ## You can also delegate all configuration of the network to Network Manager itself by specifying only the renderer key:
+
 network:
     version: 2
     renderer: NetworkManager

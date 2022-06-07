@@ -16,4 +16,3 @@ Ctrl-w +	increase active viewport by one line.
 Ctrl-w q	close the active window.
 Ctrl-w r	rotate windows to the right.
 Ctrl-w R	rotate windows to the left.
-

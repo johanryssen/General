@@ -8,3 +8,17 @@ Recursive search with grep
 -n corresponding line number
 
 All this is highlighted with different colours.
+
+------
+
+OLD:
+$ egrep '^[dg]' /etc/passwd
+NEW:
+$ grep -E '^[dg]' /etc/passwd
+
+OLD:
+$ fgrep 'admin3' /etc/passwd
+NEW:
+$ grep -F 'admin3' /etc/passwd
+
+------

@@ -1,0 +1,12 @@
+autocmd FileType yaml setlocal ai et sw=2 ts=2
+set cursorcolumn cursorline
+set guifont=Lucida_Console:h14:cANSI:qDRAFT
+colo desert    " ColorSchenme
+set paste      " Paste fix
+set bs=2       " allow backspacing over everything in insert mode
+set showmatch  " show matching brackets
+syntax on      " Switch on syntax highlighting
+set hlsearch   " Switch on search pattern highlighting
+set mousehide  " Hide the mouse pointer while typing
+set history=80 " History to max, default is 20
+set shm+=I     " Mute start message.

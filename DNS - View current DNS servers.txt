@@ -1,0 +1,2 @@
+# View current DNS servers:
+systemd-resolve --status
