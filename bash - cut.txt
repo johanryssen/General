@@ -5,10 +5,7 @@ top - display Linux processes
 ls - list directory contents
 -------------------
 
-
 ----- COLUMNS -----
-
-
 ## Select Column of Characters:
 $ cut -c2 testfile.txt
 u
@@ -39,11 +36,9 @@ $ cut -c-10 testfile.txt
 yum - Yell
 top - disp
 ls - list
-
-
+-------------------
 
 ---------- FIELDS ----------
-
 ## Delimit on ':' and select Field 1:
 $ cut -d':' -f1 /etc/passwd
 root
@@ -52,14 +47,11 @@ daemon
 adm
 lp
 
-
-
 ## Select Multiple Fields from a File:
 $ cut -d: -f1,6,7 /etc/passwd
 root:/root:/bin/bash
 bin:/bin:/sbin/nologin
 daemon:/sbin:/sbin/nologin
-
 
 ## Using PIPE:
 $ grep bash /etc/passwd | cut -d':' -f1,6
@@ -93,7 +85,6 @@ $ cut -d: -f7 /etc/passwd
 -same as-
 $ cut -d: -f1,2,3,4,5,6 /etc/passwd --complement
 
-
 ## Example 2:
 $ echo a b c d e | cut -d" " -f2 -s
 b
@@ -103,10 +94,7 @@ a c d e
 $ echo abcde | cut -c1-3,5
 abce
 
-
-
 ---------- OUTPUT ----------
-
 ## Change Output Delimiter for Display
 
 ### By default the output delimiter is same as input delimiter specified with -d option.
@@ -116,8 +104,6 @@ $ cut -d: -f1,6,7 /etc/passwd --output-delimiter='___'
 root___/root___/bin/bash
 bin___/bin___/sbin/nologin
 daemon___/sbin___/sbin/nologin
-
-
 
 ## Change Output Delimiter to Newline
 
