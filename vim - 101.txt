@@ -1,4 +1,22 @@
-==============================================
+
+-----------------------
+gI -  Start inserting at the beginning of the line.
+-----------------------
+
+# Tabs - Work with multiple files
+:tabe <filename>
+
+## This command enables tab expansion mode to make it easy to find files.
+## History is enabled and can be accessed by hitting the Up arrow.
+
+# Switch between tabs:
+gt -  Switch to the tab on the right
+gT -  Switch to the tab on the left
+
+-----------------------
+Increment a number: CTRL+A
+Decrement a number: CTRL+X
+-----------------------
 
 # Mute start message
 set shm+=I
@@ -26,7 +44,7 @@ augroup myvimrc
     au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
 augroup END
 
-==============================================
+-----------------------
 
 # Visual Block
 
@@ -52,7 +70,7 @@ y    yank
 (2) Select a vertical line of text
 (3) Shift + . # Same as the > key
 
-==============================================
+-----------------------
 
 # Copy shell STDOUT into current vim session:
 :r! ls
@@ -73,7 +91,7 @@ set ai ts=4 sts=4 sw=4 et ft=python
 // ## Which is the same as:
 // set autoindent tabstop=4 softtabstop=4 shiftwidth=4 expandtab  filetype=python
 
-==============================================
+-----------------------
 
 ## Change case:
 
@@ -88,7 +106,7 @@ g~~  : Invert case to entire line
 g~w  : Invert case to current WORD
 guG  : Change to lowercase until the end of document.
 
-==============================================
+-----------------------
 
 (1) Access man pages from within vim:
 # echo "source $(locate man.vim | grep ftplugin)" >> ~/.vimrc
@@ -104,7 +122,7 @@ guG  : Change to lowercase until the end of document.
 :Man selinux
 ** Note the Capital "M" in :Man above.
 
-==============================================
+-----------------------
 
 Open up a new (horizontal) split-screen window in (n)vi with:
 
@@ -114,5 +132,5 @@ Open up a new (horizontal) split-screen window in (n)vi with:
 
 use ^w to switch between the two.
 
-==============================================
+-----------------------
 

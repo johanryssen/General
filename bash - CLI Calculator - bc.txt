@@ -46,11 +46,8 @@ Specifying the base, you can convert a number from one base to another.
 echo "scale=3; 130/23" | bc   # scale=3 results in 3 decimal places.
 5.652
 
---------------
-
 
 ----- pi -----
-
 ## Assign the value of "pi" to the shell variable pi.
 $ pi=$(echo "scale=10; 4*a(1)" | bc -l)
 $ echo $pi
@@ -128,4 +125,3 @@ $ echo 'if(1 == 2) print "true" else print "false"' | bc
 false
 
 --------------
-

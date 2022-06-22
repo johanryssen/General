@@ -1,25 +1,26 @@
-### BASH ###
+--- BASH ---
 
-
-# command/test [[]]
+# command/test [[ ]]
 
 Arguments are separated from the command name and from each other by a whitespace.
+
 This is wrong:
+	$ [-f file]
 
-$ [-f file]
+We want the command:
+	[	(which is a synonym for TEST) to be separated from the arguments: -f, file, and ].
 
+If we do not separate [ and -f from each other with a whitespace, Bash will think we are trying to execute a command named:
+	[-f
 
-We want the command:	[	(which is a synonym for TEST) to be separated from the arguments: -f, file, and ].
-If we do not separate [ and -f from each other with a whitespace, Bash will think we are trying to execute a command named [-f.
 The arguments file and ] will also need to be separated by spaces.
+
 Additionally, the command [ requires a closing argument of ].
 The correct command separates all arguments with whitespaces:
-
-$ [ -f file ]
+	$ [ -f file ]
 
 If filename contains whitespace or other special characters, it should also be quoted:
-
-$ [ -f "my file" ]
+	$ [ -f "my file" ]
 
 --------------------
 

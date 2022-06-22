@@ -1,0 +1,22 @@
+cd /cygdrive/c/cygwin64
+
+-------------
+
+wget -N https://cygwin.com/setup-x86_64.exe
+
+./setup-x86_64.exe --no-desktop --no-shortcuts --no-startmenu --quiet-mode
+
+--no-desktop	- Disable creation of desktop shortcut
+--no-shortcuts	- Disable creation of desktop and start menu
+--no-startmenu	- Disable creation of start menu shortcut
+--quiet-mode	- Unattended setup mode
+
+-or-
+
+wget -N https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg
+
+install apt-cyg /bin
+
+apt-cyg install lynx
+
+-------------

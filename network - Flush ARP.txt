@@ -1,0 +1,18 @@
+--- Linux---
+# bash
+## View ARP cache. It will let you know if it needs a refresh or not.
+arp –n
+
+## Clear ARP cache.
+ip –s –s neigh flush all
+
+## Validate
+arp –n
+
+--- Windows ---
+# cmd
+## View ARP cache.
+arp -av
+
+## Clear ARP cache.
+netsh interface IP delete arpcache

@@ -1,3 +1,19 @@
+
+
+# Find executable files
+$ find <dir> -executable -type f
+
+# Size of the items in /var/log
+$ du -sh /var/log/* | sort -rn
+
+# Find failures with journalctl
+$ yum install jq -y
+$ sudo journalctl --no-pager --since today --grep 'fail|error|fatal' --output json|jq '._EXE' | sort | uniq -c | sort --numeric --reverse --key 1
+
+# Check For Enabled Repos
+$ sudo awk -v RS= -F '[][]' '/enabled = 1/{print $2}' /etc/yum.repos.d/redhat.repo
+
+
 # Show IPv4 and IPv6 addresses
 ip a | egrep "state|global" | awk '{print $2}'
 
@@ -42,9 +58,6 @@ $ grep -R 'import' --include='*.java' --color MySourceCodeDir
 # (use xargs to handle a large number of matches properly)
 $ find MySourceCodeDir/ -name '*.java' -type f -print| xargs grep --color 'import
 # Combine find with -exec to execute actions on your files first and then pass the results to the filter.
-
-# Find executable files
-$ find <dir> -executable -type f
 
 # Disable bell sound when hitting the backspace
 $ echo "set bell-style none" >> ~/.inputrc
