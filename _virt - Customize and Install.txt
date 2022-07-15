@@ -10,7 +10,23 @@ https://yum.oracle.com/oracle-linux-templates.html?source=:so:ch:or:dg::::LinuxS
 2. Copy the master image to /var/lib/libvirt/images/
 (Use a descriptive name, matching the hostname)
 
-3. Customise the new image:
+
+3. Start 'default' network:
+# virsh net-list --all
+ Name      State      Autostart   Persistent
+----------------------------------------------
+ default   inactive   no          yes
+
+# virsh net-start default
+Network default started
+
+# virsh net-list --all
+ Name      State    Autostart   Persistent
+--------------------------------------------
+ default   active   no          yes
+
+
+4. Customise the new image:
 sudo virt-customize -a /var/lib/libvirt/images/new_CentOS84.qcow2 \
 --hostname cent84.cloud.test \
 --root-password password:pass \
@@ -33,7 +49,7 @@ virt-customize - Modifies the guest or disk image in place.
 osinfo-query os
 
 
-4. Provision new VM (Using same disk image as in 3)
+5. Provision new VM (Using same disk image as in 3)
 sudo virt-install \
 --name vm01 \
 --memory 1024 \
@@ -56,7 +72,7 @@ $ osinfo-query os # From libosinfo-bin / libosinfo
 
 ===================== NETWORK =====================
 
-5. Find IP:
+6. Find IP:
 virsh domifaddr --full vm01
 
 -or-

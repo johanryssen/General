@@ -5,19 +5,17 @@ browser.tabs.loadBookmarksInTabs
 browser.search.openintab
 browser.urlbar.openintab
 
-
 # Extend Scripts Execution Time
-dom.max_script_run_time = 20
-
+dom.max_script_run_time
+20
 
 # Number of Content Processes
-dom.ipc.processCount = 10
-
+dom.ipc.processCount
+10
 
 # Disable Unnecessary Animations
 toolkit.cosmeticAnimations.enabled
 False
-
 
 # Reduce Session History Cache, Save RAM
 browser.sessionhistory.max_total_viewers
@@ -59,8 +57,11 @@ true
 network.http.pipelining.maxrequests
 8
 
-network.http.max-connections = 96
-network.http.max-connections-per-server = 32
+network.http.max-connections
+96
+
+network.http.max-connections-per-server
+32
 
 ### Adjust Delay Option
 nglayout.initialpaint.delay = 0

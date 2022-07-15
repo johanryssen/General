@@ -45,7 +45,7 @@ echo "-- DNF Update --"
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq 
+/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc rsync strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq 
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

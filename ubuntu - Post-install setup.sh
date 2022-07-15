@@ -120,7 +120,7 @@ echo ""
 echo ""
 echo "----- KVM / Libvirt -----"
 echo ""
-sudo apt install vim curl wget mlocate telnet dconf-editor ubuntu-restricted-extras collectl alsa-base pulseaudio libvirt-bin libvirt0 ebtables augeas-doc augeas-tools bridge-utils cpu-checker debhelper debootstrap dnsmasq-base ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete resolvconf sgabios sharutils-doc ssh-askpass vde2  virt-manager virt-top virtinst zfs-initramfs zfsutils-linux libguestfs-tools -y
+sudo apt install -y bridge-utils cpu-checker dnsmasq dnsmasq-base ebtables ifupdown libguestfs-tools libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virtinst zfs-initramfs zfsutils-linux
 echo ""
 echo "Run kvm-ok"
 echo ""
@@ -189,28 +189,8 @@ echo ""
 echo ""
 echo "--- Azure CLI ---"
 echo ""
-echo " - 1. Get packages needed for the install process - "
-sudo apt-get update ; sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
-echo ""
-echo " - 2. Download and install the Microsoft signing key - "
-curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
-echo ""
-echo " - 3. Add the Azure CLI software repository - "
-echo ""
-echo "On Ubuntu, this will work:"
-echo "AZ_REPO=$(lsb_release -cs) -- This will return the Mint specific Release"
-echo ""
-echo "But on Mint, you need the Ubuntu Release Name:"
-echo "For Mint 19.x = bionic"
-echo "For Mint 20.x = bocal"
-echo "Substitute UBUNTU_RELEASE, with either 'bionic' or 'focal' here:"
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ <UBUNTU_RELEASE> main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ bionic main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-echo ""
-echo ""
-echo " - 4. Update repository information and install the azure-cli package - "
-sudo apt-get update ; sudo apt-get install azure-cli
-echo ""
+echo "----- Debian -----"
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 echo ""
 echo "--- Install AnyDesk dependency ---"
 sudo apt install libgtkglext1 -y
@@ -218,17 +198,10 @@ echo ""
 echo "--- Obsidian.md ---"
 echo "https://obsidian.md/download"
 echo ""
+echo "Eg:"
+echo "https://github.com/obsidianmd/obsidian-releases/releases/download/v0.14.15/obsidian_0.14.15_amd64.deb"
 echo ""
-echo "--- Clean and Update ---"
-sudo apt clean all
-sudo apt update -y
-sudo apt upgrade -y
-sudo apt autoremove -y
-sudo apt install -f
 echo ""
-sudo updatedb
-sudo mandb
-echo "--- Done ---"
 echo ""
 echo ""
 echo "--- Any Desk Download ---"
@@ -242,4 +215,14 @@ echo ""
 echo "https://www.microsoft.com/en-au/microsoft-teams/download-app#desktopAppDownloadregion"
 echo ""
 echo ""
+echo "--- Clean and Update ---"
+sudo apt clean all
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt autoremove -y
+sudo apt install -f
+echo ""
+sudo updatedb
+sudo mandb
+echo "--- Done ---"
 exit 0;
