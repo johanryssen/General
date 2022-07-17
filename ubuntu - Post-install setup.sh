@@ -120,7 +120,7 @@ echo ""
 echo ""
 echo "----- KVM / Libvirt -----"
 echo ""
-sudo apt install -y bridge-utils cpu-checker dnsmasq dnsmasq-base ebtables ifupdown libguestfs-tools libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virtinst zfs-initramfs zfsutils-linux
+sudo apt install -y bridge-utils cpu-checker dnsmasq dnsmasq-base ebtables ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virtinst zfs-initramfs zfsutils-linux
 echo ""
 echo "Run kvm-ok"
 echo ""
@@ -188,6 +188,8 @@ echo ""
 echo ""
 echo ""
 echo "--- Azure CLI ---"
+echo "Azure CLI script dependencies:"
+sudo apt install libssl-dev libffi-dev python-dev build-essential -y
 echo ""
 echo "----- Debian -----"
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -208,7 +210,17 @@ echo "--- Any Desk Download ---"
 echo ""
 echo "https://anydesk.com/en/downloads/linux"
 echo ""
+echo "-or-"
 echo ""
+echo "Set up the DEB repository"
+echo "### add repository key to Trusted software providers list"
+sudo wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | apt-key add -
+echo "### Add the repository:"
+sudo echo "deb http://deb.anydesk.com/ all main" > /etc/apt/sources.list.d/anydesk-stable.list
+echo "### Update apt cache:"
+sudo apt update
+echo "### Install anydesk:"
+sudo apt install anydesk
 echo ""
 echo "--- Micorsoft Teams Download ---"
 echo ""
