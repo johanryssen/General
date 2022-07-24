@@ -28,12 +28,10 @@ sudo apt install apt-transport-https -y
 echo ""
 echo ""
 echo "----- Keepass2 -----"
-echo ""
 # sudo apt-add-repository ppa:jtaylor/keepass -y
-sudo apt-get update -y
-sudo apt-get install keepass2 -y
 echo "xdotool needed for auto-type"
 sudo apt install xdotool -y
+sudo apt-get update -y ; sudo apt-get install keepass2 -y
 echo ""
 echo ""
 echo "----- Stacer -----"
@@ -194,8 +192,6 @@ echo ""
 echo "----- Debian -----"
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 echo ""
-echo "--- Install AnyDesk dependency ---"
-sudo apt install libgtkglext1 -y
 echo ""
 echo "--- Obsidian.md ---"
 echo "https://obsidian.md/download"
@@ -204,9 +200,10 @@ echo "Eg:"
 echo "https://github.com/obsidianmd/obsidian-releases/releases/download/v0.14.15/obsidian_0.14.15_amd64.deb"
 echo ""
 echo ""
-echo ""
-echo ""
 echo "--- Any Desk Download ---"
+echo ""
+echo "--- Install AnyDesk dependency ---"
+sudo apt install libgtkglext1 -y
 echo ""
 echo "https://anydesk.com/en/downloads/linux"
 echo ""

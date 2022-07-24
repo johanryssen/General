@@ -1,0 +1,99 @@
+----- SYNTAX 1 -----
+
+find [path] [arguments] -exec [command] {} \;
+
+[command] is what you want to execute over results given by the find command (eg. rm).
+
+{} is a placeholder that is used to hold results given by the find command.
+
+\; says that for each found result, the [command] is executed.
+You need to escape the ; here and hence \;
+
+----- SYNTAX 2 -----
+
+# find [path] [arguments] -exec [command] {} +
+
+Here, + says for every result of the find command, the [command] is executed only once.
+All the results are passed to the [command] as arguments together. + does not need to be escaped with \+.
+
+
+----- Diff between: {} \; and {} + -----
+
+{} \;	-->		Executing the commands for EACH found result
+
+ls file1.txt
+ls file2.txt
+ls file3.txt
+
+
+{} +	-->		Executing the command once with all results argument
+
+ls file1.txt file2.txt file3.txt
+
+
+----- Examples -----
+
+1. Find and display file attributes
+Display all the lock files that are under the /tmp directory and display their properties.
+
+sudo find /tmp/ -type f -name *lock -exec ls -l {} \;
+
+
+2. Find and rename files
+
+sudo find /home/user21/Downloads/ -type f -name 'ubuntu*' -exec mv {} {}_renamed \;
+
+The above command finds the files that start with the name ubuntu and store them inside the placeholder {}.
+Then adds "_renamed" at the end of each file stored inside the placeholder.
+
+
+
+3. Collect and store file sizes
+
+sudo find /tmp/ -type f -exec du -sh {} \; > /root/du_data.out
+
+
+4. Change the ownership of files and directories
+
+Find files owned by user21 and then change their ownership to user43.
+
+sudo find /home/user21/disk/Downloads -user user21 -type f -exec chown user43 {} \;
+
+
+
+5. Changing the permission of files
+
+sudo find /home/user21/disk/Downloads -type f -exec chmod 644 {} \;
+
+Use: -type f so the command will only be applied to files under the given directory.
+
+
+6. Combine exec with grep Command
+
+The find command works on the file names.
+The grep command works on the contents of the files.
+
+find - Search for all the files that have .hbs extension.
+grep - search inside the content of those .hbs files for the string 'excerpt'.
+
+find . -type f -name "*.hbs" -exec grep -iH excerpt {} \;
+
+With the -H option, grep command will show the file names for each match:
+
+user21@LHB:~/Downloads/casper-hyvor$ find . -type f -name "*.hbs" -exec grep -iH excerpt {} \;
+./author.hbs:                <div class="post-card-excerpt">{{bio}}</div>
+./partials/post-card.hbs:            {{#if excerpt}}
+./partials/post-card.hbs:                <div class="post-card-excerpt">{{excerpt}}</div>
+./post.hbs:        {{#if custom_excerpt}}
+./post.hbs:            <p class="article-excerpt">{{custom_excerpt}}</p>
+./tag.hbs:                <div class="post-card-excerpt">
+
+
+
+7. Find with multiple exec commands
+
+find . -type f -name "*.hbs" -exec echo {} \; -exec grep excerpt {} \;
+
+Search for the .hbs files first
+then echo their name with first exec command.
+then, those files will be searched for the "excerpt" string.
