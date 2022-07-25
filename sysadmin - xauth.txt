@@ -1,29 +1,9 @@
 ----- Packages -----
-dnf install nc lsof unzip strace traceroute motif util-linux xterm xorg-x11-utils xorg-x11-xauth xorg-x11-apps
+dnf install -y nc lsof unzip strace traceroute motif util-linux xterm xorg-x11-utils xorg-x11-xauth xorg-x11-apps
 
------ /etc/ssh/sshd_config -----
 
-X11Forwarding yes
-X11DisplayOffset 10
-X11UseLocalhost yes
-AllowAgentForwarding yes	# If you are using ssh-agent
-
------ Creating new .Xauthority file -----
-
-# Rename the existing .Xauthority file:
-mv .Xauthority old.Xauthority
-
-# Create empty ~/.Xauthority file:
-touch ~/.Xauthority
-
-# Generate key (needed for X11 over SSH ):
-xauth generate :0 . trusted
-
-# Add key (xauth requires 128 bit hex encoding):
-xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
-
-# View listing of .Xauthority:
-xauth list
+----- XMing -----
+Start XMing on local system
 
 -----------------
 
@@ -35,6 +15,55 @@ X display location ':10'
 -or-
 
 ssh -X -Y REMOTE_HOST
+
+
+----- /etc/ssh/sshd_config -----
+
+# Replace <username> with your username:
+Match User <Username>
+	X11Forwarding yes
+	X11DisplayOffset 10
+	X11UseLocalhost yes
+	AllowAgentForwarding yes	# If you are using ssh-agent
+    AllowTcpForwarding yes
+    PermitTTY yes
+    ForceCommand cvs server
+
+
+----- Creating new .Xauthority file -----
+
+# Rename the existing .Xauthority file:
+mv .Xauthority old.Xauthority
+
+# Create empty ~/.Xauthority file:
+touch ~/.Xauthority
+
+# Generate key - needed for X11 over SSH:
+xauth generate :0 . trusted
+
+# Add key (xauth requires 128 bit hex encoding):
+xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
+
+# View listing of .Xauthority:
+xauth list
+
+
+*****
+DISPLAY=:0; export DISPLAY
+xauth add $DISPLAY . hexkey
+
+## When access is no longer needed:
+xauth remove $DISPLAY
+*****
+
+
+***** UNTESTED *****
+cat <<EOF > /etc/profile.d/xauth.sh
+#!/sbin/bash
+export XAUTHORITY=~/.Xauthority
+EOF
+********************
+
 
 
 ----- Enable X export for ROOT user -----

@@ -1,1 +1,0 @@
-nmap -Pn -p 22 -n 10.10.10.0/24 --open -oG - | grep open

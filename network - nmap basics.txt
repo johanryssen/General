@@ -12,6 +12,12 @@ TCP ACK packet to port 80.
 Also: Nmap sends an ARP request for any hosts on the local network, filling in MAC address details.
 
 ------------------------
+# Scan only on p22:
+nmap -Pn -p 22 -n 10.10.10.0/24 --open -oG - | grep open
+------------------------
+# Ping scan:
+nmap -T5 -sn 10.10.10.0-254
+------------------------
 
 # Quick scan + traceroute:
 nmap -sn 10.10.1-10.0-255 --traceroute
