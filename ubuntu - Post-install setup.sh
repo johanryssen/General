@@ -1,5 +1,14 @@
 #!/bin/bash
 echo ""
+echo "----- Firmware -----"
+echo "FILE: /etc/apt/sources.list"
+echo "Add: 'contrib non-free' to deb and deb-src lines"
+echo ""
+echo "sudo apt update -y ; apt install firmware-misc-nonfree -y"
+echo ""
+sudo apt update -y
+echo "sudo apt install nvidia-modprobe nvidia-settings nvtop r8168-dkms -y"
+echo ""
 apt clean all
 apt update -y
 apt upgrade -y
@@ -108,7 +117,7 @@ echo "2. Select the channel to use"
 sudo echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 echo ""
 echo "3. Update apt sources and install Sublime Text"
-sudo apt-get update -y
+sudo apt-get update -y ;
 sudo apt-get install sublime-text -y
 echo ""
 echo "4. Update & Upgrade"
@@ -118,7 +127,7 @@ echo ""
 echo ""
 echo "----- KVM / Libvirt -----"
 echo ""
-sudo apt install -y bridge-utils cpu-checker dnsmasq dnsmasq-base ebtables ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virtinst zfs-initramfs zfsutils-linux
+sudo apt install -y augeas-doc augeas-tools bridge-utils cpu-checker debhelper debootstrap dnsmasq dnsmasq-base ebtables guestfs-tools ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu qemu-system-mips qemu-system-misc resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virt-top virt-viewer virtinst zfs-initramfs zfsutils-linux
 echo ""
 echo "Run kvm-ok"
 echo ""

@@ -43,8 +43,10 @@ xauth generate :0 . trusted
 
 # Add key (xauth requires 128 bit hex encoding):
 xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
+-or-
+xauth add <OUTPUT FROM `xauth list`>
 
-# View listing of .Xauthority:
+# View listing in .Xauthority:
 xauth list
 
 

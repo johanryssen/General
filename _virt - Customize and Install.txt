@@ -17,8 +17,10 @@ https://yum.oracle.com/oracle-linux-templates.html?source=:so:ch:or:dg::::LinuxS
 ----------------------------------------------
  default   inactive   no          yes
 
-# virsh net-start default
-Network default started
+# Start and enable auto-start:
+virsh net-start default
+virsh net-autostart default
+
 
 # virsh net-list --all
  Name      State    Autostart   Persistent
@@ -27,8 +29,8 @@ Network default started
 
 
 4. Customise the new image:
-sudo virt-customize -a /var/lib/libvirt/images/new_CentOS84.qcow2 \
---hostname cent84.cloud.test \
+sudo virt-customize -a /var/lib/libvirt/images/rhel9.qcow2 \
+--hostname rhel9.cloud.test \
 --root-password password:pass \
 --ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
 --uninstall cloud-init \
@@ -54,9 +56,9 @@ sudo virt-install \
 --name vm01 \
 --memory 1024 \
 --vcpus 1 \
---disk /var/lib/libvirt/images/new_CentOS84.qcow2 \
+--disk /var/lib/libvirt/images/rhel9.qcow2 \
 --import \
---os-type linux --os-variant rhel8.4 \
+--os-variant rhel9.0 \
 --noautoconsole
 
 
@@ -85,9 +87,7 @@ virsh net-dumpxml default | grep range
 ## Find all IPs:
 nmap -Pn -p 22 -n _NETWORK.0/24 --open -oG - | awk '/22\/open/{ print $2 }'
 
-
 ==========================================
-
 
 $ virsh net-list
 

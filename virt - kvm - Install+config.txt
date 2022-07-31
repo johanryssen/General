@@ -1,45 +1,37 @@
 # KVM
 
 ## Install ##
-apt install libvirt0 ebtables augeas-doc augeas-tools bridge-utils cpu-checker debhelper debootstrap dnsmasq-base ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete resolvconf sgabios sharutils-doc ssh-askpass vde2 virt-manager virt-top virtinst zfs-initramfs zfsutils-linux virt-viewer sgabios
-
-# ? libvirt-bin
-# ? qemu qemu-kvm qemu-system-data qemu-img
-# ? libguestfs-tools libguestfs-hfsplus libguestfs-perl libguestfs-reiserfs libguestfs-tools libguestfs-xfs libguestfs0 qemu-kvm qemu-system qemu-system-arm qemu-system-data qemu-system-mips qemu-system-misc qemu-system-x86
+apt install -y augeas-doc augeas-tools bridge-utils cpu-checker debhelper debootstrap dnsmasq dnsmasq-base ebtables guestfs-tools ifupdown libnss-mymachines libosinfo-bin libvirt-clients libvirt-daemon libvirt-daemon-system libvirt0 mailutils nfs-common nfs-kernel-server numad ovmf python3-argcomplete qemu qemu-system-mips qemu-system-misc resolvconf sgabios sharutils-doc ssh-askpass telnet vde2 vim virt-manager virt-top virt-viewer virtinst zfs-initramfs zfsutils-linux
 
 # apt-get autoremove
 
 ------------------------------------------
 
 # Check if Virtualization is enabled/supported:
+
 lscpu | grep -i virt
-Virtualisation:      VT-x
+-or-
+kvm-ok
 
 # Enable/start libvirtd
 systemctl enable --now libvirtd
 
 ----- Verify kvm installation -----
-root@rhel79 ~ # lsmod | grep -i kvm
-
-root@rhel79 ~ # modprobe kvm
-root@rhel79 ~ # lsmod | grep -i kvm
-kvm                   637515  0
-irqbypass              13503  1 kvm
+# Add kvm module:
+modprobe kvm
+# Confirm kvm is loaded:
+lsmod | grep -i kvm
 
 
 ----- Configure bridged networking -----
-root@rhel79 ~ # brctl show
-bridge name     bridge id               STP enabled     interfaces
-virbr0          8000.525400fec51e       yes             virbr0-nic
-root@rhel79 ~ # virsh net-list
- Name                 State      Autostart     Persistent
-----------------------------------------------------------
- default              active     yes           yes
+brctl show
+-and-
+virsh net-list
 
 
 # Verify Private network:
 
-root@rhel79 ~ # virsh net-dumpxml default
+virsh net-dumpxml default
 
 <network>
   <name>default</name>
@@ -82,7 +74,7 @@ EOF
 systemctl restart NetworkManager
 
 # Verify:
-root@rhel79 ~ # brctl show
+brctl show
 bridge name     bridge id               STP enabled     interfaces
 br0             8000.000000000000       no
 virbr0          8000.525400fec51e       yes             virbr0-nic
