@@ -50,7 +50,6 @@ virt-customize - Modifies the guest or disk image in place.
 
 osinfo-query os
 
-
 5. Provision new VM (Using same disk image as in 3)
 sudo virt-install \
 --name vm01 \

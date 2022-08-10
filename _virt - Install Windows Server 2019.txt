@@ -1,0 +1,49 @@
+1. Install pkgs:
+apt install qemu-kvm bridge-utils virt-manager libosinfo-bin -y
+yum install qemu-kvm libvirt virt-install virt-manager virt-install -y
+
+2. Get Windows 2019 ISO:
+- https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2019
+-- https://info.microsoft.com/ww-landing-windows-server-2019.html
+--- https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019
+
+3. Download the signed VirtIO drivers ISO from the Fedora website.
+- https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/index.html
+-- https://github.com/virtio-win/virtio-win-pkg-scripts/blob/master/README.md
+
+4. Create qcow2 image:
+qemu-img create -f qcow2 win2019.qcow2 50G
+
+## Get "--os-variant":
+osinfo-query os
+
+5. Windows Server 2019 installation:
+
+virt-install --connect qemu:///system \
+--name win2019 --ram 4096 --vcpus 2 \
+--network network=default,model=virtio \
+--disk path=/var/lib/libvirt/images/win2019.qcow2,format=qcow2,device=disk,bus=virtio \
+--cdrom /opt/Media/ISO/windows_server_2019_x64_dvd.iso \
+--disk path=/opt/Media/ISO/virtio-win-0.1.221.iso,device=cdrom \
+--vnc --os-type windows --os-variant win2k19
+
+--os-distro windows --os-version 2019
+
+
+-or-
+
+
+5. Windows Server 2019 installation:
+
+virt-install \
+--name win2019\
+--memory 2048 \
+--vcpus 2 \
+--disk /var/lib/libvirt/images/win2019.qcow2 \
+--import \
+--vnc --os-type windows --os-variant win2k19 \
+--os-distro windows --os-version 2019
+
+
+
+https://docs.openstack.org/image-guide/windows-image.html

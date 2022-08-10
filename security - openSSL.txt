@@ -1,0 +1,85 @@
+### Test a website to ensure the connection is secure.
+```shell-session
+$ openssl s_client -tls1_2 -connect demo.test.lab:443
+```
+
+If you encounter errors with the initial TLS handshake, you can add the options `-showcerts` and `-tlsextdebug` to the command, and that will display some additional debugging information.
+```shell-session
+$ openssl s_client -tls1_2 -showcerts -tlsextdebug -connect demo.test.lab:443
+```
+
+==-showcerts== - Displays additional information about the security certificates and the certificate chain.
+==-tlsextdebug== - Shows the TLS extensions which are supported by the server.
+
+### Checking FTP Servers
+To check a secure connection to an FTP server, you will need to use some additional options because most FTP servers today use explicit TLS.
+This means that the initial connection to the server is not secure and the TLS handshake only occurs after a command is issued by the client.
+```shell-session
+$ openssl s_client -tls1_2 -crlf -connect demo.test.lab:21 -starttls ftp
+```
+
+==-starttls ftp== - Tells OpenSSL that you want to connect as an FTP client using explicit TLS.
+If you need to test a connection to an FTP server using implicit TLS on port 990, then simply exclude the `-starttls ftp` option from the command.
+
+### Checking Mail Servers
+Because most mail servers use explicit TLS, you will need to use the `-starttls` option and specify which mail protocol you're testing.
+Eg. Connecting to an SMTP server:
+```shell-session
+$ openssl s_client -tls1_2 -crlf -connect outlook.office365.com:587 -starttls smtp
+```
+This would connect to the Office 365 mail server on port 587, the standard submission port.
+You could also specify port 25 or an alternative port if needed.
+
+#### Check a connection with an IMAP server,:
+```shell-session
+$ openssl s_client -tls1_2 -crlf -connect outlook.office365.com:143 -starttls imap
+```
+
+#### Check a connection with a POP3 server:
+```shell-session
+$ openssl s_client -tls1_2 -crlf -connect outlook.office365.com:110 -starttls pop3
+```
+
+If you want to check a connection which uses implicit TLS, then simply omit the `-starttls` option and specify the correct port number.
+Eg. the implicit TLS port number for POP3 is 995:
+```shell-session
+$ openssl s_client -tls1_2 -crlf -connect outlook.office365.com:995
+```
+
+----------
+
+### Interacting with the Server
+After you've connected, you can also interact with the server by sending commands and checking the response, with the OpenSSL tool handling the encryption and decryption for you.
+This is similar to how developers used to use Telnet to check a connection to a service and then issue commands to see how it would respond.
+
+If you do this, just keep in mind that you must send commands in the format the server recognizes.
+If you're testing a connection with a web service, you could manually compose a request and see the response.
+However, be aware that most servers have timeout limits which will cause them to drop the connection if there's no activity over a relatively brief period of time.
+
+You may need to compose your request in a text editor, and then copy and paste the request.
+The OpenSSL tool reads standard input and writes to standard output, so you can also redirect input from a text file.
+
+Eg. Create a new file named http-request.txt and add the following lines:
+```txt
+GET /client HTTP/1.0
+Host: demo.test.lab
+Accept: text/*
+Connection: close
+```
+
+This simple request can be used with our test server and will return information about the connection back to the client.
+Because of how HTTP requests are structured, make sure there is an extra blank line at the end of the file.
+This tells the server it's reached the end of the request header block.
+
+Next, use the OpenSSL command to send the request to the server:
+```shell-session
+$ openssl s_client -tls1_2 -connect demo.test.lab:443 < http-request.txt
+```
+
+The output will not only provide information about the secure connection itself, but will also return the output from the request.
+You could also redirect the output to a different text file and analyze it in your favorite text editor.
+
+If you're having a problem connecting with a server, this approach can help you isolate whether it's an underlying networking problem, a security related problem (such as the server having an invalid certificate) or a protocol-level problem where the server is simply not recognizing certain commands
+
+-----------
+

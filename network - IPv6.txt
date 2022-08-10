@@ -1,0 +1,110 @@
+# IPv6
+
+## /etc/sysconfig/network-scripts/ifcfg-enp1s0
+```ini
+...
+IPV6INIT="yes"							         # Enable initialization on the interface
+IPV6_AUTOCONF="yes"						       # Accept Router Advertisements (RA’s)
+IPV6_DEFROUTE="yes"						       # The default IPv6 route is assigned to the interface
+IPV6_FAILURE_FATAL="no"					     # Opposite of ‘may-fail’
+IPV6_ADDR_GEN_MODE="stable-privacy"	 # IPv6 stable-privacy addressing s(RFC7217)
+NAME="enp1s0"
+...
+```
+
+>man nm-settings-ifcfg-rh
+
+## Stateless address autoconfiguration (SLAAC)
+If the `IPV6_AUTOCONF` variable is set to `yes`, then the **SLAAC** method is used to configure the host’s IPv6 address by using the Neighbor Discovery Protocol (NDP).
+There is an exchange of client solicitation and router advertisement ICMPv6 messages.
+
+We use the term **stateless** because there is no service to keep track of what IPv6 addresses have been assigned to clients.
+Rather, the IPv6 address is composed with a technique called the Extended Unique Identifier (EUI-64) where 16 bits are added to the Media Access Control (MAC) address (which has 48 bits), thus creating a globally unique IPv6 address.
+
+
+## DHCPv6
+To use DHCPv6, the following should appear within the configuration file:
+```ini
+IPV6_AUTOCONF="no"
+DHCPV6C=”yes”
+```
+If the `DHCPv6` variable is set to `yes`, then a client obtains an IP address from the DHCPv6 pool.
+The DHCPv6 service then keeps track of what IPv6 addresses are assigned to what clients.
+Among the IP address, other information like DNS servers, lease time, hostnames, and other attributes are pushed to the client.
+An administrator must configure the IPv6 address pool to be able to serve clients.
+
+----------------
+
+## Testing
+### ndptool
+```bash
+ndptool [options] command
+        -h --help                Show this help
+        -v --verbose             Increase output verbosity
+        -t --msg-type=TYPE       Specify message type
+                                 ("rs", "ra", "ns", "na")
+	                                 rs - Router Solicitation.
+	                                 ra - Router Advertisement.
+	                                 ns - Neighbor Solicitation.
+	                                 na - Neighbor Advertisement.
+        -D --dest=DEST           Dest address in IPv6 header for NS or NA
+        -T --target=TARGET       Target address in ICMPv6 header for NS or NA
+        -i --ifname=IFNAME       Specify interface name
+        -U --unsolicited         Send Unsolicited NA
+Available commands:
+        monitor
+        send
+```
+
+**ndptool** is just a wrapper over Neighbor Discovery Protocol messages.
+So it allows only sending and receiving NDP messages.
+An NA will be sent in response to an NS.
+Try monitoring for NAs in one window, and sending NSs in another, and you will see that a neighbor responds with an NA.
+
+Eg. assuming _eth0_ and a neighbor with _2001:db8::2_:
+-   in **window A**, run `ndptool -t na -i eth0 monitor`
+-   in **window B**, run `ndptool -t ns -i eth0 -D 2001:db8::2 send`
+-   in **window A**, observe `NDP payload len 24, from addr: 2001:db8::2, iface: eth0 ...`
+
+To know a neighbor's MAC address, try [ndisc6](https://www.remlab.net/ndisc6/)
+```shell-session
+# ndisc6 2001:db8::2 eth0
+Soliciting 2001:db8::2 (2001:db8::2) on eth0...
+Target link-layer address: 02:42:AC:14:00:02
+ from 2001:db8::2
+```
+-or-
+ip neighbor
+```shell-session
+# ip neigh show
+2001:db8::2 dev eth0 lladdr 02:42:ac:14:00:02 STALE
+```
+
+
+### traceroute6
+```shell-session
+$ ip -6 r | grep -v unreach
+```
+
+### Forward lookup with dig:
+```shell-session
+$dig -t AAAA www.google.com
+```
+
+### Reverse lookup with dig:
+```shell-session
+$ dig -x @2001:4860:4860::8888 2607:f8b0:4007:80c::2004
+```
+
+### tshark
+```shell-session
+$ tshark -R icmpv6 -i eth1
+```
+
+
+### openssl
+### ping -6
+### ssh
+### wget -6 (for webservers)
+
+

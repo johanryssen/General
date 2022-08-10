@@ -1,4 +1,0 @@
-Reset SSSD
-1. stop sssd
-2. sss_cache -E
-3. service sssd restart

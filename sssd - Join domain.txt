@@ -1,0 +1,151 @@
+1. Install packages
+
+## RHEL 6/7:
+yum install adcli oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authconfig
+
+## RHEL 8/9:
+yum install adcli realmd sssd oddjob oddjob-mkhomedir samba-common-tools krb5-workstation authselect-compat authselect openldap-clients sssd-ad sssd-tools smbpasswd
+
+----------------------
+In RHEL7/8: realmd is a wrapper.
+It uses adcli to join the domain and also udpates various files with correct syntax, so authentication works.
+If you use adcli, you have to MANUALLY edit some files to get auth working.
+----------------------
+
+
+2. Verify the configuration for name resolution.
+## In particular, verify the DNS SRV records.
+dig -t SRV _ldap._tcp.adtest.lab
+dig -t SRV _kerberos._tcp.adtest.lab
+dig -t SRV _ldap._tcp.dc._msdcs.adtest.lab
+
+
+3. Verify that RealmD can discover the Active Directory domain:
+realm discover adtest.lab
+
+
+4. Join domain
+realm join -v -U user01-admin adtest.lab
+
+***********
+## with 'realm': AD accounts are usable on local system, BUT LOGINS USING ACTIVE DIRECTORY ARE DISABLED:
+realm permit --realm adtest.lab --all
+***********
+
+----------------------
+
+# cat /etc/sssd/sssd.conf 
+[domain/default]
+dyndns_update = false
+
+## Disable fully qualified names:
+# /etc/sssd/sssd.conf:
+use_fully_qualified_names = False
+
+systemctl restart sssd
+
+----------------------
+
+realm leave
+klist -kte
+realm discover adtest.lab
+realm join adtest.lab -U user01-admin
+systemctl stop sssd
+sss_cache -E
+rm -rf /var/lib/sss/db/*
+systemctl start sssd
+id -a user01@adtest.lab
+adcli info adtest.lab
+
+tail -f /var/log/secure
+
+----------------------
+
+realm join -v --user=user01-admin --computer-ou=OU=Linux,OU=Servers,DC=AU,DC=DOMAIN,DC=INTERNAL adtest.lab
+
+**********
+realm permit -g sssd_infra@adtest.lab
+realm permit -g sssd_webadmin@adtest.lab
+realm permit -g sssd_dba@adtest.lab
+**********
+
+----------------------
+
+# sshd_config
+AD Group = rctl_sssd_infra_linux
+
+----------------------
+
+## Verify the configuration for name resolution
+### verify the DNS SRV records:
+
+# Lookup realm LDAP details
+dig +short -t SRV _ldap._tcp.dc._msdcs.adtest.lab
+dig +short -t SRV _ldap._tcp.adtest.lab
+
+# Lookup realm KERBEROS details
+dig +short -t SRV _kerberos._tcp.dc._msdcs.adtest.lab
+dig +short -t SRV _kerberos._udp.dc._msdcs.adtest.lab
+
+dig +short -t SRV _kerberos._tcp.adtest.lab
+dig +short -t SRV _kerberos._udp.adtest.lab
+
+----------------------
+
+# Fix KeyTab
+net ads keytab create -P
+
+----------------------
+
+# Test connection to LDAPS server:
+openssl s_client -connect <LDAP_FQDN>:636 -CAfile __EXAMPLE.crt -showcerts -state 
+
+----------------------
+
+su - user@<FQDN>
+-or-
+ssh -l user@example.com@192.168.0.123
+ssh -l user@ad.example.com 52.XXX.XXX.XXX
+ssh -l user@ad.example.com linux-client.ad.example.com
+
+SSSD allows user names in the format:
+user@AD.DOMAIN
+AD.DOMAIN\user
+
+----------------------
+
+Active Directory accounts are usable on local system, BUT LOGINS USING ACTIVE DIRECTORY ARE DISABLED.
+- To enable logins:
+realm permit --realm domain.example.com --all
+
+- To allow only certain users to log in, replace --all with list of users:
+realm permit --realm domain.example.com DOMAIN\\Some DOMAIN\\ABC
+
+
+----------------------
+
+
+## Note 1
+
+Microsoft Advisory ADV190023
+RHEL6 systems should switch to the ldap id_provider and use ldaps to talk to their Active Directory domain controller.
+The above solution will not work on Red Hat Enterprise Linux 6 systems enrolled into Active Directory domains with enforced SASL signing.
+
+To use port 636 (LDAPS)
+# LDAPTLS_CACERT=<cert path> adcli join --use-ldaps adtest.lab -U DOMAIN_ADMIN_ACCOUNT --verbose
+
+# /etc/sssd/sssd.conf:
+id_provider = ad
+-vs-
+id_provider = ldap
+
+----------------------
+
+## Note 2
+
+ms-DS-MachineAccountQuota it is an attribute on Domain Naming Context object.
+This attribute specifies how many computers can be added by single user to the domain.
+The default value is 10.
+This value can be modified using different tools including ADSIEdit.msc
+
+----------------------

@@ -1,17 +1,23 @@
-## AnyDesk DEB repository how-to
-### add repository key to Trusted software providers list
+### AnyDesk install
+
 wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | apt-key add -
-
-### Add the repository:
 echo "deb http://deb.anydesk.com/ all main" > /etc/apt/sources.list.d/anydesk-stable.list
-
-### Update apt cache:
 apt update
-
-### Install anydesk:
 apt install anydesk
 
 -----
 
+### CLI SYNTAX
+anydesk <parameter>	
+
 ### Get AnyDesk ID:
 anydesk --get-id
+
+### Set password for unattended access (as root).
+echo myPassw0rd | anydesk --set-password
+
+### AnyDesk will start a File Transfer session.
+anydesk <ID/Alias> --file-transfer
+
+### AnyDesk will start an interactive session in fullscreen mode.
+anydesk <ID/Alias> --fullscreen
