@@ -1,0 +1,155 @@
+vim /etc/postfix/main.cf
+
+myhostname = <FQDN>
+mydomain = <DOMAIN_NAME>
+myorigin = $mydomain
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+
+# inet_interfaces = localhost
+
+inet_interfaces = $myhostname
+-or-
+inet_interfaces = all
+
+mynetworks = 10.10.10.0/24, 127.0.0.0/8
+-or-
+mynetworks = subnet
+
+firewall-cmd --permanent --add-service=smtp
+firewall-cmd --reload
+
+systemctl restart postfix
+
+
+===========================
+Null Client only sends email (i.e. Linux server + smtp p110)
+Null Client --> Contains a Forwarder (to an smtp server) to send email.
+===========================
+
+--- email Sending ---
+
+/etc/postfix/main.cf
+
+- inet_interfaces
+inet_interfaces is set to localhost, and that means that your Postfix mail server won't accept any incoming messages.
+
+netstat -tulpen | less
+
+and in the list we see the master process, which is a part of the Postfix mail server and that is bound to 127.0.0.1, and that's localhost.
+So, this mail server is not accessible from the outside.
+
+- relayhost
+To configure Postfix to relay messages to another host:
+
+relayhost=[10.10.10.123] # name or IP address of your relayhost.
+
+Place this name between square brackets, because then the Postfix mail server will not do a DNS MX mail server lookup, it will just send the message directly to the relayhost.
+
+
+*** Test sending ***
+# mail user3@mydomain.com
+Subject: Test email message
+This is a test message.
+EOT
+********************
+
+
+
+--- email Receiving ---
+
+## inet_interfaces
+### Change to:
+inet_interfaces = all (to listen on all interfaces)
+
+
+## myorigin
+The myorigin parameter indicates where the message seems to be coming from.
+
+### default value:
+myorigin = $myhostname
+
+But if user3 sends a message from server32.example.com, the recipient will see a message coming in from:
+user3@server32.example.com
+
+### Fix: Include the hostname in the myorigin parameter:
+myorigin = $mydomain
+This will make sure that only the domain part is used.
+
+
+## relayhost
+Set it to the host to which you want to forward the e-mail message.
+relayhost=[10.10.10.123]  # name or IP address of your relayhost.
+
+
+## mynetworks
+### Set to:
+mynetworks = 10.10.10.0/24
+
+The mynetworks parameter is a space separated list of networks that are allowed to relay.
+
+To make sure that this host only relays for packages coming in from the LOCAL NETWORK, set it to the IP address of the LOCAL NETWORK
+
+### Note: This will disallow anybody from the internet to use this message as a relay host.
+Now only users who have a VPN connection to your server and appear to be on the local network will be able to use it.
+
+
+## inet_protocol
+
+### Default:
+inet_protocol = 'all' 
+This means that this mail server will use IPv6, as well as IPv4.
+But by default it will bind to IPv6, and that means that you need a completely working IPv6 configuration.
+If you don't have that, make sure to change inet_protocols and set it to ipv4.
+
+### set to:
+inet_protocols = ipv4
+
+
+
+===========================
+
+
+
+/var/spool/postfix
+
+POSTSUPER - postfix superintendent
+(maintenance jobs on postfix queue)
+
+postsuper -d <QUEUE_ID> # Delete msg with this queue ID
+
+POSTQUEUE - Postfix queue control
+postqueue -f	# Flush the queue
+
+sendmail -q	# Flush the queue
+
+dig didata.com.au a		# A Record
+dig didata.com.au mx	# MX Record
+
+DNSBL - DNS Black Lists
+
+DSN - Delivery Status Notification - if msg was undeliverable.
+
+Set up mail forwarding:
+1. Create New file: .forward in your home dir.
+2. In this file, put the addy to forward to.
+
+
+#########################
+# Postfix Configuration
+
+Core components:
+                master
+                qmgr / nqmgr – nqmgr is the default for postfix v2.0+
+Input:
+                smtpd
+                bounce
+                cleanup
+Delivery Agents:
+                local
+virtual
+                smtp
+Configuration files:
+                /etc/postfix/master.cf        - Configures the master daemon
+                /etc/postfix/main.cf           - Configures the domains, etc.
+Aliases   - /etc/aliases
+[Spaces or tabs are interpreted as a continuation of the previous line]
