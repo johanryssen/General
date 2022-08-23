@@ -1,6 +1,0 @@
-export LS_COLORS="di=36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
-
-https://geoff.greer.fm/lscolors/
-
-## Diretory color fix:
-echo -e "\n# Directory Color Fix\nLS_COLORS=\$LS_COLORS:'di=0;36'\nexport LS_COLORS\n" >> ~/.bashrc

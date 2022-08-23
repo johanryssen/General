@@ -2,14 +2,16 @@
 
 A line starting with:
 '*' means additional info provided by curl
-'>' means "header data" sent by curl
-'<' means "header data" received  by curl
+'>' means "header data" SENT by curl
+'<' means "header data" RECEIVED  by curl
 
 --- Verbosity ---
 -v
+
 or
 --trace <FILENAME>
 or
+
 --trace-ascii <FILENAME>
 
 e.g. 
@@ -48,9 +50,11 @@ curl -C - -O http://www.gnu.org/software/gettext/manual/gettext.html
 
 --- HTTP Authentication ---
 $ curl -u username:password URL
+
 Note: 
 By default curl uses Basic HTTP Authentication.
-Specify other authentication method using -ntlm | -digest
+>> Specify other authentication method using:
+-ntlm | -digest
 
 
 --- FTP Download / List ---
