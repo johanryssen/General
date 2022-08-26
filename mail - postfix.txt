@@ -1,0 +1,235 @@
+grep -E "myhostname|mydomain|myorigin|mydestination|inet|mynetworks" /etc/postfix/main.cf | grep -vE "^$|^#"
+
+--------- CONFIG ---------
+
+vim /etc/postfix/main.cf
+
+myhostname = <FQDN>
+mydomain = <DOMAIN_NAME>
+myorigin = $mydomain
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+
+# inet_interfaces = localhost
+
+inet_interfaces = $myhostname
+-or-
+inet_interfaces = all
+
+mynetworks = 10.10.10.0/24, 127.0.0.0/8
+-or-
+mynetworks = subnet
+
+firewall-cmd --permanent --add-service=smtp
+firewall-cmd --reload
+
+systemctl restart postfix
+
+
+
+--------- EMAIL SENDING ---------
+
+===========================
+Null Client only SENDS email (i.e. Linux server + smtp)
+Null Client --> Contains a Forwarder (to an smtp server) to send email.
+===========================
+
+/etc/postfix/main.cf
+
+- inet_interfaces
+inet_interfaces is set to localhost, and that means that your Postfix mail server won't accept any incoming messages.
+
+netstat -tulpen | less
+
+and in the list we see the master process, which is a part of the Postfix mail server and that is bound to 127.0.0.1, and that's localhost.
+So, this mail server is not accessible from the outside.
+
+- relayhost
+To configure Postfix to relay messages to another host:
+>> relayhost=[10.10.10.123] # name or IP address of your relayhost.
+
+Place this name between square brackets, because then the Postfix mail server will not do a DNS MX mail server lookup, it will just send the message directly to the relayhost.
+
+
+
+--------- EMAIL RECEIVING ---------
+
+## inet_interfaces
+### Change to:
+>> inet_interfaces = all (to listen on all interfaces)
+
+## myorigin
+The myorigin parameter indicates where the message seems to be coming from.
+
+### default value: myorigin = $myhostname
+When user3 sends a message from server32.test.lab, the recipient will see a message coming in from:
+user3@server32.test.lab
+
+### Fix: Include the hostname in the myorigin parameter:
+>> myorigin = $mydomain
+This will make sure that only the domain part is used.
+user3@test.lab
+
+
+## relayhost
+Comment out on MX server:
+>> ## relayhost=[10.10.10.123]
+
+
+## mynetworks
+### Set to:
+>> mynetworks = 10.10.10.0/24
+
+The mynetworks parameter is a space separated list of networks that are allowed to relay.
+To make sure that this host only relays for packages coming in from the LOCAL NETWORK, set it to the subnet of the LOCAL NETWORK.
+### Note: This will disallow anybody from the internet to use this message as a relay host.
+Now only users who have a VPN connection to your server and appear to be on the local network will be able to use it.
+
+## inet_protocol
+
+### Default:
+inet_protocol = 'all' 
+This means that this mail server will use IPv6, as well as IPv4.
+But by default it will bind to IPv6, and that means that you need a completely working IPv6 configuration.
+If you don't have that, make sure to change inet_protocols and set it to ipv4.
+
+### set to:
+>> inet_protocols = ipv4
+
+
+********** MX / Mail server - config - BRIEF **********
+myhostname = mx.test.lab
+mydomain = test.lab
+inet_interfaces = all
+myorigin = $mydomain
+## relayhost=[192.168.78.134]
+mynetworks = 192.168.0.0/16
+inet_protocols = ipv4
+
+## When using /etc/hosts (and not DNS):
+lmtp_host_lookup = native
+smtp_host_lookup = native
+
+-or-
+disable_dns_lookups = yes
+
+## Set fake hosts in /etc/hosts:
+/etc/postfix/main.cf
+
+smtp_dns_support_level = disabled
+* http://www.postfix.org/postconf.5.html#smtp_dns_support_level
+
+
+************** smtp_dns_support_level ***************
+*
+*  (default: empty)
+*  Level of DNS support in the Postfix SMTP client.
+*  With "smtp_dns_support_level" left at its empty default value,
+*  the legacy "disable_dns_lookups" parameter controls whether DNS is enabled in the Postfix SMTP client,
+*  otherwise the legacy parameter is ignored.
+*
+* ## Specify one of the following >
+*
+* > disabled - Disable DNS lookups
+* 
+*  No MX lookups are performed and hostname to address lookups are unconditionally "native".
+*  This setting is not appropriate for hosts that deliver mail to the public Internet.
+*  Some obsolete how-to documents recommend disabling DNS lookups in some configurations with content_filters.
+*  This is no longer required and strongly discouraged.
+*
+*
+* > enabled - Enable DNS lookups.
+*
+*  Nexthop destination domains not enclosed in "[]" will be subject to MX lookups.
+*  If "dns" and "native" are included in the "smtp_host_lookup" parameter value,
+*  DNS will be queried first to resolve MX-host A records, followed by "native" lookups if no answer is found in DNS.
+*
+*
+*> dnssec - Enable DNSSEC lookups.
+*
+* ## The "dnssec" setting differs from the "enabled" setting above in the following ways:
+*  - Any MX lookups will set RES_USE_DNSSEC and RES_USE_EDNS0 to request DNSSEC-validated responses.
+*    If the MX response is DNSSEC-validated the corresponding hostnames are considered validated.
+*  - The address lookups of validated hostnames are also validated, (provided of course "smtp_host_lookup" includes "dns", see below).
+*  - Temporary failures in DNSSEC-enabled hostname-to-address resolution block any "native" lookups.
+*    Additional "native" lookups only happen when DNSSEC lookups hard-fail (NODATA or NXDOMAIN).
+*
+*****************************
+
+********************************************************
+
+
+
+***** View Config / logs *****
+
+## View journal:
+journalctl -xel -u postfix -f
+
+## View mailq:
+watch -n0.1 mailq
+
+## View postfix config:
+### Show only configuration parameters that have explicit name=value settings in main.cf.
+postconf -n
+
+### Specify -nf to fold long lines for human readability.
+
+### Show settings that differ from built-in defaults only:
+comm -23 <(postconf -n) <(postconf -d)
+
+### Replace "-23" with "-12" to show settings that duplicate built-in defaults.
+
+
+***** Test MX and A records *****
+dig mx test.lab +short
+dig a test.lab +short
+
+
+
+======================================================
+======================================================
+
+
+
+/var/spool/postfix
+
+POSTSUPER - postfix superintendent
+(maintenance jobs on postfix queue)
+
+postsuper -d <QUEUE_ID> # Delete msg with this queue ID
+
+POSTQUEUE - Postfix queue control
+postqueue -f	# Flush the queue
+
+sendmail -q	# Flush the queue
+
+dig test.lab a		# A Record
+dig test.lab mx	# MX Record
+
+DNSBL - DNS Black Lists
+
+DSN - Delivery Status Notification - if msg was undeliverable.
+
+Set up mail forwarding:
+1. Create New file: .forward in your home dir.
+2. In this file, put the addy to forward to.
+
+
+#########################
+# Postfix Configuration
+
+Core components:
+                master
+                qmgr / nqmgr – nqmgr is the default for postfix v2.0+
+Input:
+                smtpd
+                bounce
+                cleanup
+Delivery Agents:
+                local
+virtual
+                smtp
+Configuration files:
+                /etc/postfix/master.cf        - Configures the master daemon
+                /etc/postfix/main.cf           - Configures the domains, etc.
+Aliases   - /etc/aliases
+[Spaces or tabs are interpreted as a continuation of the previous line]

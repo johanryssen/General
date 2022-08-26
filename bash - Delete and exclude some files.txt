@@ -1,0 +1,72 @@
+Remove some files/folders in a directory
+
+---
+
+## A shell pattern is a string that consists of the following special characters, which are referred to as wildcards or metacharacters:
+
+* – matches zero or more characters
+? – matches any single character
+[seq] – matches any character in seq
+[!seq] – matches any character not in seq
+
+
+--- rm ---
+
+1. Enable extglob shell option:
+shopt -s extglob
+
+2. Options to delete:
+
+## Delete all files in a directory except myFile:
+rm -v !("myFile")
+
+## Delete all files with the exception of myFile1 and myFile2:
+rm -v !("myFile1"|"myFile2") 
+
+## Delete all files other than all .zip files interactively:
+rm -i !(*.zip)
+
+## Delete all files apart from all .zip and .odt files:
+rm -v !(*.zip|*.odt)
+
+3. When done, turn off the extglob shell option:
+shopt -u extglob
+
+
+
+--- find ---
+
+find /directory/ -type f -not -name 'PATTERN' -delete
+find /directory/ -type f -not -name 'PATTERN' -print0 | xargs -0 -I {} rm {}
+find /directory/ -type f -not -name 'PATTERN' -print0 | xargs -0 -I {} rm [options] {}
+
+## Delete all files apart from .gz files in the current directory:
+find . -type f -not -name '*.gz'-delete
+
+## Using a pipeline and xargs, you can modify the case above as follows:
+find . -type f -not -name '*gz' -print0 | xargs -0  -I {} rm -v {}
+
+## Delete all files excluding .gz, .odt, and .jpg files in the current directory:
+find . -type f -not \(-name '*gz' -or -name '*odt' -or -name '*.jpg' \) -delete
+
+
+
+--- GLOBIGNORE ---
+
+*** BASH only ***
+
+## cd to directory containing files to be deleted:
+cd test
+
+## Set GLOBIGNORE variable:
+GLOBIGNORE=*.odt:*.iso:*.txt
+
+## Remove all files in current directory:
+rm -v *
+
+## When done:
+unset GLOBIGNORE
+
+
+---
+https://www.tecmint.com/delete-all-files-in-directory-except-one-few-file-extensions/

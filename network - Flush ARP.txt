@@ -1,13 +1,13 @@
 --- Linux---
 # bash
 ## View ARP cache. It will let you know if it needs a refresh or not.
-arp –n
+arp -n
 
 ## Clear ARP cache.
-ip –s –s neigh flush all
+ip -s -s neigh flush all
 
 ## Validate
-arp –n
+arp -n
 
 --- Windows ---
 # cmd
