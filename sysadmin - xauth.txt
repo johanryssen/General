@@ -19,7 +19,7 @@ ssh -X -Y REMOTE_HOST
 
 ----- /etc/ssh/sshd_config -----
 
-# Replace <username> with your username:
+# Replace <username>:
 Match User <Username>
 	X11Forwarding yes
 	X11DisplayOffset 10
@@ -27,8 +27,6 @@ Match User <Username>
 	AllowAgentForwarding yes	# If you are using ssh-agent
     AllowTcpForwarding yes
     PermitTTY yes
-    ForceCommand cvs server
-
 
 ----- Creating new .Xauthority file -----
 

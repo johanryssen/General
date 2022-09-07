@@ -21,10 +21,11 @@ vgextend VolGroup /dev/sdb
 5. Confirm 4. worked:
 vgdisplay
 
-6. Resize the Logical Volumes on /opt and /tmp to their new sizes:
-lvresize --size 15G /dev/VolGroup/opt
-lvresize --size 5G  /dev/VolGroup/tmp
+6. Resize the Logical Volumes on /opt and /tmp to their --NEW-- sizes:
+lvresize --size 15G -r /dev/VolGroup/opt
+lvresize --size 5G  -r /dev/VolGroup/tmp
 
+## Adding '-r' in the above lvresize cmd, negates 7. below:
 7. Increase the size of the XFS filesystem on each of the Volume Groups:
 xfs_growfs /dev/VolGroup/opt
 xfs_growfs /dev/VolGroup/tmp
