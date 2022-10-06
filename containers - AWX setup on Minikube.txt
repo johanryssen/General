@@ -1,6 +1,5 @@
 # https://github.com/ansible/awx-operator#basic-install
 
-
 ## Deploy awx-operator on minikube:
 minikube start --addons=ingress --cpus=4 --cni=flannel --install-addons=true --kubernetes-version=stable --memory=8g
 
@@ -9,14 +8,10 @@ minikube start --addons=ingress --cpus=4 --cni=flannel --install-addons=true --k
 minikube kubectl -- get nodes
 minikube kubectl -- get pods -A
 
-
 ## Create Alias
 alias kubectl="minikube kubectl --"
 
-
 ## Deploy AWX Operator into your cluster:
-
-
 
 ## Make a note of the latest release (e.g. 0.13.0)
 https://github.com/ansible/awx-operator/releases
@@ -24,8 +19,6 @@ https://github.com/ansible/awx-operator/releases
 ## Replace <TAG> with release:
 ### SYNTAX:
 $ kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/<TAG>/deploy/awx-operator.yaml
-
-
 
 
 ## Create YAML file.
@@ -78,4 +71,3 @@ kubectl get secret <resourcename>-admin-password -o jsonpath="{.data.password}" 
 
 $ kubectl get secret awx-admin-password -o jsonpath="{.data.password}" | base64 --decode
 zDil9K31ts16vn12YXmgy0A0we3PXmUQ
-

@@ -1,0 +1,243 @@
+Install Minikube Kubernetes Cluster On RHEL
+
+1. verify that the system supports virtualization extension.
+
+[root@server01 ~]# lscpu | grep Virtualization
+
+Virtualization:      VT-x
+Virtualization type: full
+OR
+
+[root@server01 ~]# cat /proc/cpuinfo | egrep "vmx|svm"
+
+2. verify that the kernel modules are loaded
+
+[root@server01 ~]# lsmod | grep kvm
+
+kvm_intel             290816  4
+kvm                   753664  1 kvm_intel
+irqbypass              16384  6 kvm
+
+3. Verify that KVM is running
+
+[root@server01 ~]# systemctl status libvirtd
+
+libvirtd.service - Virtualization daemon
+   Loaded: loaded (/usr/lib/systemd/system/libvirtd.service; enabled; vendor preset:>
+   Active: active (running) 
+
+NB: do not bother at this stage of KVM is running or not, By default, it should run if you installed the full version of the RHEL 8 system.
+
+install other KVM virtualization packages/tools on your system.
+
+[root@server01 ~]# dnf install @virt -y
+
+Updating Subscription Management repositories.
+Last metadata expiration check: 1:36:45 ago on Mon 20 Jun 2022 06:24:15 PM WAT.
+Dependencies resolved.
+
+4. restart libvirtd
+
+[root@server01 ~]# systemctl restart libvirtd
+For RHEL 9, you need to install and start libvirtd.
+
+[root@server01 ~]# dnf install qemu-kvm libvirt virt-install virt-viewer -y
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:11:52 ago on Fri 15 Jul 2022 13:59:28.
+Dependencies resolved.
+================================================================================
+.....................
+*start libvirtd
+
+[root@server01 ~]# systemctl start libvirtd
+
+[root@server01 ~]# systemctl status libvirtd
+● libvirtd.service - Virtualization daemon
+     Loaded: loaded (/usr/lib/systemd/system/libvirtd.service; disabled; vendor>
+     Active: active (running) since Fri 2022-07-15 14:13:00 WAT; 2s ago
+TriggeredBy: ● libvirtd-ro.socket
+..................................
+*Because we don’t want the system to automatically choose podman to start minikube with, we need to install the kvm2 driver for docker.
+
+5. download and install the kvm2 driver
+
+[root@server01 ~]# curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+.........................
+*verify that its downloaded
+
+[root@server01 ~]# ls -l docker-machine-driver-kvm2
+
+-rw-r--r--. 1 root root 12187680 Jun 20 16:39 docker-machine-driver-kvm2
+*make the file executable
+
+[root@server01 ~]# chmod +x docker-machine-driver-kvm2
+[root@server01 ~]# ls -l docker-machine-driver-kvm2
+
+-rwxr-xr-x. 1 root root 12187680 Jun 20 16:39 docker-machine-driver-kvm2
+*install the driver
+
+N:B: we can easily put it in the /usr/local/bin directory to install since its a binary file and it can be moved in your $PATH
+
+root@server01 ~]# mv docker-machine-driver-kvm2 /usr/local/bin/
+You can copy the binary file if you don’t wish to move it.
+
+*verify the version of the driver
+
+[root@server01 ~]# docker-machine-driver-kvm2 version
+
+version: v1.25.2
+commit: 362d5fdc0a3dbee389b3d3f1034e8023e72bd3a7
+
+6. Download and install kubectl
+
+[root@server01 ~]# curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   213  100   213    0     0      7      0  0:00:30  0:00:26  0:00:04    46
+*make the file executable
+
+[root@server01 ~]# chmod +x kubectl
+*install kubectl; we can easily put it in your $PATH since the kubectl is a binary file.
+
+[root@server01 ~]# mv kubectl  /usr/local/bin/
+*verify kubectl version
+
+[root@server01 ~]# kubectl version -o yaml
+
+clientVersion:
+  buildDate: "2022-06-15T14:22:29Z"
+  compiler: gc
+  gitCommit: f66044f4361b9f1f96f0053dd46cb7dce5e990a8
+  gitTreeState: clean
+  gitVersion: v1.24.2
+  goVersion: go1.18.3
+  major: "1"
+  minor: "24"
+  platform: linux/amd64
+kustomizeVersion: v4.5.4
+
+7. Download and install minikube.
+
+NOTE: minikube always come with the docker container runtime. So, if you wish, you can install docker on your system and if you don’t wish, there is no need to install container on your system.
+
+[root@server01 ~]# wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+--2022-06-20 17:17:19--  https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+Resolving storage.googleapis.com (storage.googleapis.com)... 216.58.223.240
+..........
+*make the downloaded binary file executable
+
+[root@server01 ~]# chmod +x minikube-linux-amd64
+*install minikube; you can easily put it in your $PATH
+
+[root@server01 ~]# mv minikube-linux-amd64 /usr/local/bin/
+*verify the minikube version
+
+[root@server01 ~]# minikube version
+
+minikube version: v1.25.2
+commit: 362d5fdc0a3dbee389b3d3f1034e8023e72bd3a7
+NOTE: The KVM driver in this setup can’t be used as the root user, hence, we need another user to run minikube.
+
+In this case I have the cont user. Hence, we need to add the cont user to the libvirt group as well.
+
+To make it easier, I will also make the cont user a sudo user.
+
+
+8. Add cont user to the libvirt and wheel group
+
+[root@server01 ~]# usermod -aG libvirt cont
+
+[root@server01 ~]# usermod -aG wheel cont
+*verify
+
+[root@server01 ~]# id cont
+
+uid=1000(cont) gid=1000(cont) groups=1000(cont),10(wheel),981(libvirt)
+*if you wish, you can set KVM as the default driver
+
+[root@server01 ~]# minikube config set vm-driver kvm2
+
+! These changes will take effect upon a minikube delete and then a minikube start
+
+9. logout and login as the user, cont or ssh into the server as the user, cont on the same terminal.
+
+NB: its best not to switch user in this case (su – victor)
+
+[root@server01 ~]# ssh cont@localhost
+
+The authenticity of host 'localhost (::1)' can't be established.
+ECDSA key fingerprint is SHA256:1b+fFpvcXKQU4MQUnvcqKbUKfgpKUj4CmG/1FeNOlks.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'localhost' (ECDSA) to the list of known hosts.
+cont@localhost's password:
+
+[cont@server01 ~]$
+
+
+10. Start minikube
+
+starting minikube will automatically download the VM image and configures the single node kubernetes cluster
+
+[cont@server01 ~]$ minikube start
+* minikube v1.26.0 on Redhat 9.0
+* Automatically selected the kvm2 driver
+* Downloading VM boot image ...
+    > minikube-v1.26.0-amd64.iso....: 65 B / 65 B [----------] 100.00% ? p/s 0s
+    > minikube-v1.26.0-amd64.iso: 268.86 MiB / 268.86 MiB  100.00% 700.70 KiB p
+* Starting control plane node minikube in cluster minikube
+* Downloading Kubernetes v1.24.1 preload ...
+..............................................
+NB: if you did not set the kvm2 as the default driver, you need to start minikube with the kvm2 driver.
+
+[cont@server01 ~]$ minikube start --driver=kvm2
+11. Verify that minikube and the kubernetes cluster is running.
+
+[cont@server01 ~]$ minikube status
+
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+[cont@server01 ~]$ kubectl cluster-info
+
+Kubernetes control plane is running at https://192.168.39.238:8443
+CoreDNS is running at https://192.168.39.238:8443/api/v1/namespaces/kube-system/services/kube-dns:dproxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+[cont@server01 ~]$ kubectl version -o yaml
+
+clientVersion:
+  buildDate: "2022-07-13T14:30:46Z"
+  compiler: gc
+  gitCommit: aef86a93758dc3cb2c658dd9657ab4ad4afc21cb
+  gitTreeState: clean
+  gitVersion: v1.24.3
+  goVersion: go1.18.3
+  major: "1"
+  minor: "24"
+  platform: linux/amd64
+kustomizeVersion: v4.5.4
+serverVersion:
+  buildDate: "2022-05-24T12:18:48Z"
+  compiler: gc
+  gitCommit: 3ddd0f45aa91e2f30c70734b175631bec5b5825a
+  gitTreeState: clean
+  gitVersion: v1.24.1
+  goVersion: go1.18.2
+  major: "1"
+  minor: "24"
+  platform: linux/amd64
+
+
+[cont@server01 ~]$ kubectl get nodes
+
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   32m   v1.24.1

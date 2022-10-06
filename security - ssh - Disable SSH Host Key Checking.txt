@@ -1,0 +1,20 @@
+## Disable SSH Host Key Checking
+$ ssh -o "StrictHostKeyChecking=no" user@host
+
+## Disable SSH host key checking for all hosts
+### Current user: ~/.ssh/config
+### All users: /etc/ssh/ssh_config
+
+Host *
+   StrictHostKeyChecking no
+   UserKnownHostsFile=/dev/null
+
+### Disable SSH host key checking For 192.168.0.0/24
+
+Host 192.168.0.*
+   StrictHostKeyChecking no
+   UserKnownHostsFile=/dev/null
+   
+---
+chmod 0600~/.ssh/config
+

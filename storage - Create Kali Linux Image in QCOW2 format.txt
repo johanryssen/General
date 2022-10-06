@@ -1,0 +1,30 @@
+## Create Kali Linux Image in QCOW2 format
+
+# Prerequisites:
+Step 1: Install Qemu-kvm, libvirt and other dependent tools
+# yum install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils virt-goodies p7zip-full
+
+Step 2: Download Kali Linux image
+# wget https://images.offensive-security.com/virtual-images/Kali-Linux-2016.1-vm-amd64.7z
+
+Step 3: Extract the download image.
+# 7za x Kali-Linux-2016.1-vm-amd64.7z
+
+Step 4: Check out the list of VMDK files in the extracted folder.
+# ls -l Kali-Linux-2016.1-vm-amd64
+-rw-r--r--. 1 root root       8684 Feb  1  2016 Kali-Linux-2016.1-vm-amd64.nvram
+-rw-r--r--. 1 root root 3843620864 Feb  1  2016 Kali-Linux-2016.1-vm-amd64-s001.vmdk
+-rw-r--r--. 1 root root 2662793216 Feb  1  2016 Kali-Linux-2016.1-vm-amd64-s002.vmdk
+-rw-r--r--. 1 root root  785776640 Feb  1  2016 Kali-Linux-2016.1-vm-amd64-s003.vmdk
+...
+-rw-r--r--. 1 root root        965 Feb  1  2016 Kali-Linux-2016.1-vm-amd64.vmdk
+-rw-r--r--. 1 root root          0 Feb  1  2016 Kali-Linux-2016.1-vm-amd64.vmsd
+-rw-r--r--. 1 root root       2693 Feb  1  2016 Kali-Linux-2016.1-vm-amd64.vmx
+-rw-r--r--. 1 root root        281 Feb  1  2016 Kali-Linux-2016.1-vm-amd64.vmxf
+
+Step 5: Convert all VMDK files into a single QCOW2 format.
+# qemu-img convert -O qcow2 Kali-Linux-2016.1-vm-amd64/Kali-Linux-2016.1-vm-amd64-s00*.vmdk kali-for-stack.qcow2
+
+Step 6: Verify the converted image.
+# file kali-for-stack.qcow2
+kali-for-stack.qcow2: QEMU QCOW Image (v3), 32212254720 bytes

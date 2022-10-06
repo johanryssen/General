@@ -4,14 +4,14 @@
 yum install -y cloud-utils-growpart gdisk
 echo 1 > /sys/block/sda/device/rescan
 pvscan
-growpart /dev/sda 2
+growpart /dev/sda 3
 -----
 -or-
 growpart /dev/nvme0n1 2
 pvresize /dev/nvme0n1p2
 -----
 
-pvresize /dev/sda2
+pvresize /dev/sda3
 
 lvextend -l +100%FREE -r /dev/mapper/centos-root
 
@@ -22,5 +22,5 @@ vgextend rhel /dev/nvme0n2
 
 lvextend -l +100%FREE -r /dev/mapper/rhel-root
 
-#-or- extend only by 200M
-lvextend -size 200M -r /dev/mapper/rhel-root
+## Final size = 15G
+lvextend --size 15G -r /dev/mapper/vg_sys-lv_opt
