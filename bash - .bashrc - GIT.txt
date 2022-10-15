@@ -1,5 +1,19 @@
 ##  ~/.bashrc
 
+source /usr/share/git-core/contrib/completion/git-prompt.sh
+# -or-
+source /etc/bash_completion.d/git-prompt
+
+export GIT_PS1_SHOWDIRTYSTATE=true
+export GIT_PS1_SHOWUNTRACKEDFILES=true
+export PS1='[\u@\h \W$(declare -F __git_ps1 &>/dev/null && __git_ps1 " (%s)")]\$ '
+
+
+-- or --
+
+
+##  ~/.bashrc
+
 ## Use vim as editor
 export EDITOR="vim"
 
