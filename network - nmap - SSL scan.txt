@@ -1,0 +1,22 @@
+# Comma separate the specific tests you want
+nmap --script ssl-cert,ssl-enum-ciphers -p 443 <target>
+
+# Check ALL potential ports that are running TLS services, use the -sV (version detection) option and Nmap will figure out which ports are appropriate to run the tests.
+$ nmap -sV --script -ssl-cert <target>
+
+# Run all SSL/TLS tests at once:
+nmap --script ssl* -p 443 
+
+# SSL Ciphers
+for port in 9090 8008 8140 443 5000 8443 5647; do echo $port:; nmap --script +ssl-enum-ciphers LOCALHOST -p $port| grep -e weak -e TLSv -e SSLv ; done
+
+# View cert:
+$ nmap --script ssl-cert -p 443 
+
+# SSH Algorithms
+nmap --script ssh2-enum-algos -sV -p <PORT> 
+
+---
+
+# Weak ephemeral Diffie-Hellman parameter detection for SSL/TLS services.
+nmap --script ssl-dh-params <target>

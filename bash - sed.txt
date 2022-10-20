@@ -3,3 +3,30 @@ sed ' /^server 3/ a server ntp.example.com' /etc/ntp.conf
 sed ' /^server 0/ i server ntp.example.com' /etc/ntp.conf
 sed ' /^server\s[0-9]\.ubuntu/ d' /etc/ntp.conf
 
+-------------
+
+# Append 'devops_team' to end of line:
+sed -i '/^AllowGroups/ s/$/devops_team/' /etc/ssh/sshd_config
+
+
+# Change all lines with CONTAINING aaa= to aaa=xxx
+sed -i 's/aaa=.*/aaa=xxx/g'
+
+
+# Change all lines with STARTING WITH aaa= to aaa=xxx
+sed 's/^aaa=.*/aaa=xxx/'
+
+
+# Replace:
+#maxmemory <bytes>
+-with-
+maxmemory 26gb
+
+sed -i -e 's/#maxmemory.*/maxmemory 26gb/g' /etc/redis/redis.conf
+
+
+## Use 'I' option for case insensitive search
+sed -i 's/word1/word2/gI' input
+sed -i 's_word1_word2_gI' input
+
+-------------
