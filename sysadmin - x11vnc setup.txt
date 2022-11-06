@@ -9,9 +9,9 @@ x11vnc -ncache 10
 ## Set up service.
 
 ### Create password
-sudo x11vnc -storepasswd  /etc/x11vnc.pass
+sudo x11vnc -storepasswd  /etc/x11vnc.pwd
 
-### Create Unit filoe:
+### Create Unit file:
 # /etc/systemd/system/x11vnc.service
 
 [Unit]
@@ -20,7 +20,7 @@ Requires=display-manager.service
 After=display-manager.service
 
 [Service]
-ExecStart=/usr/bin/x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :0 -auth guess -rfbauth /etc/x11vnc.pass
+ExecStart=/usr/bin/x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :0 -auth guess -rfbauth /etc/x11vnc.pwd
 ExecStop=/usr/bin/killall x11vnc
 Restart=on-failure
 Restart-sec=2

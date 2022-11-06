@@ -55,6 +55,31 @@ echo ""
 sudo apt install bleachbit -y
 echo ""
 echo ""
+echo "----- System Monitoring Center -----"
+echo ""
+echo "Dependencies for system-monitoring-center"
+sudo apt install python3-pip libcairo2-dev x11-xserver-utils -y
+echo ""
+/usr/bin/pip3 pip install system-monitoring-center
+echo ""
+echo "Path to exec: /usr/local/bin/system-monitoring-center"
+echo "If command is not found - restart the system and run the command again."
+echo " If images are not shown on the GUI - run touch ~/.local/share/* or restart the system."
+echo ""
+echo ""
+echo "----- czkawka -----"
+echo ""
+echo "Dependencies for czkawka"
+sudo apt install snapd ffmpeg libgtk-4-dev -y
+echo ""
+echo "Install czkawka with snap"
+sudo /usr/bin/snap install czkawka
+echo ""
+echo "Snap can only access the files in your home directory."
+echo "You have to allow Czkawka access to all the drives:"
+sudo /usr/bin/snap connect czkawka:removable-media
+echo ""
+echo ""
 echo "----- DropBox -----"
 echo ""
 sudo apt install dropbox python3-gpg -y

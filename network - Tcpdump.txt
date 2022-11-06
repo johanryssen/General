@@ -10,6 +10,10 @@ tcpdump -i eth0 -tttt
 ## Don’t resolve hostnames or port names: -nn
 tcpdump -i eth0 -nn
 
+## DNS traffic
+tcpdump -vv dst IPADDR and port dns -w capture_dns
+tcpdump -r capture_dns | grep -i _SOMETHING_
+
 ## Capture to file:
 tcpdump -i eth0 -w /tmp/output.cap tcp and port 443
 
