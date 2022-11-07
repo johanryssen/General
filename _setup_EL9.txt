@@ -36,14 +36,8 @@ for i in $(ls -1 /home);
 done
 echo ""
 echo "-- EPEL 9 install --"
-## RHEL8 method:
-## curl https://getfedora.org/static/fedora.gpg | gpg --import ;
-## /bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9 ;
-## /bin/dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm ;
-## 
-## RHEL9 method:
 sudo subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms
-sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
 ##
 echo ""
 echo "-- DNF Update --"
@@ -53,7 +47,8 @@ echo "-- Install additional packages --"
 echo ""
 /bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc rsync strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq python3-pip
 echo ""
-## SSSD: yum -y install adcli oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authconfig
+echo "SSSD package install"
+dnf -y install adcli oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authconfig
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

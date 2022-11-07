@@ -17,12 +17,11 @@ echo "Restarting NetworkManager"
 systemctl restart NetworkManager
 echo ""
 exit 0
-
+###
 
 ## To view NetworkManager journal:
-## journalctl -u NetworkManager
+journalctl -u NetworkManager
 
-# May also be added to 
-## /etc/NetworkManager/NetworkManager.conf
-## [main]
-## dns=none
+### May also be added to: /etc/NetworkManager/NetworkManager.conf
+[main]
+dns=none
