@@ -1,0 +1,40 @@
+1. Download
+https://www.realvnc.com/en/connect/download/vnc/ --> 
+https://downloads.realvnc.com/download/file/vnc.files/VNC-Server-6.11.0-Linux-x64.deb
+
+2. License
+sudo vnclicensewiz
+
+3. VNC Server in Service Mode daemon
+systemctl enable --now vncserver-x11-serviced.service
+systemctl restart vncserver-x11-serviced.service
+
+## Installed systemd unit for VNC Server in Virtual Mode daemon
+## systemctl enable --now vncserver-virtuald.service
+## systemctl start vncserver-virtuald.service
+
+
+--- ERR: "vnc server does not have any security schemes"
+
+vncpasswd -service
+
+add:
+
+Authentication=VncAuth
+
+to the end of:
+
+/root/.vnc/config.d/vncserver-x11
+
+systemctl restart vncserver-x11-serviced.service
+
+Ref.
+
+https://help.realvnc.com/hc/en-us/articles/360002253878-Configuring-VNC-Connect-Using-Parameters#populating-vnc-configuration-files-with-parameters-0-2 
+
+https://help.realvnc.com/hc/en-us/articles/360002251297-VNC-Server-Parameter-Reference-#Authentication
+
+the program for option settings (vncserverui) cannot be run directly from terminal but you can adjust every possible option manually with the help of the above links
+
+-----
+
