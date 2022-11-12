@@ -1,0 +1,22 @@
+# Checkpoint R80+ VPN client chroot wrapper
+https://github.com/ruyrybeyro/chrootvpn
+
+
+# Check Point supported VPN client for Linux: SSL Network Extender (SNX).
+https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk65210
+
+SSL Network Extender is a secure connectivity framework for remote access to a corporate network.
+SSL Network Extender uses a thin VPN client installed on the user's remote computer that connects to an SSL-enabled web server.
+The web server and the client are in the same VPN.
+SSL Network Extender is downloaded automatically from the Mobile Access portal to the endpoint machines, so that client software does not have to be pre-installed and configured on users' PCs and laptops.
+Remote users access the portal from a Web browser with
+https://<Gateway_IP_address>/sslvpn, where <Gateway_IP_address> is one of these:
+- FQDN that resolves to the IP address of the Security Gateway
+- IP address of the Security Gateway
+
+Remote users that use HTTP are automatically redirected to the portal using HTTPS.
+
+Note: SSL Network Extender requires that Java is installed on the endpoint computer.
+Java is not installed on Mac OS X 10.7 (Lion).
+For more information, see sk65144 - SSL Network Extender - Java Availablity.
+

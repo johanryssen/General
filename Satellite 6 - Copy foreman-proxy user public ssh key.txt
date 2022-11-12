@@ -1,4 +1,4 @@
---- Copy foreman-proxy user public ssh key to many client systems for Remote Execution ---
+# Copy foreman-proxy user public ssh key to many client systems for Remote Execution
 
 ## Issue
 Setting up Satellite's Remote Execution feature requires copying the foreman-proxy user's public ssh key to the service accounts of ALL client systems.
