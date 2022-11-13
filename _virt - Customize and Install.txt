@@ -30,13 +30,14 @@ virsh net-autostart default
 
 4. Customise the new image:
 sudo virt-customize -a /var/lib/libvirt/images/rhel9.qcow2 \
---hostname rhel9.cloud.test \
+--hostname rhel9.test.lab \
 --root-password password:pass \
 --ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
 --uninstall cloud-init \
 --install vim,libselinux \
 --selinux-relabel
 
+## yum -y remove 'cloud-init'
 
 **********
 virt-customize - Modifies the guest or disk image in place.
@@ -48,7 +49,7 @@ virt-customize - Modifies the guest or disk image in place.
 --uninstall - Uninstall software contained by default in the downloaded image.
 **********
 
-osinfo-query os
+osinfo-query os | grep rhel9
 
 5. Provision new VM (Using same disk image as in 3)
 sudo virt-install \

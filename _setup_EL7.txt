@@ -35,6 +35,10 @@ echo "-- EPEL 7 install --"
 curl https://getfedora.org/static/fedora.gpg | gpg --import ;
 /bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 ;
 /bin/yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;
+## Note for RHEL6:
+## Archived URL:
+## https://archives.fedoraproject.org/pub/archive/epel/6/x86_64/epel-release-6-8.noarch.rpm
+##
 echo ""
 echo "-- YUM Update --"
 /bin/yum -y update
