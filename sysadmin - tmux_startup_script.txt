@@ -22,7 +22,7 @@ fi
 exit 0;
 EOF
 
+
 chmod +x ~/.tmux_startup.sh
 
 echo -e "\n## TMUX Startup Script\n~/.tmux_startup.sh\n" >> ~/.bash_profile
-

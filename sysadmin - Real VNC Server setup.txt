@@ -14,6 +14,25 @@ systemctl restart vncserver-x11-serviced.service
 ## systemctl start vncserver-virtuald.service
 
 
+### Unit file
+
+/etc/systemd/system/multi-user.target.wants/vncserver-x11-serviced.service
+
+[Unit]
+Description=VNC Server in Service Mode daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/vncserver-x11-serviced -fg
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+
+
 --- ERR: "vnc server does not have any security schemes"
 
 vncpasswd -service

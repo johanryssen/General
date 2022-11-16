@@ -1,0 +1,29 @@
+----------------
+
+sudo dmidecode | grep -A3 '^System Information'
+
+System Information
+	Manufacturer: ASUSTeK COMPUTER INC.
+	Product Name: G752VY
+	Version: 1.0       
+
+----------------
+
+sudo udevadm trigger
+
+----------------
+
+try switching to tty1:
+Alt + Ctrl + F1
+then switching back to normal by doing;
+Alt + Ctrl + F7
+
+IF that does not work, try:
+sudo modprobe -r psmouse
+sudo modprobe psmouse proto=imps
+
+----------------
+
+sudo apt install -reinstall ubuntu-gnome-desktop
+
+----------------

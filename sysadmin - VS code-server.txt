@@ -1,7 +1,7 @@
-///ref
+## ref
 https://coder.com/docs/code-server/latest/guide
 https://www.digitalocean.com/community/tutorials/how-to-set-up-the-code-server-cloud-ide-platform-on-debian-10
-\\\
+
 
 ## Install code-server
 curl -fsSL https://code-server.dev/install.sh | sh
