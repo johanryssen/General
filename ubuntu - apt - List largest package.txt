@@ -1,0 +1,39 @@
+## List size of installed pacakges:
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+-or-
+dpkg-query -W -f='${Installed-Size;8}  ${Package}\n' | sort -n
+
+## This list may include packages that have been removed but not purged.
+## All such packages can be purged by running:
+dpkg --list |grep "^rc" | cut -d " " -f 3 | xargs sudo dpkg --purge
+
+## Or if you don't want to purge uninstalled packages you can use this variant to filter out the packages which aren't in the 'installed' state from the list:
+dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\t${Package}\n' | sed -ne 's/^installed //p'|sort -n
+
+## Or with synaptic UI
+To do this, go to Settings > Preferences > "Columns and Fonts" tab
+## then tick the columns you want to see.
+
+---or---
+
+## Install debian-goodies
+sudo apt-get install debian-goodies apt-file
+
+# apt-file -- APT package searching utility
+
+# debian-goodies provides:
+debman     - Easily view man pages from a binary .deb without extracting [man, apt* (via debget)]
+debmany    - Select manpages of installed or uninstalled packages [man | sensible-utils, whiptail | dialog | zenity, apt*, konqueror*, xdg-utils*]
+dhomepage  - Open homepage of a package in a web browser [dctrl-tools, sensible-utils*, www-browser* | x-www-browser*]
+dman       - Fetch manpages from online manpages.debian.org service [curl, man, lsb-release*]
+dpigs      - Show which installed packages occupy the most space [dctrl-tools]
+
+## View the installed packages which has large size,
+dpigs -H
+
+## By default, it is set to display installed 10 largest packages.
+## You can set the number by -n parameter.
+dpigs -n 20 -H
+
+# Help
+dpigs -h
