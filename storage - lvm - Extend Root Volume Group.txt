@@ -24,3 +24,8 @@ lvextend -l +100%FREE -r /dev/mapper/rhel-root
 
 ## Final size = 15G
 lvextend --size 15G -r /dev/mapper/vg_sys-lv_opt
+
+
+-or-
+# If '-r' was omitted in 'lvextend' cmd:
+xfs_growfs /dev/mapper/vg_sys-lv_opt

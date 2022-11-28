@@ -1,0 +1,21 @@
+--- Bandwidth monitoring ---
+
+# nethogs - Net top tool grouping bandwidth per process
+## View total cumulative sum of bandwidth consumed since starting nethogs:
+nethogs -v 3
+
+
+# iftop - display bandwidth usage on an interface by host
+iftop -Bp -i eth0
+
+-i interface
+-p     Run in promiscuous mode, so that traffic which does not pass directly through the specified interface is also counted.
+-B     Display bandwidth rates in bytes/sec rather than bits/sec.
+
+
+# sntop - top-like console network status tool
+
+
+# dstat - tool for generating system resource statistics
+dstat --net --top-io-adv
+

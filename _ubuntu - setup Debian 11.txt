@@ -1,0 +1,49 @@
+1. Drivers
+# Install tool for hardware detection
+apt install nvidia-detect -y
+
+# Perform the scan
+nvidia-detect
+
+# Install recommended driver.
+apt install nvidia-driver -y
+
+2. microcode
+Microcode is CPU firmware that controls how the processor works.
+
+Synaptic Package Manager > Search for 'microcode' > Install either intel-microcode or amd-microcode depending on your CPU
+
+3. build-essential
+Includes many dependencies commonly used by different apps.
+apt install build-essential dkms linux-headers-$(uname -r) -y
+
+4. restricted-extras
+apt install ttf-mscorefonts-installer rar unrar libavcodec-extra gstreamer1.0-libav gstreamer1.0-plugins-ugly gstreamer1.0-vaapi -y
+
+5. Microsoft Fonts Compatibility
+apt install fonts-crosextra-carlito fonts-crosextra-caladea -y
+
+6. Configure Swappiness
+Decreasing swappiness value is one of the best ways to improve the performance of your system.
+This forces your Linux system to use RAM, instead of the hard drive.
+
+## Check the current swappiness value by executing:
+cat /proc/sys/vm/swappiness
+# 60 (default)
+
+## Open /etc/sysctl.conf file as an administrator:
+sudo vim /etc/sysctl.conf
+
+## At the end of the file, add
+vm.swappiness=10
+which will reduce swap usage.
+
+7. Speed up the Boot Time
+# Open the GRUB config file and set GRUB_TIMEOUT to 0
+vim /etc/default/grub
+
+# Update GRUB
+sudo update-grub
+
+8. Firewall
+apt install ufw -y && ufw enable && ufw allow 22
