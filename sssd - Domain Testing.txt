@@ -1,3 +1,8 @@
+## Find out which AD server is being used
+grep set_server_common_status /var/log/sssd/sssd_*.log | tail -2
+
+
+
 1. Verify the configuration for name resolution
 ### Specifically the DNS SRV records:
 

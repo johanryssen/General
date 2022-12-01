@@ -55,7 +55,7 @@ echo ""
 rpm -q kernel | grep -v `uname -r`
 echo ""
 echo "To remove the old kernels, run:" ;
-echo "dnf remove --oldinstallonly"
+echo "dnf remove --oldinstallonly -y"
 echo ""
 echo > /root/.bash_history
 echo > /root/.viminfo
