@@ -1,3 +1,4 @@
+
 grep -E "myhostname|mydomain|myorigin|mydestination|inet|mynetworks" /etc/postfix/main.cf | grep -vE "^$|^#"
 
 --------- CONFIG ---------

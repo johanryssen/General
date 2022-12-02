@@ -1,0 +1,55 @@
+--- INSTALLATION ---
+
+## Install
+pip install --user glances
+
+## Install Web
+pip install --user 'glances[web]'
+
+## Install Full
+pip install --user 'glances[action,browser,cloud,cpuinfo,docker,export,folders,gpu,graph,ip,raid,snmp,web,wifi]'
+
+## Upgrade
+pip install --user --upgrade glances.
+
+
+--- alt-Install ---
+curl -L https://bit.ly/glances | /bin/bash
+-or-
+wget -O- https://bit.ly/glances | /bin/bash
+---
+
+## Ansible
+https://galaxy.ansible.com/zaxos/glances-ansible-role/
+
+
+-------------------------
+
+
+--- USAGE ---
+
+## standalone mode
+glances
+
+## Web server mode
+glances -w
+and enter the URL http://<ip>:61208 in web browser.
+
+## client/server mode
+### Server side:
+glances -s
+
+### Client side:
+glances -c <ip>
+
+## Detect and display all Glances servers available on your network or defined in the configuration file:
+glances --browser
+
+## Display raw stats on stdout:
+glances --stdout cpu.user,mem.used,load
+
+## CSV format:
+glances --stdout-csv now,cpu.user,mem.used,load
+
+## JSON format
+glances --stdout-json cpu,mem
