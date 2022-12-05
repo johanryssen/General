@@ -1,0 +1,18 @@
+# Solaar
+sudo apt install solaar -y
+https://pwr-solaar.github.io/Solaar/installation
+
+
+# LogiOps
+https://github.com/PixlOne/logiops#readme
+https://danishshakeel.me/configure-logitech-mx-master-3-on-linux-logiops/
+Config: https://gist.github.com/danish17/c5c5fb6eb99d452c339e393ed637640b
+
+
+# Piper
+sudo apt install piper -y
+https://github.com/libratbag/piper/
+
+
+# Logitech MX Master
+https://wiki.archlinux.org/title/Logitech_MX_Master

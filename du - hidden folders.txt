@@ -1,0 +1,6 @@
+du -sch .[^.]* | sort -h
+-or-
+du -sch .[!.]* * | sort -h
+-or-
+ncdu
+(apt install ncdu -y)
