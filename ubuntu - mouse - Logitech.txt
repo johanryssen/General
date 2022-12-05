@@ -16,3 +16,34 @@ https://github.com/libratbag/piper/
 
 # Logitech MX Master
 https://wiki.archlinux.org/title/Logitech_MX_Master
+
+---------------
+
+- apt install imwheel
+- bash <(curl -s http://www.nicknorton.net/mousewheel.sh)
+- Using the slider adjust the scroll speed 'multiplier'.
+
+- Add imwheel as a startup application (to make things continue working after restart):
+  - Open Apps -> Startup Applications
+  - Add a new entry to the bottom of the list:
+	Name= Wheel Scroll Speed
+	Command= imwheel
+
+---------------
+
+### To change the mouse parameters:
+- list the peripherals, note the good number with the device name of the mouse!
+xinput list
+
+- list parameters from peripheral number 9
+xinput list-props 9
+
+- set the acceleration of peripheral 9 to value 3.
+The higher the value is, the more you divide the acceleration.
+Acceleration is maximum for a value equal to 1.
+The "basis" value seems to be 1.7, for me.
+
+- xinput set-prop 9 'Device Accel Constant Deceleration' 3
+
+---------------
+
