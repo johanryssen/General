@@ -1,0 +1,8 @@
+## Reset Cinamon / Mate
+
+settings reset-recursively org.cinnamon
+-or-
+gsettings reset-recursively org.mate.panel (THIS IS FOR MATE)
+
+cinnamon --replace 
+cinnamon --reset
