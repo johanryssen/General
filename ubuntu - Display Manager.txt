@@ -1,0 +1,7 @@
+cat /etc/X11/default-display-manager
+
+sudo apt install gdm3 xdm sddm
+
+sudo dpkg-reconfigure gdm3
+
+reboot
