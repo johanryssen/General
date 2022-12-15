@@ -1,0 +1,58 @@
+1. Install GreenWithEnvy:
+sudo apt install flatpak
+flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak --user install flathub com.leinardi.gwe
+flatpak update # needed to be sure to have the latest org.freedesktop.Platform.GL.nvidia
+
+2. Start "GreenWithEnvy"
+At bottom of windows > Overclock profile > greyed out
+"Overclock control requires Coolbits 8 to be set"
+"8" in the case of GeForce GTX 980M, newer GPUs will have a higher number.
+
+3. Create config file:
+# sudo vim /etc/X11/xorg.conf.d/11-nvidia-coolbits.conf 
+
+Section "OutputClass"
+    Identifier "nvidia"
+    MatchDriver "nvidia-drm"
+    Driver "nvidia"
+    Option "Coolbits" "8"
+EndSection
+
+4. Restart X
+sudo pkill X
+
+5. Start "GreenWithEnvy"
+Overclock profile will now be available.
+
+6. Edit Fan profile > Drop down > Custom
+Click on Pencil icon next to Drop down
+Edit accordingly
+Save
+
+7. Clocks (Current/Max)
+Click Drop down > "Add new profile..."
+Adjust GPU and MEMORY
+Save
+
+-or-
+
+From CLI:
+
+sudo nvidia-xconfig -a --cool-bits=8 --allow-empty-initial-configuration
+
+
+
+---------------
+
+## View NVIDIA Settings:
+nvidia-settings
+
+## Detect NVIDIA GPUs
+nvidia-detect 
+
+## NVIDIA System Management Interface
+nvidia-smi
+-L,   --list-gpus           Display a list of GPUs connected to the system.
+
+---------------
