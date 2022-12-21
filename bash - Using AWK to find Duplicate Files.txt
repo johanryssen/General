@@ -1,0 +1,28 @@
+1. These files have the same md5sum:
+host1 host3
+serv2 servA
+host2 host4 host5 host6
+serv1 servB servC
+
+2. Check md5sum:
+# md5sum *
+869842de1fc53cad866ba99e1d39f7a0  host1
+ace5d5ad6d9321c3bfca9d0028586b35  host2
+869842de1fc53cad866ba99e1d39f7a0  host3
+ace5d5ad6d9321c3bfca9d0028586b35  host4
+ace5d5ad6d9321c3bfca9d0028586b35  host5
+ace5d5ad6d9321c3bfca9d0028586b35  host6
+3975f0d8c4e1ecb25f035edfb1ba27ac  serv1
+fcc79214f9c38aa533ee5cce18aeb9c7  serv2
+fcc79214f9c38aa533ee5cce18aeb9c7  servA
+3975f0d8c4e1ecb25f035edfb1ba27ac  servB
+3975f0d8c4e1ecb25f035edfb1ba27ac  servC
+
+3. Show duplicate files:
+# md5sum * | awk '{ count[$1]++; name[$1]=name[$1] " " $2 } END{ for (k in count) if ( count[k] > 1) print name[k] }'
+ host1 host3
+ serv2 servA
+ host2 host4 host5 host6
+ serv1 servB servC
+
+-----------------

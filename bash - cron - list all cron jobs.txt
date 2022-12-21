@@ -1,0 +1,61 @@
+#!/bin/bash
+for user in `cat /etc/passwd | cut -d":" -f1`;
+do 
+crontab -l -u $user;
+done
+
+--or--
+
+## Show which user a crontab belongs to
+#!/bin/bash
+for user in $(cut -f1 -d: /etc/passwd)
+do echo "ACCOUNT =" $user && crontab -u $user -l 2>/dev/null | grep -v "^#"
+echo " "
+done
+
+--or--
+
+## Remove errors and accounts without crontabs
+for USER in $(cut -f1 -d: /etc/passwd); do \
+USERTAB="$(sudo crontab -u "$USER" -l 2>&1)";  \
+FILTERED="$(echo "$USERTAB"| grep -vE '^#|^$|no crontab for|cannot use this program')";  \
+if ! test -z "$FILTERED"; then  \
+echo "# ------ $(tput bold)$USER$(tput sgr0) ------";  \
+echo "$FILTERED";  \
+echo "";  \
+fi;  \
+done
+
+--or--
+
+#!/bin/bash
+getent passwd | awk -F: '{ print $1 }' | xargs -I% sh -c 'crontab -l -u % | sed "/^$/d; /^#/d; s/^/% /"' 2>/dev/null
+echo
+cat /etc/crontab /etc/anacrontab 2>/dev/null | sed '/^$/d; /^#/d;'
+echo
+run-parts --list /etc/cron.hourly;
+run-parts --list /etc/cron.daily;
+run-parts --list /etc/cron.weekly;
+run-parts --list /etc/cron.monthly;
+
+
+-----
+
+## CLI ##
+for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done
+
+## Show which user a crontab belongs to
+for user in $(cut -f1 -d: /etc/passwd); do echo "ACCOUNT = "$user ; crontab -u $user -l;  echo "-----" ;  done
+
+## When users are defined in NIS or LDAP
+for user in $(getent passwd | cut -f1 -d: ); do echo $user; crontab -u $user -l; done
+# -or- #
+for user in $(getent passwd | awk -F : '{print $1}'); do echo $user; crontab -u $user -l; done
+
+## Exclude comments and suppress 'no crontab for user...' messages:
+for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l 2>/dev/null | grep -v '^#'; done
+
+## -or- ##
+getent passwd | cut -d: -f1 | perl -e'while(<>){chomp;$l = `crontab -u $_ -l 2>/dev/null`;print "$_\n$l\n" if $l}'
+
+
