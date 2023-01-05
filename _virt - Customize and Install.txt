@@ -85,7 +85,7 @@ virsh net-dumpxml default | grep range
 -or-
 
 ## Find all IPs:
-nmap -Pn -p 22 -n _NETWORK.0/24 --open -oG - | awk '/22\/open/{ print $2 }'
+nmap -Pn -p 22 -n 10.10.10.0/24 --open -oG - | awk '/22\/open/{ print $2 }'
 
 ==========================================
 

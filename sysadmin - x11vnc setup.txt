@@ -10,10 +10,12 @@ x11vnc -ncache 10
 
 ### Create password
 sudo x11vnc -storepasswd  /etc/x11vnc.pwd
+-or-
+x11vnc -storepasswd  ~/.vnc/passwd
 
 ### Create Unit file:
-# /etc/systemd/system/x11vnc.service
 
+cat <<EOF>> /etc/systemd/system/x11vnc.service
 [Unit]
 Description="x11vnc"
 Requires=display-manager.service
@@ -27,6 +29,8 @@ Restart-sec=2
 
 [Install]
 WantedBy=multi-user.target
+EOF
+
 
 ## Enable Service
 sudo systemctl daemon-reload

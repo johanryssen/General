@@ -1,0 +1,61 @@
+## Install NVIDIA Drivers on Debian 11
+
+--- Gather info ---
+
+# Show OS version:
+cat /etc/debian_version
+
+# Show Distro info:
+lsb_release -a
+
+# View boot / kernel ring buffer message
+dmesg | grep -i nvidia
+
+# Probe for GPU hardware:
+hwinfo --gfxcard --short
+
+# List GPU hardware:
+lshw -C display
+
+
+## PCI ##
+# Download new version of the PCI ID list:
+update-pciids
+
+# View GPU details:
+lspci -nn | egrep -i "3d|display|vga"
+lspci | egrep -i 'VGA|NVIDIA'
+
+# Get details info using Device ID, eg:
+lspci -v -s 01:00.*
+
+
+--- Install Drivers ---
+
+# Enable contrib package repository:
+sudo apt-add-repository contrib
+
+# Enable non-free package repository:
+sudo apt-add-repository non-free
+
+# Update:
+sudo apt update
+
+# Install NVIDIA Drivers:
+sudo apt install nvidia-driver
+
+# View NVIDIA driver kernel modules:
+lsmod | grep nvidia
+
+reboot
+
+--- Verify Drivers ---
+
+
+# View NVIDIA kernel modules:
+lsmod | grep nvidia
+
+# View installed NVIDIA packages:
+nvidia-detect
+
+--------------

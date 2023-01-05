@@ -29,6 +29,7 @@ echo "--- Temp File Cleanup ---"
 echo "Done"
 echo ""
 echo "--- Log File Cleanup ---"
+/bin/rm -rf /var/log/*-202*
 truncate --size=0 /var/log/*
 truncate --size=0 /var/log/*/*
 echo "Done"

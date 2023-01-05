@@ -1,4 +1,6 @@
-## For use in a KVM/QEMU hypervisor on a Red Hat Enterprise Linux machine, one must set a root password and disable the cloud-init service:
+## For use in a KVM/QEMU hypervisor on a RHEL machine
+## one must set a root password and disable the cloud-init service:
+
 virt-customize -a <QCOW2_IMAGE_FILE_NAME> --root-password password:<password> --uninstall cloud-init
 
 ## Example virt-install command:

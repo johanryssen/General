@@ -5,7 +5,11 @@ Incoming connections are allowed from the host, and from other guests connected 
 
 If you would like to make a service that is on a guest behind a NATed virtual network publicly available, you can setup libvirt's "hook" script for qemu to install the necessary iptables rules to forward incoming connections to the host on any given port HP to port GP on the guest GNAME:
 
-1) Determine a) the name of the guest "G" (as defined in the libvirt domain XML), b) the IP address of the guest "I", c) the port on the guest that will receive the connections "GP", and d) the port on the host that will be forwarded to the guest "HP".
+1) Determine:
+a) the name of the guest "G" (as defined in the libvirt domain XML),
+b) the IP address of the guest "I",
+c) the port on the guest that will receive the connections "GP", and
+d) the port on the host that will be forwarded to the guest "HP".
 
 (To assure that the guest's IP address remains unchanged, you can either configure the guest OS with static ip information, or add a <host> element inside the <dhcp> element of the network that is used by your guest.
 See the libvirt network XML documentation address section for defails and an example.)
