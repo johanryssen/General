@@ -1,3 +1,7 @@
+Join Ubuntu to AD domain
+
+----------
+
 ## Update
 apt -y update
 

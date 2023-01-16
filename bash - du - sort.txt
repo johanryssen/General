@@ -1,0 +1,18 @@
+# Sort and Total
+du -csBM * | sort -nr
+
+-or-
+
+du --block-size=MiB --max-depth=1 | sort -nr
+
+
+# Sort by top 15:
+du -h --max-depth=1 2> /dev/null | sort -hr | tail -n +2 | head -15
+
+
+# Retrun only the value (exclud 'MiB')
+du -csBM * | sort -nr | cut -dM -f1
+
+-or-
+
+du -h --block-size=MiB --max-depth=1 | sort -nr | cut -dM -f1

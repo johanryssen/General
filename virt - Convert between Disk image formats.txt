@@ -1,0 +1,42 @@
+# Clone VMDK to VDI
+VBoxManage clonehd box-disk1.vmdk ubuntu.vdi --format vdi
+
+# convert VDI to a raw (QCOW2) disk images.
+qemu-img convert -f vdi -O qcow2 ubuntu.vdi ubuntu.qcow2
+
+Convert VDI to raw IMG
+VBoxManage clonehd --format RAW ubuntu.vdi ubuntu.img
+
+# Convert .IMG to QCOW2
+qemu-img convert -f raw ubuntu.img -O qcow2 ubuntu.qcow2
+
+# Convert .IMG back to .VDI
+VBoxManage convertdd ubuntu.img ubuntu.vdi
+
+-----
+
+# Convert IMG to VMDK
+
+qemu-img convert -f raw -O vmdk OpenBSD7.img OpenBSD7.vmdk
+
+- qemu-img - is the built-in qemu image manipulation tool
+- convert - tells qemu-image that you want to convert one image file, such as .img, or in this case .vmdk files
+- -f vmdk - (optional - qemu can auto-detect) Tells qemu what type of file you are converting FROM.
+- -O qcow2 (Uppercase letter O) - This tells qemu what type of file you will convert to.
+- OpenBSD7.img - file you are converting FROM.
+- OpenBSD7.vmdk - output file your are converting TO.
+
+-----
+
+# Convert VMDK to QCOW2
+
+qemu-img convert -f vmdk -O qcow2 ubuntu18.vmdk ubuntu18.qcow2
+
+- qemu-img - is the built-in qemu image manipulation tool
+- convert - tells qemu-image that you want to convert one image file, such as .img, or in this case .vmdk files
+- -f vmdk - (optional - qemu can auto-detect) Tells qemu what type of file you are converting FROM.
+- -O qcow2 (Uppercase letter O) - This tells qemu what type of file you will convert TO.
+- ubuntu18.vmdk - file you are converting FROM.
+- ubuntu18.qcow2 - output file your are converting TO.
+
+-----
