@@ -1,0 +1,32 @@
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Add env var to .profile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/johanryssen/.profile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Install essentials
+brew install wget htop nmap curl bash-completion chrony google-chrome slack copyclip appcleaner
+
+brew doctor
+
+
+
+## GUI
+## Tap to Click
+# Settings > Trackpad > Point & Click Tab > check: Tap to Click box
+
+## Disable Desktop and Documents folder for iCloud Drive and turn off iCloud Photos
+# Apple logo > System Settings > Apple ID > iCloud > Deselect:
+# - Safari
+# - Stocks
+# - News
+# - Siri
+#
+# Apple logo > System Settings > Apple ID > iCloud > iCloud Drive > Options > Deselect:
+# - Desktop & Documents Folders
+
+## 3-finger drag
+# Apple logo > System Settings > Accessibility > Pointer Control > Trackpad Options:
+# Select: Use trackpad for dragging
+# Dragging style: "Three-Finger Drag"

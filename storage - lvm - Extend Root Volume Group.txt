@@ -4,14 +4,14 @@
 yum install -y cloud-utils-growpart gdisk
 echo 1 > /sys/block/sda/device/rescan
 pvscan
+
 growpart /dev/sda 3
+pvresize /dev/sda3
 -----
 -or-
 growpart /dev/nvme0n1 2
 pvresize /dev/nvme0n1p2
 -----
-
-pvresize /dev/sda3
 
 lvextend -l +100%FREE -r /dev/mapper/centos-root
 

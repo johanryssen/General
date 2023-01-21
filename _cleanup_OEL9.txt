@@ -1,0 +1,67 @@
+#!/bin/bash
+echo ""
+echo "Synchronize cached writes to persistent storage"
+/bin/sync
+echo ""
+echo "--- DNF Clean All ---"
+/bin/dnf clean all --verbose | tail -1
+echo ""
+echo "--- DNF MakeCache ---"
+/bin/dnf makecache timer
+echo ""
+echo "--- DNF Update / Upgrade / AutoRemove ---"
+dnf update -y ;
+dnf upgrade -y ;
+dnf autoremove -y ;
+echo ""
+echo "DNF Done"
+echo ""
+echo "--- Log Rotate ---"
+/sbin/logrotate -f /etc/logrotate.conf 2> /dev/null
+echo "Log Rotate Done"
+echo ""
+echo "--- Temp File Cleanup ---"
+/bin/rm -rf /tmp/* rm -rf /tmp/.* 2> /dev/null
+/bin/rm -rf /var/tmp/*
+echo "Done"
+echo ""
+echo "--- Log File Cleanup ---"
+/bin/rm -rf /var/log/*-2023*
+truncate --size=0 /var/log/*
+truncate --size=0 /var/log/*/*
+echo "Done"
+echo ""
+echo "--- Journal Disk Usage ---"
+journalctl --disk-usage
+echo ""
+echo "--- Journal Clean Up ---"
+journalctl --rotate
+journalctl -m --vacuum-time=1s
+systemctl restart systemd-journald
+echo ""
+/bin/updatedb
+/bin/mandb -q
+echo ""
+echo ""
+echo "----- Disk Space -----"
+df -hTP | awk {'print $7 " " $6'} | column -t | head -1
+echo "----------------------"
+df -hTP | awk {'print $7 " " $6'} | column -t | grep -v Mounted
+echo ""
+echo "-- Unused kernel(s) --"
+echo ""
+rpm -q kernel | grep -v `uname -r`
+echo ""
+echo "To remove the old kernels, run:" ;
+echo "dnf remove --oldinstallonly -y"
+echo ""
+echo > /root/.bash_history
+echo > /root/.viminfo
+for i in $(ls -1 /home);
+        do echo > /home/$i/.bash_history ;
+        echo > /home/$i/.vim_info ;
+done
+echo ""
+echo "--- Done ---"
+echo ""
+exit 0
