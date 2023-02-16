@@ -1,34 +1,50 @@
 Winbox > Neighbors > Select your Mikrotik system > Connect.
-# Default username is admin with no password.
+## Default username is admin with no password.
 
-# Set password
+## Set password
+
 /user set 0 password="myPass123"
+
+
 
 /system default-configuration print
 /ip route print
 
-# Add a DHCP client on ether1:
+
+## Add a DHCP client on ether1:
+
 /ip dhcp-client add interface=ether1 disabled=no
 /ip dhcp-client print detail
 
-# Set STRATIC IP on ether1:
+
+## Set STRATIC IP on ether1:
+
 /ip address add address=10.10.10.20/24 interface=ether1
 
-# Add the default route
+
+## Add the default route
+
 /ip route add dst-address=0.0.0.0/0 gateway=10.10.10.1
 
-# Set up DNS
+
+## Set up DNS
+
 /ip dns set servers=8.8.8.8,8.8.4.4
+
 
 -----
 
-# View system resources
+## View system resources
+
 /sys resource print
+
 
 ----
 
-# Change system identity
+## Change system identity
+
 /system identity print
 /system identity set name=CHR01
+
 
 -----

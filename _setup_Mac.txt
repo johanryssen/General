@@ -6,10 +6,9 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/johanryssen/.profile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Install essentials
-brew install wget htop nmap curl bash-completion chrony google-chrome slack copyclip appcleaner
+brew install wget htop nmap curl bash-completion chrony google-chrome slack copyclip appcleaner whois mtr
 
 brew doctor
-
 
 
 ## GUI

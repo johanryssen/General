@@ -1,6 +1,6 @@
 #!/bin/bash
 echo ""
-echo "----- RHEL 8 initial setup -----"
+echo "----- Oracle Linux 8 initial setup -----"
 echo ""
 echo "-- Set GRUB timeout = 2 --"
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
@@ -26,29 +26,30 @@ sed -i 's/# export SYSTEMD_PAGER=/export SYSTEMD_PAGER=/g' ~/.bashrc
 source ~/.bashrc
 echo "PS1: `env | grep PS1`"
 echo ""
-echo "Uncomment the next line to use 'subscription-manager register'"
-# /sbin/subscription-manager register
-echo ""
 echo "-- Setup .vimrc --"
 echo -e "colo desert\nset paste" > /root/.vimrc ;
 for i in $(ls -1 /home);
         do echo -e "colo desert\nset paste" > /home/$i/.vimrc ;
 done
 echo ""
-echo "-- EPEL 9 install --"
-sudo subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms
-sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
-##
+echo "-- EPEL 8 install --"
+curl https://getfedora.org/static/fedora.gpg | gpg --import ;
+/bin/rpm --import http://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 ;
+/bin/dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm ;
 echo ""
 echo "-- DNF Update --"
 /bin/dnf -y update
 echo ""
 echo "-- Install additional packages --"
 echo ""
-/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc rsync strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils screen sshpass tcp_wrappers sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq python3-pip whois
+/bin/dnf -y install dnf-plugins-core dnf-automatic bash-completion bc bind-utils binutils bzip2-devel chrony crontabs curl git glibc glibc-devel kernel-devel kernel-headers logrotate logwatch lsof make mlocate mtr nc net-tools nfs-utils nmap openssl-devel pciutils pciutils-libs postfix psmisc rsync strace sysstat tcpdump tmux traceroute unzip util-linux vim wget which yum-utils sysfsutils cloud-utils-growpart util-linux-user lvm2 tree jq python3-pip python3-virtualenv whois
 echo ""
-echo "SSSD package install"
-dnf -y install adcli oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authconfig
+echo "EPEL pkgs"
+/bin/dnf -y install tcp_wrappers screen sshpass
+echo ""
+echo "SSSD install"
+dnf -y install oddjob oddjob-mkhomedir sssd adcli krb5-workstation samba-common-tools authconfig realmd
+echo "-----"
 echo ""
 echo "-- Synchronize cached writes to persistent storage --"
 /bin/sync

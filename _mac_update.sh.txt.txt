@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+echo "--- BREW update & upgrade ---"
+brew update ; brew upgrade
+echo ""
+echo "--- PORT selfupdate & upgrade outdated ---"
+sudo port selfupdate ; sudo port upgrade outdated
+echo ""
+sudo updatedb
+exit 0;
