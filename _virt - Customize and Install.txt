@@ -34,10 +34,10 @@ sudo virt-customize -a /var/lib/libvirt/images/rhel9.qcow2 \
 --root-password password:pass \
 --ssh-inject 'root:file:/root/.ssh/id_rsa.pub' \
 --uninstall cloud-init \
---install vim,libselinux \
 --selinux-relabel
 
-## yum -y remove 'cloud-init'
+## yum -y install vim,libselinux
+## yum -y remove cloud-init
 
 **********
 virt-customize - Modifies the guest or disk image in place.

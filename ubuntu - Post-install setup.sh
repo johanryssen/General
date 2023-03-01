@@ -39,7 +39,8 @@ echo ""
 echo "----- Keepass2 -----"
 # sudo apt-add-repository ppa:jtaylor/keepass -y
 echo "xdotool needed for auto-type"
-sudo apt install xdotool -y
+echo "mono-complete needed for Plugins"
+sudo apt install xdotool mono-complete -y
 sudo apt-get update -y ; sudo apt-get install keepass2 -y
 echo ""
 echo ""
