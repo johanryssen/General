@@ -2,6 +2,7 @@
 sudo apt install solaar -y
 https://pwr-solaar.github.io/Solaar/installation
 
+## Add `~/.local/bin/` to `$PATH`
 
 # LogiOps
 https://github.com/PixlOne/logiops#readme
