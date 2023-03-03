@@ -1,7 +1,7 @@
 ## Resize qcow2 disk image.
 1. View the filesystem layout of the current VM (my10g.qcow2) to find the /dev/??? reference:
 
-[jo@rhel8 ~]$ df -h
+# df -h
 Filesystem      Size  Used Avail Use% Mounted on
 devtmpfs        871M     0  871M   0% /dev
 tmpfs           907M     0  907M   0% /dev/shm
@@ -12,13 +12,22 @@ tmpfs           907M     0  907M   0% /sys/fs/cgroup
 tmpfs           182M     0  182M   0% /run/user/0
 tmpfs           182M     0  182M   0% /run/user/1000
 
+-or-
+
+# fdisk -l | grep LVM
+/dev/vda2       2099200 77594623 75495424  36G 8e Linux LVM
+
+
+
 In this case, we want to grow '/dev/vda3', since it holds the root filesystem.
 
 2. Poweroff the VM
 
 3. Verify the filesystems of my10g.qcow2
 
-root@G7:/var/lib/libvirt/images# virt-filesystems --long -h --all -a my10g.qcow2 
+## Note: Actual dev-name may be 'vda', but below output shows 'sda'
+
+# virt-filesystems --long -h --all -a my10g.qcow2 
 Name       Type        VFS      Label  MBR  Size  Parent
 /dev/sda1  filesystem  unknown  -      -    1.0M  -
 /dev/sda2  filesystem  vfat     -      -    100M  -
@@ -32,6 +41,8 @@ Name       Type        VFS      Label  MBR  Size  Parent
 qemu-img create -f qcow2 -o preallocation=metadata my55g.qcow2 55G
 
 5. Perform the resizing from old disk image to my55g.qcow2
+## Syntax:
+##  virt-resize --expand /dev/TOBERESIZED SMALLimage.qcow2 LARGEimage.qcow
 virt-resize --expand /dev/vda3 my10g.qcow2 my55g.qcow2
 
 Note: "/dev/vda3" is the root partition inside the my10g.qcow2 file which we want to resize.
