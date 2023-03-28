@@ -5,7 +5,7 @@ Failed to start /etc/rc.local Compatibility
 ...
 
 # Link the systemd service module:
-ln -s /etc/systemd/system/rc-local.service /etc/systemd/system/rc-local.service
+ln -s /lib/systemd/system/rc-local.service /etc/systemd/system/multi-user.target.wants/rc-local.service
 
 # Update the systemd service module:
 vim /etc/systemd/system/rc-local.service
