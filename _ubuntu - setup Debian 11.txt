@@ -34,7 +34,7 @@ cat /proc/sys/vm/swappiness
 ## Open /etc/sysctl.conf file as an administrator:
 sudo vim /etc/sysctl.conf
 
-## At the end of the file, add
+## At the end of the file, add:
 vm.swappiness=10
 which will reduce swap usage.
 

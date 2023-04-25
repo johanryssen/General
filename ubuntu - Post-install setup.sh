@@ -7,11 +7,33 @@ echo ""
 echo "sudo apt update -y ; apt install firmware-misc-nonfree -y"
 echo ""
 sudo apt update -y
+## Install tool for hardware detection:
+sudo apt install nvidia-detect -y
+# Install recommended driver:
+sudo apt install nvidia-driver -y
 echo "sudo apt install nvidia-modprobe nvidia-settings nvtop r8168-dkms -y"
+echo ""
+echo "----- Restart service automatically -----"
+echo " ### aka. Fix "Daemons using outdated libraries" during 'apt update' "
+sed -i "s/#\$nrconf{restart} = 'i'/\$nrconf{restart} = 'a'/g" /etc/needrestart/needrestart.conf
 echo ""
 apt clean all
 apt update -y
 apt upgrade -y
+echo ""
+## build-essential
+## Includes many dependencies commonly used by different apps.
+sudo apt install build-essential dkms linux-headers-$(uname -r) -y
+echo ""
+echo "----- restricted-extras -----"
+apt install ttf-mscorefonts-installer rar unrar libavcodec-extra gstreamer1.0-libav gstreamer1.0-plugins-ugly gstreamer1.0-vaapi -y
+echo ""
+echo "-----  Microsoft Fonts Compatibility -----"
+apt install fonts-crosextra-carlito fonts-crosextra-caladea -y
+echo ""
+echo "----- Swappiness -----"
+sudo echo "vm.swappiness=10" >> /etc/sysctl.conf
+sudo sysctl -p
 echo ""
 echo "----- add-apt-repository -----"
 echo ""

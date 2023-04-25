@@ -3,6 +3,6 @@
 sudo rm -rf /etc/resolv.conf
 sudo mkdir -p  /run/connman
 sudo touch /run/connman/resolv.conf
-sudo echo -e "\nnameserver 8.8.8.8\nnameserver 172.16.11.1" >> /run/connman/resolv.conf
+sudo echo -e "\nnameserver 8.8.8.8\nnameserver 192.168.100.1" >> /run/connman/resolv.conf
 sudo ln -s /run/connman/resolv.conf /etc/resolv.conf
 exit 0;
