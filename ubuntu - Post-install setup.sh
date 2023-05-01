@@ -54,6 +54,16 @@ sudo ""
 sudo "Reloading Alsa"
 sudo alsa force-reload
 echo ""
+echo ""
+echo "--- Install: indicator-sound-switcher ---"
+sudo apt-add-repository ppa:yktooo/ppa
+sudo apt update -y
+sudo apt install indicator-sound-switcher -y
+echo ""
+echo "--- To remove indicator-sound-switcher ---"
+echo "sudo apt remove indicator-sound-switcher"
+echo "sudo apt-add-repository -r ppa:yktooo/ppa"
+echo ""
 echo "----- APT Transport for HTTPS -----"
 sudo apt install apt-transport-https -y
 echo ""
