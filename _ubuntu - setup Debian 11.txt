@@ -43,7 +43,7 @@ which will reduce swap usage.
 vim /etc/default/grub
 
 # Update GRUB
-sudo update-grub
+sudo update-grub2
 
 8. Firewall
 apt install ufw -y && ufw enable && ufw allow 22

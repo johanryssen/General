@@ -22,4 +22,3 @@ select 0
 ## Scrolling with mouse wheel ##
 termcapinfo xterm* ti@:te@
 EOF
-
